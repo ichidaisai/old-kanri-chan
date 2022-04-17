@@ -17,8 +17,8 @@ class MyClient(discord.Client):
 
 def main():
     # config.yml のトークン部分が正常なことを確認する
-    if os.path.exists('./config.yml'):
-        if config.getToken() is '':
+    if exists('./config.yml'):
+        if config.getToken() == '':
             print(f'Discord のトークンが指定されていません。終了します。')
         else:
             # 定義されたクライアントを読み込み、ボットを起動する

@@ -1,15 +1,17 @@
 version: '3.9'
 
 services:
-  bot:
-    image: ghcr.io/ichidaisai/discord-bot-2022:main
+  app:
     build:
       context: app
       dockerfile: Dockerfile
     volumes:
-      - type: bind
-        source: "./config.yml"
-        target: "/app/config.yml"
+      - ./:/workspace:cached
+      - pycache:/workspace/app/__pycache__
+      - $HOME/.ssh:/root/.ssh
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    depends_on:
+      - db
     
   db:
     image: mariadb:10.5
@@ -36,3 +38,6 @@ services:
        - 2525:80
     volumes:
        - ./phpmyadmin/sessions:/sessions
+       
+volumes:
+  pycache:

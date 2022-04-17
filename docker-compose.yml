@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  bot:
+  app:
     image: ghcr.io/ichidaisai/discord-bot-2022:main
     build:
       context: app

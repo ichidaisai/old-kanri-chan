@@ -1,1 +1,15 @@
+# mysql
+mysql/data
+mysql/log
+
+# app
+*.pyc
+app/config.yml
+app/logs
+app/.env
+app/data
+app/startup.json
 config.yml
+
+# misc
+.DS_Store
