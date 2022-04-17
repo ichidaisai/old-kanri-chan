@@ -1,0 +1,19 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.217.4/containers/docker-existing-docker-compose
+// If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
+{
+	"name": "ichidaisai.com",
+	"dockerComposeFile": [
+		"../docker-compose.devcontainer.yaml"
+	],
+	"service": "app",
+	"workspaceFolder": "/workspace",
+	"settings": {
+        "git.path": "/usr/bin/git",
+		"remote.autoForwardPorts": false
+    },
+	"extensions": [
+		"eamodio.gitlens"
+	],
+	"postCreateCommand": "apt update; apt -y install git default-mysql-client"
+}
