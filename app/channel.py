@@ -44,6 +44,7 @@ async def addRole(message):
     else:
         await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
 
+
 async def delRole(message):
     response = parse("!del role <@&{}>", message.content)
     if response:
@@ -54,5 +55,12 @@ async def delRole(message):
     else:
         await message.channel.send("ボットからロールを削除できませんでした。コマンドを確認してください。")
 
+
 async def showRole(message):
-    await message.channel.send("<#" + str(message.channel.id) + "> に紐付けられているロールは <@&" + database.getRole(message.channel.id) + "> です。")
+    await message.channel.send(
+        "<#"
+        + str(message.channel.id)
+        + "> に紐付けられているロールは <@&"
+        + database.getRole(message.channel.id)
+        + "> です。"
+    )
