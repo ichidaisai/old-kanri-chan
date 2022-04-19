@@ -30,7 +30,7 @@ class MyClient(discord.Client):
             database.setPostTc(response[0], message.channel.id)
             await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " の提出用チャンネルを設定しました。")
         else:
-            print(f'[INFO] [Message log] {message.author}: {message.content}')
+            pass
         
 
 def main():
