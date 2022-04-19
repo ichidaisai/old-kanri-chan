@@ -8,7 +8,7 @@ import channel
 
 async def doResp(message):
     if message.content.startswith("!add role"):
-        await addRole(message)
+        await channel.addRole(message)
     elif message.content.startswith("!set chat"):
         await channel.setChat(message)
     elif message.content.startswith("!set post"):
