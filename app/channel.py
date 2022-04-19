@@ -37,9 +37,19 @@ async def setPost(message):
 async def addRole(message):
     response = parse("!add role <@&{}>", message.content)
     if response:
-        database.addGroup(response[0], message.guild)
+        database.addRole(response[0], message.guild)
         await message.channel.send(
             "ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。"
         )
     else:
         await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
+
+async def delRole(message):
+    response = parse("!del role <@&{}>", message.content)
+    if response:
+        database.addRole(response[0], message.guild)
+        await message.channel.send(
+            "ロール " + message.guild.get_role(int(response[0])).name + " をボットから削除しました。"
+        )
+    else:
+        await message.channel.send("ボットをロールを削除できませんでした。コマンドを確認してください。")

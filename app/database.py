@@ -39,8 +39,8 @@ class Role(Base):
 
 Base.metadata.create_all(bind=ENGINE)
 
-# addGroup: ロールをボットに認識させる（データベースに登録する）
-def addGroup(id, guild):
+# addRole: ロールをボットに認識させる（データベースに登録する）
+def addRole(id, guild):
     role = Role()
     role.id = id
     role.name = guild.get_role(int(id)).name
