@@ -4,7 +4,6 @@
 import discord
 import sys
 from parse import *
-from os.path import exists
 
 # 内部関数
 import config
@@ -45,15 +44,12 @@ class MyClient(discord.Client):
 
 def main():
     # config.yml のトークン部分が正常なことを確認する
-    if exists('./config.yml'):
-        if config.getToken() == '':
-            print(f'Discord のトークンが指定されていません。終了します。')
-        else:
-            # 定義されたクライアントを読み込み、ボットを起動する
-            client = MyClient()
-            client.run(config.getToken())
+    if config.checkConfig():
+        # 定義されたクライアントを読み込み、ボットを起動する
+        client = MyClient()
+        client.run(config.getToken())
     else:
-        print(f'[ERROR] 設定ファイル config.yml が存在しません。終了します。')
+        print(f'config.yml の内容が正しくありません。終了します。')
         sys.exit(1)
 
 if __name__ == '__main__':
