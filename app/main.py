@@ -18,6 +18,7 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         await response.doResp(message)
 
+
 def main():
     # config.yml のトークン部分が正常なことを確認する
     if config.checkConfig():
