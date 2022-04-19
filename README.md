@@ -8,7 +8,7 @@
 
 ## 開発環境
 ### Dev Container を使わない場合
-* 以下の作業はすべて `/app` で行います。
+* 以下の作業はすべて `/workspace/app` で行います。
 1. `./utils/up.sh` を実行して、開発用コンテナを立ち上げます。
 2. `./utils/attach.sh` を実行して、開発用アンテナのシェルに入ります。
 3. `pip install -r requirements.txt` を実行して、前提となるライブラリをインストールします。
