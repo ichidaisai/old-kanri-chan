@@ -52,4 +52,7 @@ async def delRole(message):
             "ロール " + message.guild.get_role(int(response[0])).name + " をボットから削除しました。"
         )
     else:
-        await message.channel.send("ボットをロールを削除できませんでした。コマンドを確認してください。")
+        await message.channel.send("ボットからロールを削除できませんでした。コマンドを確認してください。")
+
+async def showRole(message):
+    await message.channel.send("<#" + str(message.channel.id) + "> に紐付けられているロールは <@&" + database.getRole(message.channel.id) + "> です。")

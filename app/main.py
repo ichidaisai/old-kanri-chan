@@ -16,6 +16,7 @@ class MyClient(discord.Client):
 
     # ユーザーのコマンド、メッセージ等を処理
     async def on_message(self, message):
+        print("[INFO] [Received] " + message.author.name + ": " + message.content)
         await response.doResp(message)
 
 
