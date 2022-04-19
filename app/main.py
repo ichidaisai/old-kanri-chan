@@ -20,15 +20,25 @@ class MyClient(discord.Client):
         
         if (message.content.startswith('!add role')):
             response = parse("!add role <@&{}>", message.content)
-            database.addGroup(response[0], message.guild)
+            if response:
+                database.addGroup(response[0], message.guild)
+                await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。")
+            else:
+                await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
         elif (message.content.startswith('!set chat')):
             response = parse("!set chat <@&{}>", message.content)
-            database.setChatTc(response[0], message.channel.id)
-            await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " のチャット用チャンネルを設定しました。")
+            if response:
+                database.setChatTc(response[0], message.channel.id)
+                await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " のチャット用チャンネルを設定しました。")
+            else:
+                await message.channel.send("コマンドが不正です。")
         elif (message.content.startswith('!set post')):
             response = parse("!set post <@&{}>", message.content)
-            database.setPostTc(response[0], message.channel.id)
-            await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " の提出用チャンネルを設定しました。")
+            if response:
+                database.setPostTc(response[0], message.channel.id)
+                await message.channel.send("ロール " + message.guild.get_role(int(response[0])).name + " の提出用チャンネルを設定しました。")
+            else:
+                await message.channel.send("コマンドが不正です。")
         else:
             pass
         
