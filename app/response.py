@@ -6,6 +6,7 @@ import discord
 # 内部関数
 import channel
 
+
 async def doResp(message):
     if message.content.startswith("!add role"):
         await channel.addRole(message)

@@ -7,6 +7,7 @@ from parse import *
 # 内部関数
 import database
 
+
 async def setChat(message):
     response = parse("!set chat <@&{}>", message.content)
     if response:
@@ -18,6 +19,7 @@ async def setChat(message):
         )
     else:
         await message.channel.send("コマンドが不正です。")
+
 
 async def setPost(message):
     response = parse("!set post <@&{}>", message.content)
@@ -31,14 +33,13 @@ async def setPost(message):
     else:
         await message.channel.send("コマンドが不正です。")
 
+
 async def addRole(message):
     response = parse("!add role <@&{}>", message.content)
     if response:
         database.addGroup(response[0], message.guild)
         await message.channel.send(
-            "ロール "
-            + message.guild.get_role(int(response[0])).name
-            + " をボットに登録しました。"
+            "ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。"
         )
     else:
         await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
