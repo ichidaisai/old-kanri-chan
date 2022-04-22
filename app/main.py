@@ -18,13 +18,12 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         print("[INFO] [Received] " + message.author.name + ": " + message.content)
         await response.doResp(message)
-
+client = MyClient()
 
 def main():
     # config.yml のトークン部分が正常なことを確認する
     if config.checkConfig():
         # 定義されたクライアントを読み込み、ボットを起動する
-        client = MyClient()
         client.run(config.getToken())
     else:
         print(f"config.yml の内容が正しくありません。終了します。")

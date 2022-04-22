@@ -124,17 +124,14 @@ def addItem(name, limit, target, format):
 # delItem: ボットから提出物を削除する（データベースから削除する）
 ## id: 提出物の ID
 def delItem(id):
-    print("id: " + id)
     query = session.query(Item).filter(Item.id == id)
     result = session.query(query.exists()).scalar()
 
     if result is True:
-        print("should be true")
         session.query(Item).filter(Item.id == id).delete()
         session.commit()
         return True
     else:
-        print("should be false")
         return False
 
 
@@ -160,8 +157,13 @@ def getRole(channel_id):
 
 # getItemName: 提出物の ID から、提出物の名前を返す
 def getItemName(id):
-    item = session.query(Item).filter(Item.id == id).first()
-    return str(item.name)
+    query = session.query(Item).filter(Item.id == id).first()
+    result = session.query(query.exists()).scalar()
+
+    if result is True:
+        return str(item.name)
+    else:
+        return False
 
 
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
