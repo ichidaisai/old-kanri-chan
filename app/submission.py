@@ -76,23 +76,38 @@ async def addItem(message):
 async def delItem(message):
     response = parse("!del item {}", message.content)
     if response:
-        database.setChatTc(response[0], message.channel.id)
+        database.delItem(response[0], message.channel.id)
         await message.channel.send("提出物 " + response[0] + " を削除しました。")
     else:
         await message.channel.send("コマンドが不正です。")
 
 
-async def showRole(message):
-    response = parse("!show role", message.content)
-    if response:
-        await message.channel.send(str(database.showItem(channel.showRole(message))))
-    else:
-        await message.channel.send("コマンドが不正です。")
-
-
 async def showItem(message):
-    response = parse("!show item", message.content)
-    if response:
-        await message.channel.send(str(database.showItem(channel.showRole(message))))
+    result = database.getRole(message.channel.id)
+    if result is None:
+        await message.channel.send("⚠ このチャンネルはボットに認識されていません。")
     else:
-        await message.channel.send("コマンドが不正です。")
+        items = ""
+        for item in database.showItem(database.getRole(message.channel.id)):
+            items += "\n"
+            items += "ID: " + str(item.id) + "\n"
+            items += "項目名: " + item.name + "\n"
+            items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
+            if item.verified == True:
+                items += "委員会からの確認: **済**\n"
+            else:
+                items += "委員会からの確認: **未**\n"
+            if item.format == "file":
+                items += "提出形式: ファイル\n"
+            elif item.format == "plain":
+                items += "提出形式: プレーンテキスト\n"
+            else:
+                items += "提出形式: 不明。委員会までお問い合わせください。\n"
+        await message.channel.send(
+            "**"
+            + utils.roleIdToName(
+                int(database.getRole(message.channel.id)), message.guild
+            )
+            + "** に提出が指示された提出物は以下の通りです: \n"
+            + items
+        )

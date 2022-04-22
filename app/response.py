@@ -11,17 +11,19 @@ import submission
 async def doResp(message):
     if message.content.startswith("!add role"):
         await channel.addRole(message)
-    if message.content.startswith("!del role"):
+    elif message.content.startswith("!del role"):
         await channel.delRole(message)
+    elif message.content.startswith("!show role"):
+        await channel.showRole(message)
     elif message.content.startswith("!set chat"):
         await channel.setChat(message)
     elif message.content.startswith("!set post"):
         await channel.setPost(message)
     elif message.content.startswith("!add item"):
         await submission.addItem(message)
-    elif message.content.startswith("!show role"):
-        await channel.showRole(message)
+    elif message.content.startswith("!del item"):
+        await submission.delItem(message)
     elif message.content.startswith("!show item"):
-        await channel.showItem(message)
+        await submission.showItem(message)
     else:
         pass
