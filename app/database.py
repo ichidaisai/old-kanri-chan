@@ -124,8 +124,18 @@ def addItem(name, limit, target, format):
 # delItem: ボットから提出物を削除する（データベースから削除する）
 ## id: 提出物の ID
 def delItem(id):
-    session.query(Item).filter(Item.id == id).delete()
-    session.commit()
+    print("id: " + id)
+    query = session.query(Item).filter(Item.id == id)
+    result = session.query(query.exists()).scalar()
+    
+    if result is True:
+        print("should be true")
+        session.query(Item).filter(Item.id == id).delete()
+        session.commit()
+        return True
+    else:
+        print("should be false")
+        return False
 
 
 # showItem: ボットに登録されている提出物のうち、特定のロールが提出するべきものを返す。
@@ -137,7 +147,6 @@ def showItem(role_id):
 
 # getRole: チャンネルに紐付けられているロールの Discord 上での ID を返す。
 def getRole(channel_id):
-    print(channel_id)
     role = (
         session.query(Role)
         .filter(or_(Role.chat_tc == int(channel_id), Role.post_tc == int(channel_id)))

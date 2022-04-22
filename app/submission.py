@@ -76,10 +76,13 @@ async def addItem(message):
 async def delItem(message):
     response = parse("!del item {}", message.content)
     if response:
-        database.delItem(response[0], message.channel.id)
-        await message.channel.send("提出物 " + response[0] + " を削除しました。")
+        result = database.delItem(response[0])
+        if result is False:
+            await message.channel.send("⚠ 提出物が見つかりません。ID をご確認ください。")
+        else:
+            await message.channel.send("✅ 提出物 " + response[0] + " を削除しました。")
     else:
-        await message.channel.send("コマンドが不正です。")
+        await message.channel.send("❌ コマンドが不正です。")
 
 
 async def showItem(message):
@@ -103,6 +106,8 @@ async def showItem(message):
                 items += "提出形式: プレーンテキスト\n"
             else:
                 items += "提出形式: 不明。委員会までお問い合わせください。\n"
+        if items == "":
+            items += "今のところ、提出を指示されている項目はありません。"
         await message.channel.send(
             "**"
             + utils.roleIdToName(
