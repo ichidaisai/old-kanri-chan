@@ -100,8 +100,6 @@ async def showRole(message):
     )
 
 
-
-
 async def showRole(message):
     response = parse("!show role", message.content)
     if response:
