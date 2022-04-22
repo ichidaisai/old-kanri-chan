@@ -127,7 +127,7 @@ def delItem(id):
     print("id: " + id)
     query = session.query(Item).filter(Item.id == id)
     result = session.query(query.exists()).scalar()
-    
+
     if result is True:
         print("should be true")
         session.query(Item).filter(Item.id == id).delete()
