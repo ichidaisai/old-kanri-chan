@@ -25,5 +25,7 @@ async def doResp(message):
         await submission.delItem(message)
     elif message.content.startswith("!show item"):
         await submission.showItem(message)
+    elif message.attachments:
+        await submission.submitItem(message)
     else:
         pass

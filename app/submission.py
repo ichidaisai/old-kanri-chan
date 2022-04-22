@@ -2,12 +2,13 @@
 import discord
 from parse import *
 import datetime
+import asyncio
 
 # 内部関数
 import database
 import channel
 import utils
-
+from main import client
 
 async def addItem(message):
     response = parse("!add item {} {} {} {}", message.content)
@@ -84,35 +85,70 @@ async def delItem(message):
     else:
         await message.channel.send("❌ コマンドが不正です。")
 
-
+## TODO: 提出したとき、そのアイテムがロールに属しているかを確認する
 async def showItem(message):
     result = database.getRole(message.channel.id)
+    
     if result is None:
         await message.channel.send("⚠ このチャンネルはボットに認識されていません。")
     else:
-        items = ""
-        for item in database.showItem(database.getRole(message.channel.id)):
-            items += "\n"
-            items += "ID: " + str(item.id) + "\n"
-            items += "項目名: " + item.name + "\n"
-            items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
-            if item.verified == True:
-                items += "委員会からの確認: **済**\n"
-            else:
-                items += "委員会からの確認: **未**\n"
-            if item.format == "file":
-                items += "提出形式: ファイル\n"
-            elif item.format == "plain":
-                items += "提出形式: プレーンテキスト\n"
-            else:
-                items += "提出形式: 不明。委員会までお問い合わせください。\n"
-        if items == "":
-            items += "今のところ、提出を指示されている項目はありません。"
         await message.channel.send(
             "**"
             + utils.roleIdToName(
                 int(database.getRole(message.channel.id)), message.guild
             )
             + "** に提出が指示された提出物は以下の通りです: \n"
-            + items
+            + returnItem(message)
         )
+
+@client.event
+async def submitItem(message):
+    if returnItem(message) == "今のところ、提出を指示されている項目はありません。":
+        await message.channel.send(
+        "ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n"
+        + "委員会が提出物を登録するまで、しばらくお待ちください。"
+        )
+    else:
+        channel = message.channel
+        
+        await channel.send(
+            "ファイルを検出しました。\n"
+            + "どの提出物を提出しようとしていますか？\n"
+            + returnItem(message)
+            + "\n提出したい項目の ID を、このチャンネルで発言してください。"
+            )
+        
+        def check(m):
+            return m.channel == channel
+        
+        try:
+            msg = await client.wait_for('message', check=check, timeout=30)
+            
+        except asyncio.TimeoutError:
+            await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
+        else:
+            if database.getItemName(msg.content) is False:
+                await channel.send("⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。")
+            else:
+                await channel.send("✅ 提出物 **" + database.getItemName(msg.content) + "** を提出しました。")
+
+def returnItem(message):
+    items = ""
+    for item in database.showItem(database.getRole(message.channel.id)):
+        items += "\n"
+        items += "ID: " + str(item.id) + "\n"
+        items += "項目名: " + item.name + "\n"
+        items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
+        if item.verified == True:
+            items += "委員会からの確認: **済**\n"
+        else:
+            items += "委員会からの確認: **未**\n"
+        if item.format == "file":
+            items += "提出形式: ファイル\n"
+        elif item.format == "plain":
+            items += "提出形式: プレーンテキスト\n"
+        else:
+            items += "提出形式: 不明。委員会までお問い合わせください。\n"
+    if items == "":
+        items += "今のところ、提出を指示されている項目はありません。"
+    return items
