@@ -103,9 +103,7 @@ async def showRole(message):
 async def showItem(message):
     result = database.getRole(message.channel.id)
     if result is None:
-        await message.channel.send(
-                "⚠ このチャンネルはボットに認識されていません。"
-            )
+        await message.channel.send("⚠ このチャンネルはボットに認識されていません。")
     else:
         items = ""
         for item in database.showItem(database.getRole(message.channel.id)):
@@ -125,7 +123,9 @@ async def showItem(message):
                 items += "提出形式: 不明。委員会までお問い合わせください。\n"
         await message.channel.send(
             "**"
-            + utils.roleIdToName(int(database.getRole(message.channel.id)), message.guild)
+            + utils.roleIdToName(
+                int(database.getRole(message.channel.id)), message.guild
+            )
             + "** に提出が指示された提出物は以下の通りです: \n"
             + items
         )

@@ -138,7 +138,11 @@ def showItem(role_id):
 # getRole: チャンネルに紐付けられているロールの Discord 上での ID を返す。
 def getRole(channel_id):
     print(channel_id)
-    role = session.query(Role).filter(or_(Role.chat_tc == int(channel_id), Role.post_tc == int(channel_id))).first()
+    role = (
+        session.query(Role)
+        .filter(or_(Role.chat_tc == int(channel_id), Role.post_tc == int(channel_id)))
+        .first()
+    )
     if role is None:
         return None
     else:
