@@ -19,3 +19,7 @@ def mentionToRoleId(mention):
         return int(res[0])
     else:
         return None
+
+# roleIdToName: Discord のロール ID からロール名に変換する
+def roleIdToName(role_id, guild):
+    return guild.get_role(int(role_id)).name

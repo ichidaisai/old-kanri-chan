@@ -74,21 +74,35 @@ def addRole(id, guild):
     session.add(role)
     session.commit()
 
+# addRole: ロールをボットから削除する（データベースから削除する）
+def delRole(id, guild):
+    session.query(Role).filter(Role.id == id).delete()
+    session.commit()
 
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setChatTc(id, tc):
-    role = session.query(Role).filter(Role.id == id).first()
-
-    role.chat_tc = tc
-    session.commit()
+    exists = session.query(Role).filter(Role.id == id).first()
+    if exists is None:
+        return False
+    else:
+        role = session.query(Role).filter(Role.id == id).first()
+    
+        role.chat_tc = tc
+        session.commit()
+        return True
 
 
 # setPostTc: ファイル提出用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setPostTc(id, tc):
-    role = session.query(Role).filter(Role.id == id).first()
-
-    role.post_tc = tc
-    session.commit()
+    exists = session.query(Role).filter(Role.id == id).first()
+    if exists is None:
+        return False
+    else:
+        role = session.query(Role).filter(Role.id == id).first()
+    
+        role.post_tc = tc
+        session.commit()
+        return True
 
 
 # addItem: ボットに提出物を登録する（データベースに登録する）
@@ -104,7 +118,6 @@ def addItem(name, limit, target, format):
 
     return item.id
 
-
 # delItem: ボットから提出物を削除する（データベースから削除する）
 ## id: 提出物の ID
 def delItem(id):
@@ -115,7 +128,7 @@ def delItem(id):
 # showItem: ボットに登録されている提出物のうち、特定のロールが提出するべきものを返す。
 ## role_id: Discord のロール ID
 def showItem(role_id):
-    items = session.query(Item).filter(Item.target == role_id).fetchall()
+    items = session.query(Item).filter(Item.target == role_id).all()
     return items
 
 

@@ -6,17 +6,24 @@ from parse import *
 
 # 内部関数
 import database
-
+import utils
 
 async def setChat(message):
     response = parse("!set chat <@&{}>", message.content)
     if response:
-        database.setChatTc(response[0], message.channel.id)
-        await message.channel.send(
-            "ロール "
-            + message.guild.get_role(int(response[0])).name
-            + " のチャット用チャンネルを設定しました。"
-        )
+        result = database.setChatTc(response[0], message.channel.id)
+        if result:
+            await message.channel.send(
+                "✅ ロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** のチャット用チャンネルを設定しました。"
+            )
+        else:
+            await message.channel.send(
+                "⚠ ロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
+            )
     else:
         await message.channel.send("コマンドが不正です。")
 
@@ -24,12 +31,19 @@ async def setChat(message):
 async def setPost(message):
     response = parse("!set post <@&{}>", message.content)
     if response:
-        database.setPostTc(response[0], message.channel.id)
-        await message.channel.send(
-            "ロール "
-            + message.guild.get_role(int(response[0])).name
-            + " の提出用チャンネルを設定しました。"
-        )
+        result = database.setPostTc(response[0], message.channel.id)
+        if result:
+            await message.channel.send(
+                "✅ ロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** の提出用チャンネルを設定しました。"
+            )
+        else:
+            await message.channel.send(
+                "⚠ ロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
+            )
     else:
         await message.channel.send("コマンドが不正です。")
 
@@ -37,10 +51,16 @@ async def setPost(message):
 async def addRole(message):
     response = parse("!add role <@&{}>", message.content)
     if response:
-        database.addRole(response[0], message.guild)
-        await message.channel.send(
-            "ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。"
-        )
+        result = database.addRole(response[0], message.guild)
+        if result:
+            await message.channel.send(
+                "⚠ 指定されたロール **" + message.guild.get_role(int(response[0])).name + "** は既にボットに登録されています。"
+            )
+        else:
+            
+            await message.channel.send(
+                "✅ ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。"
+            )
     else:
         await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
 
@@ -48,10 +68,15 @@ async def addRole(message):
 async def delRole(message):
     response = parse("!del role <@&{}>", message.content)
     if response:
-        database.addRole(response[0], message.guild)
-        await message.channel.send(
-            "ロール " + message.guild.get_role(int(response[0])).name + " をボットから削除しました。"
-        )
+        result = database.delRole(response[0], message.guild)
+        if result:
+            await message.channel.send(
+                "✅ ロール **" + message.guild.get_role(int(response[0])).name + "** をボットから削除しました。"
+            )
+        else:
+            await message.channel.send(
+                "⚠ 指定されたロール **" + message.guild.get_role(int(response[0])).name + "** はボットに登録されていません。"
+            )
     else:
         await message.channel.send("ボットからロールを削除できませんでした。コマンドを確認してください。")
 
@@ -60,7 +85,15 @@ async def showRole(message):
     await message.channel.send(
         "<#"
         + str(message.channel.id)
-        + "> に紐付けられているロールは <@&"
-        + database.getRole(message.channel.id)
-        + "> です。"
+        + "> に紐付けられているロールは **"
+        + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
+        + "** です。"
+    )
+
+async def showItem(message):
+    await message.channel.send(
+        "**"
+        + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
+        + "** に提出が指示された提出物は以下の通りです: \n"
+        + str(database.showItem(database.getRole(message.channel.id)))
     )
