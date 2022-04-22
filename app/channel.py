@@ -8,6 +8,7 @@ from parse import *
 import database
 import utils
 
+
 async def setChat(message):
     response = parse("!set chat <@&{}>", message.content)
     if response:
@@ -54,12 +55,16 @@ async def addRole(message):
         result = database.addRole(response[0], message.guild)
         if result:
             await message.channel.send(
-                "⚠ 指定されたロール **" + message.guild.get_role(int(response[0])).name + "** は既にボットに登録されています。"
+                "⚠ 指定されたロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** は既にボットに登録されています。"
             )
         else:
-            
+
             await message.channel.send(
-                "✅ ロール " + message.guild.get_role(int(response[0])).name + " をボットに登録しました。"
+                "✅ ロール "
+                + message.guild.get_role(int(response[0])).name
+                + " をボットに登録しました。"
             )
     else:
         await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
@@ -71,11 +76,15 @@ async def delRole(message):
         result = database.delRole(response[0], message.guild)
         if result:
             await message.channel.send(
-                "✅ ロール **" + message.guild.get_role(int(response[0])).name + "** をボットから削除しました。"
+                "✅ ロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** をボットから削除しました。"
             )
         else:
             await message.channel.send(
-                "⚠ 指定されたロール **" + message.guild.get_role(int(response[0])).name + "** はボットに登録されていません。"
+                "⚠ 指定されたロール **"
+                + message.guild.get_role(int(response[0])).name
+                + "** はボットに登録されていません。"
             )
     else:
         await message.channel.send("ボットからロールを削除できませんでした。コマンドを確認してください。")
@@ -89,6 +98,7 @@ async def showRole(message):
         + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
         + "** です。"
     )
+
 
 async def showItem(message):
     await message.channel.send(

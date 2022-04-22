@@ -74,10 +74,12 @@ def addRole(id, guild):
     session.add(role)
     session.commit()
 
+
 # addRole: ロールをボットから削除する（データベースから削除する）
 def delRole(id, guild):
     session.query(Role).filter(Role.id == id).delete()
     session.commit()
+
 
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setChatTc(id, tc):
@@ -86,7 +88,7 @@ def setChatTc(id, tc):
         return False
     else:
         role = session.query(Role).filter(Role.id == id).first()
-    
+
         role.chat_tc = tc
         session.commit()
         return True
@@ -99,7 +101,7 @@ def setPostTc(id, tc):
         return False
     else:
         role = session.query(Role).filter(Role.id == id).first()
-    
+
         role.post_tc = tc
         session.commit()
         return True
@@ -117,6 +119,7 @@ def addItem(name, limit, target, format):
     session.commit()
 
     return item.id
+
 
 # delItem: ボットから提出物を削除する（データベースから削除する）
 ## id: 提出物の ID
