@@ -59,9 +59,24 @@ class Item(Base):
     name = Column("name", VARCHAR(300))
     limit = Column("limit", DateTime)
     target = Column("target", BIGINT(unsigned=True))
-    verified = Column("verified", Boolean)
+    
     format = Column("format", VARCHAR(300), default="file")
 
+class Submission(Base):
+    __tablename__ = "submission"
+    __table_args__ = {"mysql_charset": "utf8mb4"}
+    id = Column(
+        "id",
+        BIGINT(unsigned=True),
+        primary_key=True,
+        unique=True,
+        nullable=False,
+        autoincrement=True,
+    )
+    filename = Column("filename", VARCHAR(300))
+    target = Column("target", BIGINT(unsigned=True))
+    verified = Column("verified", Boolean)
+    format = Column("format", VARCHAR(300), default="file")
 
 Base.metadata.create_all(bind=ENGINE)
 
@@ -113,7 +128,6 @@ def addItem(name, limit, target, format):
     item.name = name
     item.limit = limit
     item.target = target
-    item.verified = False
 
     session.add(item)
     session.commit()

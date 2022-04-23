@@ -171,10 +171,6 @@ def returnItem(message):
         items += "提出物 ID: " + str(item.id) + "\n"
         items += "項目名: " + item.name + "\n"
         items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
-        if item.verified == True:
-            items += "委員会からの確認: **済**\n"
-        else:
-            items += "委員会からの確認: **未**\n"
         if item.format == "file":
             items += "提出形式: ファイル\n"
         elif item.format == "plain":
