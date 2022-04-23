@@ -3,3 +3,4 @@ pyyaml
 sqlalchemy
 parse
 mysqlclient
+python-dateutil
