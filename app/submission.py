@@ -10,7 +10,10 @@ import database
 import channel
 import utils
 
+# 提出物の登録 (対話方式)
+# async def addItemInteract(message):
 
+# 提出物の登録
 async def addItem(message):
     response = parse("!add item {} {} {} {}", message.content)
     # コマンドの内容を精査する。
@@ -77,6 +80,7 @@ async def addItem(message):
         )
 
 
+# 登録された提出物の削除
 async def delItem(message):
     response = parse("!del item {}", message.content)
     if response:
@@ -90,6 +94,7 @@ async def delItem(message):
         await message.channel.send("❌ コマンドが不正です。")
 
 
+# 登録された提出物を表示, 特定のロールに紐付いた提出物のみ表示する
 async def showItem(message):
     result = database.getRole(message.channel.id)
 
@@ -106,6 +111,7 @@ async def showItem(message):
         )
 
 
+# 提出物を提出する
 async def submitItem(client, message):
     if returnItem(message) == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
@@ -194,6 +200,7 @@ async def submitItem(client, message):
                     await channel.send("⚠ 処理中になんらかの問題が発生しました。")
 
 
+# 提出物の一覧を整形して str として返す
 def returnItem(message):
     items = ""
     for item in database.showItem(database.getRole(message.channel.id)):
