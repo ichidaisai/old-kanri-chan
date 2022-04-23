@@ -73,11 +73,14 @@ class Submission(Base):
         nullable=False,
         autoincrement=True,
     )
+    item_id = Column("item_id", BIGINT(unsigned=True))
+    datetime = Column("datetime", DateTime)
+    
     # filename: format が file のとき参照。実体ファイルへのパスを格納する。
     # plain: format が plain のとき参照。プレーンテキストの中身を格納する。
-
     filename = Column("filename", VARCHAR(300), nullable=True)
     plain = Column("plain", VARCHAR(300), nullable=True)
+    
     target = Column("target", BIGINT(unsigned=True))
     verified = Column("verified", Boolean, default=False)
     format = Column("format", VARCHAR(300), default="file")
@@ -163,9 +166,11 @@ def showItem(role_id):
 
 
 # addSubmit: ボットに提出されたファイルまたはプレーンテキストを登録する（データベースに登録する）
-def addSubmit(filename, plain, target, format):
+def addSubmit(item_id, datetime, filename, plain, target, format):
     submission = Submission()
 
+    submission.item_id = item_id
+    submission.datetime = datetime
     submission.format = format
     submission.target = target
 

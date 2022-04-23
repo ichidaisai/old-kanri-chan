@@ -122,7 +122,7 @@ async def submitItem(client, message):
         )
 
         def check(m):
-            return m.channel == channel
+            return m.channel == channel and m.author == message.author
 
         try:
             msg = await client.wait_for("message", check=check, timeout=30)
@@ -167,10 +167,12 @@ async def submitItem(client, message):
                         await attachment.save(filename)
                         item_count += 1
                         database.addSubmit(
-                            filename,
-                            "NULL",
-                            database.getItemTarget(msg.content),
-                            "file",
+                            msg.content, # item_id
+                            dt_now, # datetime
+                            filename, # filename
+                            None, # plain, file なので NULL
+                            database.getItemTarget(msg.content), # target
+                            "file", # format
                         )
 
                     await channel.send(
