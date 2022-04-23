@@ -98,11 +98,3 @@ async def showRole(message):
         + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
         + "** です。"
     )
-
-
-async def showRole(message):
-    response = parse("!show role", message.content)
-    if response:
-        await message.channel.send(str(database.showItem(channel.showRole(message))))
-    else:
-        await message.channel.send("コマンドが不正です。")

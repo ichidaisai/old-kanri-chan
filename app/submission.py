@@ -47,7 +47,7 @@ async def addItem(message):
                         + "\n期限: "
                         + utils.dtToStr(database.getItemLimit(result))
                         + "\n対象: "
-                        + utils.roleIdToMention(database.getItemTarget(result))
+                        + utils.roleIdToName(database.getItemTarget(result), message.guild)
                         + "\n種類: "
                         + format_fd
                         + "\n"
@@ -78,16 +78,16 @@ async def addItem(message):
 async def delItem(message):
     response = parse("!del item {}", message.content)
     if response:
+        item_name = database.getItemName(response[0])
         result = database.delItem(response[0])
         if result is False:
             await message.channel.send("⚠ 提出物が見つかりません。ID をご確認ください。")
         else:
-            await message.channel.send("✅ 提出物 " + response[0] + " を削除しました。")
+            await message.channel.send("✅ 提出物 " + item_name + " を削除しました。")
     else:
         await message.channel.send("❌ コマンドが不正です。")
 
 
-## TODO: 提出したとき、そのアイテムがロールに属しているかを確認する
 async def showItem(message):
     result = database.getRole(message.channel.id)
 
@@ -128,40 +128,55 @@ async def submitItem(client, message):
         except asyncio.TimeoutError:
             await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
         else:
-            if database.getItemName(msg.content) is False or database.getItemTarget(
-                msg.content
-            ) != database.getRole(message.channel.id):
+            if database.getItemName(msg.content) is False:
                 await channel.send("⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。")
+            elif database.getItemTarget(msg.content) != database.getRole(message.channel.id):
+                print("getItemTarget: " + str(database.getItemTarget(msg.content)))
+                print("\n")
+                print("database.getRole(message.channel.id): " + database.getRole(message.channel.id))
+                await channel.send("⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。")
             else:
-                item_count = 0
-                for attachment in message.attachments:
-                    # ファイル名を決定
-                    JST = tz.gettz("Asia/Tokyo")
-                    dt_now = datetime.datetime.now(JST)
-                    filename = dt_now.strftime(
-                        # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
-                        # ファイルは `posts/` 以下に保存される。
-                        "posts/"
-                        + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
-                        + utils.roleIdToName(
-                            database.getRole(message.channel.id), message.guild
-                        )  # ロール名
-                        + "_"
-                        + database.getItemName(msg.content)
-                        + "_"
-                        + attachment.filename
-                    )
-                    await attachment.save(filename)
-                    item_count += 1
-
-                await channel.send(
-                    "✅ 提出物 "
-                    + "**"
-                    + database.getItemName(msg.content)
-                    + "** を提出しました。("
-                    + str(item_count)
-                    + "件のファイル)"
-                )
+                if database.getItemFormat(msg.content) == "file":
+                    item_count = 0
+                    for attachment in message.attachments:
+                        # ファイル名を決定
+                        JST = tz.gettz("Asia/Tokyo")
+                        dt_now = datetime.datetime.now(JST)
+                        filename = dt_now.strftime(
+                            # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
+                            # ファイルは `posts/` 以下に保存される。
+                            "posts/"
+                            + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
+                            + utils.roleIdToName(
+                                database.getRole(message.channel.id), message.guild
+                            )  # ロール名
+                            + "_"
+                            + database.getItemName(msg.content)
+                            + "_"
+                            + attachment.filename
+                        )
+                        await attachment.save(filename)
+                        item_count += 1
+                        
+                        await channel.send(
+                            "✅ 提出物 "
+                            + "**"
+                            + database.getItemName(msg.content)
+                            + "** を提出しました。("
+                            + str(item_count)
+                            + "件のファイル)"
+                        )
+                elif database.getItemFormat(msg.content) == "plain":
+                    await channel.send(
+                            "⚠ 提出物 "
+                            + "**"
+                            + database.getItemName(msg.content)
+                            + "** はファイルではなくテキストで提出してください。"
+                        )
+                else:
+                    await channel.send(
+                            "⚠ 処理中になんらかの問題が発生しました。"
+                        )
 
 
 def returnItem(message):
