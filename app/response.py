@@ -20,7 +20,7 @@ async def doResp(client, message):
     elif message.content.startswith("!set post"):
         await channel.setPost(message)
     elif message.content.startswith("!add item"):
-        await submission.addItem(message)
+        await submission.addItemInteract(client, message)
     elif message.content.startswith("!del item"):
         await submission.delItem(message)
     elif message.content.startswith("!show item"):

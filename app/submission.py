@@ -2,7 +2,7 @@
 import discord
 from parse import *
 import datetime
-from dateutil import tz
+import dateutil.parser
 import asyncio
 
 # 内部関数
@@ -11,7 +11,127 @@ import channel
 import utils
 
 # 提出物の登録 (対話方式)
-# async def addItemInteract(message):
+async def addItemInteract(client, message):
+    # 提出物の名前を読み込む
+    await message.channel.send("📛 提出物の名前は何にしますか？")
+    
+    def check(m):
+        return m.channel == message.channel and m.author == message.author
+
+    try:
+        m_item_name = await client.wait_for("message", check=check, timeout=30)
+    except asyncio.TimeoutError:
+        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+    else:
+        item_name = m_item_name.content
+        await message.channel.send(
+            "✅ 提出物の名前を **"
+            + item_name
+            + "** にしました。"
+            )
+        
+        # 提出物の期限を読み込む
+        await message.channel.send(
+            "⏰ 提出物の期限はいつにしますか？\n"
+            + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
+            )
+        
+        try:
+            m_item_limit = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            if utils.isDateTime(m_item_limit.content):
+                item_limit = dateutil.parser.parse(m_item_limit.content)
+                await message.channel.send(
+                    "✅ 提出物の期限を `"
+                    + utils.dtToStr(item_limit)
+                    + "` にしました。"
+                    )
+                
+                # 提出物の対象を読み込む
+                await message.channel.send(
+                    "👤 提出物の対象者はいつにしますか？\n"
+                    + "Discord のメンション機能を使用して、ロールを指定してください。"
+                    )
+                try:
+                    m_item_target = await client.wait_for("message", check=check, timeout=30)
+                except asyncio.TimeoutError:
+                    await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                else:
+                    role_id = utils.mentionToRoleId(m_item_target.content)
+                    if role_id is not None:
+                        item_target = role_id
+                        await message.channel.send(
+                            "✅ 提出物の対象者を **"
+                            + utils.roleIdToName(role_id, message.guild)
+                            + "** にしました。"
+                            )
+                        
+                        # 提出物の形式を読み込む
+                        await message.channel.send(
+                            "💾 提出物の形式はどちらにしますか？\n"
+                            + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
+                            )
+                        try:
+                            m_item_format = await client.wait_for("message", check=check, timeout=30)
+                        except asyncio.TimeoutError:
+                            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        else:
+                            if m_item_format.content == "file" or m_item_format.content == "plain":
+                                item_format = m_item_format.content
+                                # 種類を日本語に変換し、可読性を良くする
+                                format_fmt = ""
+                                if item_format == "file":
+                                    format_fmt = "📄 ファイル"
+                                else:
+                                    format_fmt = "📜 プレーンテキスト"
+                                    
+                                await message.channel.send(
+                                    "✅ 提出物の形式を **"
+                                    + format_fmt
+                                    + "** にしました。"
+                                    )
+                                
+                                # データベースにコミット
+                                result = database.addItem(item_name, item_limit, item_target, item_format)
+                                await message.channel.send(
+                                    "✅ 以下の提出物を登録しました: "
+                                    + "\n📛 項目名: "
+                                    + database.getItemName(result)
+                                    + "\n⏰ 期限: "
+                                    + utils.dtToStr(database.getItemLimit(result))
+                                    + "\n👤 対象: "
+                                    + utils.roleIdToName(
+                                        database.getItemTarget(result), message.guild
+                                    )
+                                    + "\n💾 種類: "
+                                    + format_fmt
+                                    + "\n"
+                                    + "\n今までに登録した項目は、`!show item` で参照してください。"
+                                )
+                            else:
+                                await message.channel.send(
+                                    "⚠ 提出形式が正確に指定されていません。\n"
+                                    + "`file` か `plain` のどちらかを返信してください。\n"
+                                    + "もう一度、最初から操作をやり直してください。"
+                                )
+                        
+                    else:
+                        await message.channel.send(
+                            "⚠ 対象者が正確に指定されていません。\n"
+                            + "Discord のメンション機能を使用して、ロールを指定してください。\n"
+                            + "もう一度、最初から操作をやり直してください。"
+                        )
+                
+            else:
+                await message.channel.send(
+                    "⚠ 指定された期限をうまく解釈できませんでした。\n"
+                    + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
+                    + "もう一度、最初から操作をやり直してください。"
+                )
+        
+
 
 # 提出物の登録
 async def addItem(message):
@@ -37,24 +157,24 @@ async def addItem(message):
                 if response[3] == "file" or response[3] == "plain":
                     result = database.addItem(response[0], dt, role_id, response[3])
                     # 種類を日本語に変換し、可読性を良くする
-                    format_fd = ""
+                    format_fmt = ""
                     if response[3] == "file":
-                        format_fd = "ファイル"
+                        format_fmt = "📄 ファイル"
                     else:
-                        format_fd = "プレーンテキスト"
+                        format_fmt = "📜 プレーンテキスト"
 
                     await message.channel.send(
                         "✅ 以下の提出物を登録しました: "
-                        + "\n項目名: "
+                        + "\n📛 項目名: "
                         + database.getItemName(result)
-                        + "\n期限: "
+                        + "\n⏰ 期限: "
                         + utils.dtToStr(database.getItemLimit(result))
-                        + "\n対象: "
+                        + "\n👤 対象: "
                         + utils.roleIdToName(
                             database.getItemTarget(result), message.guild
                         )
-                        + "\n種類: "
-                        + format_fd
+                        + "\n💾 種類: "
+                        + format_fmt
                         + "\n"
                         + "\n今までに登録した項目は、`!show item` で参照してください。"
                     )
@@ -115,13 +235,13 @@ async def showItem(message):
 async def submitItem(client, message):
     if returnItem(message) == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
-            "ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n" + "委員会が提出物を登録するまで、しばらくお待ちください。"
+            "⚠ ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n" + "委員会が提出物を登録するまで、しばらくお待ちください。"
         )
     else:
         channel = message.channel
 
         await channel.send(
-            "ファイルを検出しました。\n"
+            "❗ ファイルを検出しました。\n"
             + "どの提出物を提出しようとしていますか？\n"
             + returnItem(message)
             + "\n提出したい項目の ID を、このチャンネルで発言してください。"
@@ -155,7 +275,7 @@ async def submitItem(client, message):
                     item_count = 0
                     for attachment in message.attachments:
                         # ファイル名を決定
-                        JST = tz.gettz("Asia/Tokyo")
+                        JST = dateutil.tz.gettz("Asia/Tokyo")
                         dt_now = datetime.datetime.now(JST)
                         filename = dt_now.strftime(
                             # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
@@ -205,15 +325,15 @@ def returnItem(message):
     items = ""
     for item in database.showItem(database.getRole(message.channel.id)):
         items += "\n"
-        items += "提出物 ID: " + str(item.id) + "\n"
-        items += "項目名: " + item.name + "\n"
-        items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
+        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "📛 項目名: " + item.name + "\n"
+        items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
         if item.format == "file":
-            items += "提出形式: ファイル\n"
+            items += "💾 提出形式: 📄 ファイル\n"
         elif item.format == "plain":
-            items += "提出形式: プレーンテキスト\n"
+            items += "💾 提出形式: 📜 プレーンテキスト\n"
         else:
-            items += "提出形式: 不明。委員会までお問い合わせください。\n"
+            items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if items == "":
         items += "今のところ、提出を指示されている項目はありません。"
     return items

@@ -1,5 +1,6 @@
 # 外部ライブラリ
 import datetime
+import dateutil
 from parse import *
 
 # dtToStr: datetime 型の入力を、人間可読な str として返す (例: YYYY/MM/dd HH:mm:ss)
@@ -24,3 +25,12 @@ def mentionToRoleId(mention):
 # roleIdToName: Discord のロール ID からロール名に変換する
 def roleIdToName(role_id, guild):
     return guild.get_role(int(role_id)).name
+
+# is_datetime: 与えられた str が日時として認識できるかを確認する。
+def isDateTime(string, fuzzy=False):
+    try: 
+        dateutil.parser.parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
