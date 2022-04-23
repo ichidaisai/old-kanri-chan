@@ -157,13 +157,11 @@ def getRole(channel_id):
 
 # getItemName: 提出物の ID から、提出物の名前を返す
 def getItemName(id):
-    query = session.query(Item).filter(Item.id == id).first()
-    result = session.query(query.exists()).scalar()
-
-    if result is True:
-        return str(item.name)
-    else:
+    item = session.query(Item).filter(Item.id == id).first()
+    if item is None:
         return False
+    else:
+        return str(item.name)
 
 
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す

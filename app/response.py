@@ -8,7 +8,7 @@ import channel
 import submission
 
 
-async def doResp(message):
+async def doResp(client, message):
     if message.content.startswith("!add role"):
         await channel.addRole(message)
     elif message.content.startswith("!del role"):
@@ -26,6 +26,6 @@ async def doResp(message):
     elif message.content.startswith("!show item"):
         await submission.showItem(message)
     elif message.attachments:
-        await submission.submitItem(message)
+        await submission.submitItem(client, message)
     else:
         pass

@@ -2,13 +2,13 @@
 import discord
 from parse import *
 import datetime
+from dateutil import tz
 import asyncio
 
 # 内部関数
 import database
 import channel
 import utils
-from main import client
 
 async def addItem(message):
     response = parse("!add item {} {} {} {}", message.content)
@@ -101,8 +101,7 @@ async def showItem(message):
             + returnItem(message)
         )
 
-@client.event
-async def submitItem(message):
+async def submitItem(client, message):
     if returnItem(message) == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
         "ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n"
@@ -127,10 +126,33 @@ async def submitItem(message):
         except asyncio.TimeoutError:
             await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
         else:
-            if database.getItemName(msg.content) is False:
+            if database.getItemName(msg.content) is False or database.getItemTarget(msg.content) != database.getRole(message.channel.id):
                 await channel.send("⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。")
             else:
-                await channel.send("✅ 提出物 **" + database.getItemName(msg.content) + "** を提出しました。")
+                item_count = 0
+                for attachment in message.attachments:
+                    # ファイル名を決定
+                    JST = tz.gettz('Asia/Tokyo')
+                    dt_now = datetime.datetime.now(JST)
+                    dt_now_fmt = dt_now.strftime("%Y-%M-Z%")
+                    filename = dt_now.strftime(
+                        # アウトプット 例: `2022-05-01_20-30-21_サークルA_提出物1.docx`
+                        "%Y-%m-%d_%H-%M-%S_" # タイムスタンプ
+                        + utils.roleIdToName(database.getRole(message.channel.id), message.guild) # ロール名
+                        + "_"
+                        + attachment.filename
+                    )
+                    await attachment.save(filename)
+                    item_count += 1
+                    
+                await channel.send(
+                    "✅ 提出物 "
+                    + "**" 
+                    + database.getItemName(msg.content) 
+                    + "** を提出しました。("
+                    + str(item_count) 
+                    + "件のファイル)"
+                    )
 
 def returnItem(message):
     items = ""
