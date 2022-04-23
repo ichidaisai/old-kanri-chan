@@ -158,7 +158,7 @@ def returnItem(message):
     items = ""
     for item in database.showItem(database.getRole(message.channel.id)):
         items += "\n"
-        items += "ID: " + str(item.id) + "\n"
+        items += "提出物 ID: " + str(item.id) + "\n"
         items += "項目名: " + item.name + "\n"
         items += "提出期限: " + utils.dtToStr(item.limit) + "\n"
         if item.verified == True:
