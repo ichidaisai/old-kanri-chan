@@ -59,8 +59,9 @@ class Item(Base):
     name = Column("name", VARCHAR(300))
     limit = Column("limit", DateTime)
     target = Column("target", BIGINT(unsigned=True))
-    
+
     format = Column("format", VARCHAR(300), default="file")
+
 
 class Submission(Base):
     __tablename__ = "submission"
@@ -75,12 +76,13 @@ class Submission(Base):
     )
     # filename: format が file のとき参照。実体ファイルへのパスを格納する。
     # plain: format が plain のとき参照。プレーンテキストの中身を格納する。
-    
+
     filename = Column("filename", VARCHAR(300))
     plain = Column("plain", VARCHAR(300))
     target = Column("target", BIGINT(unsigned=True))
     verified = Column("verified", Boolean)
     format = Column("format", VARCHAR(300), default="file")
+
 
 Base.metadata.create_all(bind=ENGINE)
 
