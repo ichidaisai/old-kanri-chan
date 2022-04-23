@@ -167,12 +167,12 @@ async def submitItem(client, message):
                         await attachment.save(filename)
                         item_count += 1
                         database.addSubmit(
-                            msg.content, # item_id
-                            dt_now, # datetime
-                            filename, # filename
-                            None, # plain, file なので NULL
-                            database.getItemTarget(msg.content), # target
-                            "file", # format
+                            msg.content,  # item_id
+                            dt_now,  # datetime
+                            filename,  # filename
+                            None,  # plain, file なので NULL
+                            database.getItemTarget(msg.content),  # target
+                            "file",  # format
                         )
 
                     await channel.send(
