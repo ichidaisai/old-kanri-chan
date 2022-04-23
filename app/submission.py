@@ -14,7 +14,7 @@ import utils
 async def addItemInteract(client, message):
     # 提出物の名前を読み込む
     await message.channel.send("📛 提出物の名前は何にしますか？")
-    
+
     def check(m):
         return m.channel == message.channel and m.author == message.author
 
@@ -24,18 +24,14 @@ async def addItemInteract(client, message):
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
         item_name = m_item_name.content
-        await message.channel.send(
-            "✅ 提出物の名前を **"
-            + item_name
-            + "** にしました。"
-            )
-        
+        await message.channel.send("✅ 提出物の名前を **" + item_name + "** にしました。")
+
         # 提出物の期限を読み込む
         await message.channel.send(
             "⏰ 提出物の期限はいつにしますか？\n"
             + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
-            )
-        
+        )
+
         try:
             m_item_limit = await client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
@@ -44,18 +40,17 @@ async def addItemInteract(client, message):
             if utils.isDateTime(m_item_limit.content):
                 item_limit = dateutil.parser.parse(m_item_limit.content)
                 await message.channel.send(
-                    "✅ 提出物の期限を `"
-                    + utils.dtToStr(item_limit)
-                    + "` にしました。"
-                    )
-                
+                    "✅ 提出物の期限を `" + utils.dtToStr(item_limit) + "` にしました。"
+                )
+
                 # 提出物の対象を読み込む
                 await message.channel.send(
-                    "👤 提出物の対象者はいつにしますか？\n"
-                    + "Discord のメンション機能を使用して、ロールを指定してください。"
-                    )
+                    "👤 提出物の対象者はいつにしますか？\n" + "Discord のメンション機能を使用して、ロールを指定してください。"
+                )
                 try:
-                    m_item_target = await client.wait_for("message", check=check, timeout=30)
+                    m_item_target = await client.wait_for(
+                        "message", check=check, timeout=30
+                    )
                 except asyncio.TimeoutError:
                     await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
                 else:
@@ -66,19 +61,26 @@ async def addItemInteract(client, message):
                             "✅ 提出物の対象者を **"
                             + utils.roleIdToName(role_id, message.guild)
                             + "** にしました。"
-                            )
-                        
+                        )
+
                         # 提出物の形式を読み込む
                         await message.channel.send(
                             "💾 提出物の形式はどちらにしますか？\n"
                             + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
-                            )
+                        )
                         try:
-                            m_item_format = await client.wait_for("message", check=check, timeout=30)
+                            m_item_format = await client.wait_for(
+                                "message", check=check, timeout=30
+                            )
                         except asyncio.TimeoutError:
-                            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                            await message.channel.send(
+                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            )
                         else:
-                            if m_item_format.content == "file" or m_item_format.content == "plain":
+                            if (
+                                m_item_format.content == "file"
+                                or m_item_format.content == "plain"
+                            ):
                                 item_format = m_item_format.content
                                 # 種類を日本語に変換し、可読性を良くする
                                 format_fmt = ""
@@ -86,15 +88,15 @@ async def addItemInteract(client, message):
                                     format_fmt = "📄 ファイル"
                                 else:
                                     format_fmt = "📜 プレーンテキスト"
-                                    
+
                                 await message.channel.send(
-                                    "✅ 提出物の形式を **"
-                                    + format_fmt
-                                    + "** にしました。"
-                                    )
-                                
+                                    "✅ 提出物の形式を **" + format_fmt + "** にしました。"
+                                )
+
                                 # データベースにコミット
-                                result = database.addItem(item_name, item_limit, item_target, item_format)
+                                result = database.addItem(
+                                    item_name, item_limit, item_target, item_format
+                                )
                                 await message.channel.send(
                                     "✅ 以下の提出物を登録しました: "
                                     + "\n📛 項目名: "
@@ -116,21 +118,20 @@ async def addItemInteract(client, message):
                                     + "`file` か `plain` のどちらかを返信してください。\n"
                                     + "もう一度、最初から操作をやり直してください。"
                                 )
-                        
+
                     else:
                         await message.channel.send(
                             "⚠ 対象者が正確に指定されていません。\n"
                             + "Discord のメンション機能を使用して、ロールを指定してください。\n"
                             + "もう一度、最初から操作をやり直してください。"
                         )
-                
+
             else:
                 await message.channel.send(
                     "⚠ 指定された期限をうまく解釈できませんでした。\n"
                     + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
                     + "もう一度、最初から操作をやり直してください。"
                 )
-        
 
 
 # 提出物の登録
@@ -293,12 +294,12 @@ async def submitItem(client, message):
                         await attachment.save(filename)
                         item_count += 1
                         database.addSubmit(
-                            msg.content, # item_id
-                            dt_now, # datetime
-                            filename, # filename
-                            None, # plain, file なので NULL
-                            database.getItemTarget(msg.content), # target
-                            "file", # format
+                            msg.content,  # item_id
+                            dt_now,  # datetime
+                            filename,  # filename
+                            None,  # plain, file なので NULL
+                            database.getItemTarget(msg.content),  # target
+                            "file",  # format
                         )
 
                     await channel.send(

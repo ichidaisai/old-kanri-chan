@@ -75,12 +75,12 @@ class Submission(Base):
     )
     item_id = Column("item_id", BIGINT(unsigned=True))
     datetime = Column("datetime", DateTime)
-    
+
     # filename: format が file のとき参照。実体ファイルへのパスを格納する。
     # plain: format が plain のとき参照。プレーンテキストの中身を格納する。
     filename = Column("filename", VARCHAR(300), nullable=True)
     plain = Column("plain", VARCHAR(300), nullable=True)
-    
+
     target = Column("target", BIGINT(unsigned=True))
     verified = Column("verified", Boolean, default=False)
     format = Column("format", VARCHAR(300), default="file")

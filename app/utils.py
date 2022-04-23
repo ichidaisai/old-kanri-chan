@@ -26,9 +26,10 @@ def mentionToRoleId(mention):
 def roleIdToName(role_id, guild):
     return guild.get_role(int(role_id)).name
 
+
 # is_datetime: 与えられた str が日時として認識できるかを確認する。
 def isDateTime(string, fuzzy=False):
-    try: 
+    try:
         dateutil.parser.parse(string, fuzzy=fuzzy)
         return True
 
