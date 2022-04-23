@@ -7,8 +7,7 @@ mysql/log
 app/config.yml
 app/logs
 app/.env
-app/data
-app/startup.json
+app/posts
 config.yml
 
 # misc
