@@ -157,15 +157,21 @@ async def submitItem(client, message):
                         )
                         await attachment.save(filename)
                         item_count += 1
-                        
-                        await channel.send(
-                            "✅ 提出物 "
-                            + "**"
-                            + database.getItemName(msg.content)
-                            + "** を提出しました。("
-                            + str(item_count)
-                            + "件のファイル)"
+                        database.addSubmit(
+                            filename,
+                            "NULL",
+                            database.getItemTarget(msg.content),
+                            "file"
                         )
+                        
+                    await channel.send(
+                        "✅ 提出物 "
+                        + "**"
+                        + database.getItemName(msg.content)
+                        + "** を提出しました。("
+                        + str(item_count)
+                        + "件のファイル)"
+                    )
                 elif database.getItemFormat(msg.content) == "plain":
                     await channel.send(
                             "⚠ 提出物 "

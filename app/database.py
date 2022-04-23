@@ -78,7 +78,7 @@ class Submission(Base):
     filename = Column("filename", VARCHAR(300), nullable=True)
     plain = Column("plain", VARCHAR(300), nullable=True)
     target = Column("target", BIGINT(unsigned=True))
-    verified = Column("verified", Boolean)
+    verified = Column("verified", Boolean, default=False)
     format = Column("format", VARCHAR(300), default="file")
 
 Base.metadata.create_all(bind=ENGINE)
@@ -165,9 +165,10 @@ def addSubmit(filename, plain, target, format):
     submission = Submission()
     
     submission.format = format
+    submission.target = target
     
     if format == "file":
-        submission.filename = name
+        submission.filename = filename
     elif format == "plain":
         submission.plain = plain
     else:
