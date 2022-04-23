@@ -47,7 +47,9 @@ async def addItem(message):
                         + "\n期限: "
                         + utils.dtToStr(database.getItemLimit(result))
                         + "\n対象: "
-                        + utils.roleIdToName(database.getItemTarget(result), message.guild)
+                        + utils.roleIdToName(
+                            database.getItemTarget(result), message.guild
+                        )
                         + "\n種類: "
                         + format_fd
                         + "\n"
@@ -130,11 +132,18 @@ async def submitItem(client, message):
         else:
             if database.getItemName(msg.content) is False:
                 await channel.send("⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。")
-            elif database.getItemTarget(msg.content) != database.getRole(message.channel.id):
+            elif database.getItemTarget(msg.content) != database.getRole(
+                message.channel.id
+            ):
                 print("getItemTarget: " + str(database.getItemTarget(msg.content)))
                 print("\n")
-                print("database.getRole(message.channel.id): " + database.getRole(message.channel.id))
-                await channel.send("⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。")
+                print(
+                    "database.getRole(message.channel.id): "
+                    + database.getRole(message.channel.id)
+                )
+                await channel.send(
+                    "⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。"
+                )
             else:
                 if database.getItemFormat(msg.content) == "file":
                     item_count = 0
@@ -157,7 +166,7 @@ async def submitItem(client, message):
                         )
                         await attachment.save(filename)
                         item_count += 1
-                        
+
                         await channel.send(
                             "✅ 提出物 "
                             + "**"
@@ -168,15 +177,13 @@ async def submitItem(client, message):
                         )
                 elif database.getItemFormat(msg.content) == "plain":
                     await channel.send(
-                            "⚠ 提出物 "
-                            + "**"
-                            + database.getItemName(msg.content)
-                            + "** はファイルではなくテキストで提出してください。"
-                        )
+                        "⚠ 提出物 "
+                        + "**"
+                        + database.getItemName(msg.content)
+                        + "** はファイルではなくテキストで提出してください。"
+                    )
                 else:
-                    await channel.send(
-                            "⚠ 処理中になんらかの問題が発生しました。"
-                        )
+                    await channel.send("⚠ 処理中になんらかの問題が発生しました。")
 
 
 def returnItem(message):
