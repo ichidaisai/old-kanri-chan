@@ -19,6 +19,7 @@ class MyClient(discord.Client):
         print("[INFO] [Received] " + message.author.name + ": " + message.content)
         await response.doResp(self, message)
 
+
 def main():
     # config.yml のトークン部分が正常なことを確認する
     if config.checkConfig():
