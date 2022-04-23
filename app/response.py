@@ -9,21 +9,21 @@ import submission
 
 
 async def doResp(client, message):
-    if message.content.startswith("!add role"):
+    if message.content.startswith("!role add"):
         await channel.addRole(message)
-    elif message.content.startswith("!del role"):
+    elif message.content.startswith("!role delete"):
         await channel.delRole(message)
-    elif message.content.startswith("!show role"):
+    elif message.content.startswith("!role get"):
         await channel.showRole(message)
     elif message.content.startswith("!set chat"):
         await channel.setChat(message)
     elif message.content.startswith("!set post"):
         await channel.setPost(message)
-    elif message.content.startswith("!add item"):
+    elif message.content.startswith("!item add"):
         await submission.addItemInteract(client, message)
-    elif message.content.startswith("!del item"):
+    elif message.content.startswith("!item delete"):
         await submission.delItem(message)
-    elif message.content.startswith("!show item"):
+    elif message.content.startswith("!item list"):
         await submission.showItem(message)
     elif message.attachments:
         await submission.submitItem(client, message)
