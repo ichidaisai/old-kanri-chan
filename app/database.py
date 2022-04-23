@@ -73,7 +73,11 @@ class Submission(Base):
         nullable=False,
         autoincrement=True,
     )
+    # filename: format が file のとき参照。実体ファイルへのパスを格納する。
+    # plain: format が plain のとき参照。プレーンテキストの中身を格納する。
+    
     filename = Column("filename", VARCHAR(300))
+    plain = Column("plain", VARCHAR(300))
     target = Column("target", BIGINT(unsigned=True))
     verified = Column("verified", Boolean)
     format = Column("format", VARCHAR(300), default="file")
