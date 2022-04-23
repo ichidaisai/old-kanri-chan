@@ -134,13 +134,14 @@ async def submitItem(client, message):
                     # ファイル名を決定
                     JST = tz.gettz('Asia/Tokyo')
                     dt_now = datetime.datetime.now(JST)
-                    dt_now_fmt = dt_now.strftime("%Y-%M-Z%")
                     filename = dt_now.strftime(
-                        # アウトプット 例: `2022-05-01_20-30-21_サークルA_提出物1.docx`
+                        # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
                         # ファイルは `posts/` 以下に保存される。
                         "posts/"
                         + "%Y-%m-%d_%H-%M-%S_" # タイムスタンプ
                         + utils.roleIdToName(database.getRole(message.channel.id), message.guild) # ロール名
+                        + "_"
+                        + database.getItemName(msg.content)
                         + "_"
                         + attachment.filename
                     )
