@@ -106,7 +106,7 @@ def setChatCategory(id):
         config.value = id
         
         session.add(config)
-        session.commit
+        session.commit()
     else:
         # `chat_category` キーが存在するとき、UPDATE 文を発行する
         exists.value = id
@@ -124,7 +124,7 @@ def setPostCategory(id):
         config.value = id
         
         session.add(config)
-        session.commit
+        session.commit()
     else:
         # `post_category` キーが存在するとき、UPDATE 文を発行する
         exists.value = id
