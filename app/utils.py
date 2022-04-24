@@ -1,7 +1,11 @@
 # 外部ライブラリ
 import datetime
 import dateutil
+import discord
 from parse import *
+
+# 内部関数
+import database
 
 # dtToStr: datetime 型の入力を、人間可読な str として返す (例: YYYY/MM/dd HH:mm:ss)
 def dtToStr(dt):
@@ -35,6 +39,11 @@ def isDateTime(string, fuzzy=False):
 
     except ValueError:
         return False
+
+# isStaff: 指定したユーザーがスタッフ用ロールを持っているかを True / False で返す
+def isStaff(author, guild):
+    role = discord.utils.get(guild.roles, id=int(database.getStaffRole()))
+    return role in author.roles
 
 
 # isValidAsRoleName: 新規作成するロールの名前として正しいかを True / False で返す
