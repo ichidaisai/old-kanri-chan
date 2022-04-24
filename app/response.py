@@ -12,6 +12,8 @@ import database
 async def doResp(client, message):
     if message.content.startswith("!role add"):
         await channel.addRole(message)
+    elif message.content.startswith("!role init"):
+        await channel.initRoleInteract(client, message)
     elif message.content.startswith("!role delete"):
         await channel.delRole(message)
     elif message.content.startswith("!role get"):

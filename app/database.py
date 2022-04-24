@@ -255,6 +255,31 @@ def getRole(channel_id):
         return str(role.id)
 
 
+# getCategory: テキスト チャンネルに帰属させるカテゴリーの ID を返す
+## type:
+### chat: チャット用カテゴリ
+### post: 提出用カテゴリ 
+def getCategory(type):
+    if type == "chat":
+        config = (
+            session.query(Config)
+            .filter(Config.key == "chat_category")
+            .first()
+        )
+    elif type == "post":
+        config = (
+            session.query(Config)
+            .filter(Config.key == "post_category")
+            .first()
+        )
+    else:
+        return None
+    
+    if config is None:
+        return None
+    else:
+        return config.value
+
 # getItemName: 提出物の ID から、提出物の名前を返す
 def getItemName(id):
     item = session.query(Item).filter(Item.id == id).first()
