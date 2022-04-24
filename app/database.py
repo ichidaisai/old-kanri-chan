@@ -166,6 +166,15 @@ def setStaffRole(id):
         session.commit()
         return True
 
+# isStaff: 指定した Discord ロール ID がスタッフ用ロールのものであるかを True / False で返す
+def isStaff(id):
+    exists = session.query(Config).filter(Config.key == "staff_role").first()
+
+    if exists is None or exists.value != int(id):
+        return False
+    else:
+        return True
+
 
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setChatTc(id, tc):
