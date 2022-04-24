@@ -14,8 +14,8 @@ async def doResp(client, message):
         await channel.addRole(message)
     elif message.content.startswith("!role init"):
         await channel.initRoleInteract(client, message)
-    elif message.content.startswith("!role delete"):
-        await channel.delRole(message)
+    elif message.content.startswith("!role prune"):
+        await channel.pruneRoleInteract(client, message)
     elif message.content.startswith("!role get"):
         await channel.showRole(message)
     elif message.content.startswith("!ch set chat"):

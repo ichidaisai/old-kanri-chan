@@ -254,6 +254,24 @@ def getRole(channel_id):
     else:
         return str(role.id)
 
+# getTc: ロールに帰属するテキストチャンネルの ID を返す
+## type:
+### chat: チャット用テキストチャンネル
+### post: 提出用テキストチャンネル
+def getTc(id, type):
+    role = (
+            session.query(Role)
+            .filter(Role.id == int(id))
+            .first()
+        )
+        
+    if type == "chat":
+        return role.chat_tc
+    elif type == "post":
+        return role.post_tc
+    else:
+        return None
+
 
 # getCategory: テキスト チャンネルに帰属させるカテゴリーの ID を返す
 ## type:
