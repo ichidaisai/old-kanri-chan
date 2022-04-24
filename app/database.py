@@ -45,6 +45,7 @@ class Config(Base):
     key = Column("key", VARCHAR(300), primary_key=True, unique=True, nullable=False)
     value = Column("value", VARCHAR(300))
 
+
 # テーブル モデル: `item` - 提出物の情報を格納する
 ## id: 提出物の一意な ID。自動インクリメントなので、INSERT の際に手動で指定することはない。
 ## name: 提出物の名前。
@@ -98,13 +99,13 @@ Base.metadata.create_all(bind=ENGINE)
 # setChatCategory: チャット用テキストチャンネルの親カテゴリーを設定する
 def setChatCategory(id):
     exists = session.query(Config).filter(Config.key == "chat_category").first()
-    
+
     if exists is None:
         # `chat_category` キーが存在しないとき、INSERT 文を発行する
         config = Config()
         config.key = "chat_category"
         config.value = id
-        
+
         session.add(config)
         session.commit()
     else:
@@ -116,19 +117,20 @@ def setChatCategory(id):
 # set: チャット用テキストチャンネルの親カテゴリーを設定する
 def setPostCategory(id):
     exists = session.query(Config).filter(Config.key == "post_category").first()
-    
+
     if exists is None:
         # `post_category` キーが存在しないとき、INSERT 文を発行する
         config = Config()
         config.key = "post_category"
         config.value = id
-        
+
         session.add(config)
         session.commit()
     else:
         # `post_category` キーが存在するとき、UPDATE 文を発行する
         exists.value = id
         session.commit()
+
 
 # addRole: ロールをボットに認識させる（データベースに登録する）
 def addRole(id, guild):
@@ -202,7 +204,7 @@ def delItem(id):
 
 # showItem: ボットに登録されている提出物のうち、特定のロールが提出するべきものを返す。
 ## role_id: Discord のロール ID
-## format: 
+## format:
 ## all: すべての提出形式の提出物を返す
 ## file: ファイル形式の提出物を返す
 ## plain: プレーンテキスト形式の提出物を返す
@@ -211,10 +213,18 @@ def showItem(role_id, format):
         items = session.query(Item).filter(Item.target == role_id).all()
         return items
     elif format == "file":
-        items = session.query(Item).filter(Item.target == role_id, Item.format == "file").all()
+        items = (
+            session.query(Item)
+            .filter(Item.target == role_id, Item.format == "file")
+            .all()
+        )
         return items
     elif format == "plain":
-        items = session.query(Item).filter(Item.target == role_id, Item.format == "plain").all()
+        items = (
+            session.query(Item)
+            .filter(Item.target == role_id, Item.format == "plain")
+            .all()
+        )
         return items
     else:
         return None
@@ -254,17 +264,14 @@ def getRole(channel_id):
     else:
         return str(role.id)
 
+
 # getTc: ロールに帰属するテキストチャンネルの ID を返す
 ## type:
 ### chat: チャット用テキストチャンネル
 ### post: 提出用テキストチャンネル
 def getTc(id, type):
-    role = (
-            session.query(Role)
-            .filter(Role.id == int(id))
-            .first()
-        )
-        
+    role = session.query(Role).filter(Role.id == int(id)).first()
+
     if type == "chat":
         return role.chat_tc
     elif type == "post":
@@ -276,27 +283,20 @@ def getTc(id, type):
 # getCategory: テキスト チャンネルに帰属させるカテゴリーの ID を返す
 ## type:
 ### chat: チャット用カテゴリ
-### post: 提出用カテゴリ 
+### post: 提出用カテゴリ
 def getCategory(type):
     if type == "chat":
-        config = (
-            session.query(Config)
-            .filter(Config.key == "chat_category")
-            .first()
-        )
+        config = session.query(Config).filter(Config.key == "chat_category").first()
     elif type == "post":
-        config = (
-            session.query(Config)
-            .filter(Config.key == "post_category")
-            .first()
-        )
+        config = session.query(Config).filter(Config.key == "post_category").first()
     else:
         return None
-    
+
     if config is None:
         return None
     else:
         return config.value
+
 
 # getItemName: 提出物の ID から、提出物の名前を返す
 def getItemName(id):
@@ -335,6 +335,7 @@ def getItemLimit(id):
         return False
     else:
         return item.limit
+
 
 # isPostTc: 引数の Discord テキストチャンネルが提出用のチャンネルかを返す (True / False)
 def isPostTc(post_tc):

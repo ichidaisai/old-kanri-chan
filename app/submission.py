@@ -9,7 +9,7 @@ import asyncio
 import database
 import channel
 import utils
-        
+
 
 # 提出物の登録 (対話方式)
 async def addItemInteract(client, message):
