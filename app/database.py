@@ -160,9 +160,22 @@ def delItem(id):
 
 # showItem: ボットに登録されている提出物のうち、特定のロールが提出するべきものを返す。
 ## role_id: Discord のロール ID
-def showItem(role_id):
-    items = session.query(Item).filter(Item.target == role_id).all()
-    return items
+## format: 
+## all: すべての提出形式の提出物を返す
+## file: ファイル形式の提出物を返す
+## plain: プレーンテキスト形式の提出物を返す
+def showItem(role_id, format):
+    if format == "all":
+        items = session.query(Item).filter(Item.target == role_id).all()
+        return items
+    elif format == "file":
+        items = session.query(Item).filter(Item.target == role_id, Item.format == "file").all()
+        return items
+    elif format == "plain":
+        items = session.query(Item).filter(Item.target == role_id, Item.format == "plain").all()
+        return items
+    else:
+        return None
 
 
 # addSubmit: ボットに提出されたファイルまたはプレーンテキストを登録する（データベースに登録する）
@@ -232,5 +245,16 @@ def getItemFormat(id):
 
 # getItemLimit: 提出物の ID から、提出物の期限を datetime 型で返す
 def getItemLimit(id):
-    item = session.query(Item).filter(Item.id == int(id)).first()
-    return item.limit
+    item = session.query(Item).filter(Item.id == id).first()
+    if item is None:
+        return False
+    else:
+        return item.limit
+
+# isPostTc: 引数の Discord テキストチャンネルが提出用のチャンネルかを返す (True / False)
+def isPostTc(post_tc):
+    role = session.query(Role).filter(Role.post_tc == post_tc).first()
+    if role is None:
+        return False
+    else:
+        return True

@@ -228,13 +228,13 @@ async def showItem(message):
                 int(database.getRole(message.channel.id)), message.guild
             )
             + "** に提出が指示された提出物は以下の通りです: \n"
-            + returnItem(message)
+            + returnItem(message, "all")
         )
 
 
 # 提出物を提出する
-async def submitItem(client, message):
-    if returnItem(message) == "今のところ、提出を指示されている項目はありません。":
+async def submitFileItem(client, message):
+    if returnItem(message, "file") == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
             "⚠ ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n" + "委員会が提出物を登録するまで、しばらくお待ちください。"
         )
@@ -244,7 +244,7 @@ async def submitItem(client, message):
         await channel.send(
             "❗ ファイルを検出しました。\n"
             + "どの提出物を提出しようとしていますか？\n"
-            + returnItem(message)
+            + returnItem(message, "file")
             + "\n提出したい項目の ID を、このチャンネルで発言してください。"
         )
 
@@ -322,9 +322,13 @@ async def submitItem(client, message):
 
 
 # 提出物の一覧を整形して str として返す
-def returnItem(message):
+## format:
+## all: すべての提出形式の提出物を返す
+## file: ファイル形式の提出物を返す
+## plain: プレーンテキスト形式の提出物を返す
+def returnItem(message, format):
     items = ""
-    for item in database.showItem(database.getRole(message.channel.id)):
+    for item in database.showItem(database.getRole(message.channel.id), format):
         items += "\n"
         items += "🆔 提出物 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"

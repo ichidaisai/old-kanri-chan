@@ -6,6 +6,7 @@ import discord
 # 内部関数
 import channel
 import submission
+import database
 
 
 async def doResp(client, message):
@@ -26,6 +27,7 @@ async def doResp(client, message):
     elif message.content.startswith("!item list"):
         await submission.showItem(message)
     elif message.attachments:
-        await submission.submitItem(client, message)
+        if database.isPostTc(message.channel.id):
+            await submission.submitFileItem(client, message)
     else:
         pass
