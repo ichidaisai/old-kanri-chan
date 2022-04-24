@@ -10,6 +10,23 @@ import database
 import channel
 import utils
 
+# 新規ロールの初期化作業 (テキストチャンネルの作成, テキストチャンネルの登録, etc.)
+async def initRoleInteract(client, message):
+    await message.channel.send("📛 ロールの名前は何にしますか？")
+    
+    def check(m):
+        return m.channel == message.channel and m.author == message.author
+
+    try:
+        m_role_name = await client.wait_for("message", check=check, timeout=30)
+    except asyncio.TimeoutError:
+        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+    else:
+        role_name = m_role_name.content
+        await message.channel.send("✅ ロール名 **" + item_name + "** で初期化処理を実行します。")
+        
+        
+
 # 提出物の登録 (対話方式)
 async def addItemInteract(client, message):
     # 提出物の名前を読み込む

@@ -16,9 +16,13 @@ async def doResp(client, message):
         await channel.delRole(message)
     elif message.content.startswith("!role get"):
         await channel.showRole(message)
-    elif message.content.startswith("!set chat"):
+    elif message.content.startswith("!ch set chat"):
         await channel.setChat(message)
-    elif message.content.startswith("!set post"):
+    elif message.content.startswith("!cat set chat"):
+        await channel.setChatCategory(message)
+    elif message.content.startswith("!cat set post"):
+        await channel.setPostCategory(message)
+    elif message.content.startswith("!ch set post"):
         await channel.setPost(message)
     elif message.content.startswith("!item add"):
         await submission.addItemInteract(client, message)

@@ -38,6 +38,13 @@ class Role(Base):
     post_tc = Column("post_tc", BIGINT(unsigned=True))
 
 
+# テーブル モデル: `Config` - チャンネル カテゴリの情報等、ボット全体に関わる情報を格納する
+class Config(Base):
+    __tablename__ = "config"
+    __table_args__ = {"mysql_charset": "utf8mb4"}
+    key = Column("key", VARCHAR(300), primary_key=True, unique=True, nullable=False)
+    value = Column("value", VARCHAR(300))
+
 # テーブル モデル: `item` - 提出物の情報を格納する
 ## id: 提出物の一意な ID。自動インクリメントなので、INSERT の際に手動で指定することはない。
 ## name: 提出物の名前。
@@ -87,6 +94,41 @@ class Submission(Base):
 
 
 Base.metadata.create_all(bind=ENGINE)
+
+# setChatCategory: チャット用テキストチャンネルの親カテゴリーを設定する
+def setChatCategory(id):
+    exists = session.query(Config).filter(Config.key == "chat_category").first()
+    
+    if exists is None:
+        # `chat_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "chat_category"
+        config.value = id
+        
+        session.add(config)
+        session.commit
+    else:
+        # `chat_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+
+
+# set: チャット用テキストチャンネルの親カテゴリーを設定する
+def setPostCategory(id):
+    exists = session.query(Config).filter(Config.key == "post_category").first()
+    
+    if exists is None:
+        # `post_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "post_category"
+        config.value = id
+        
+        session.add(config)
+        session.commit
+    else:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
 
 # addRole: ロールをボットに認識させる（データベースに登録する）
 def addRole(id, guild):

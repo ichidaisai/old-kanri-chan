@@ -26,7 +26,26 @@ async def setChat(message):
                 + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
             )
     else:
-        await message.channel.send("コマンドが不正です。")
+        await message.channel.send("❌ コマンドが不正です。")
+
+async def setChatCategory(message):
+    response = parse("!cat set chat {}", message.content)
+    if response:
+        if response[0].isdigit():
+            category = discord.utils.get(message.guild.categories, id=int(response[0]))
+            if category is not None:
+                database.setChatCategory(category.id)
+                await message.channel.send(
+                    "✅ チャット用のチャンネル カテゴリーを **"
+                    + category.name
+                    + "** に設定しました。"
+                )
+            else:
+                await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+        else:
+            await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+    else:
+        await message.channel.send("❌ コマンドが不正です。")
 
 
 async def setPost(message):
@@ -46,8 +65,27 @@ async def setPost(message):
                 + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
             )
     else:
-        await message.channel.send("コマンドが不正です。")
+        await message.channel.send("❌ コマンドが不正です。")
 
+
+async def setPostCategory(message):
+    response = parse("!cat set post {}", message.content)
+    if response:
+        if response[0].isdigit():
+            category = discord.utils.get(message.guild.categories, id=int(response[0]))
+            if category is not None:
+                database.setPostCategory(category.id)
+                await message.channel.send(
+                    "✅ 提出用のチャンネル カテゴリーを **"
+                    + category.name
+                    + "** に設定しました。"
+                )
+            else:
+                await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+        else:
+            await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+    else:
+        await message.channel.send("❌ コマンドが不正です。")
 
 async def addRole(message):
     response = parse("!add role <@&{}>", message.content)
