@@ -177,6 +177,34 @@ async def pruneRoleInteract(client, message):
                             + "** の削除をキャンセルしました。"
                         )
 
+async def setStaffRole(message):
+    # サーバーの管理者権限を持っているか確認する
+    if message.author.guild_permissions.administrator:
+        # コマンドを解釈する
+        response = parse("!role set staff <@&{}>", message.content)
+        if response:
+            # ロールが存在しないとき
+            if message.guild.get_role(int(response[0])) is None:
+                await message.channel.send(
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。"
+                )
+            else:
+                result = database.setStaffRole(response[0])
+                if result:
+                    await message.channel.send(
+                        "✅ スタッフ用ロールを **"
+                        + message.guild.get_role(int(response[0])).name
+                        + "** に設定しました。"
+                    )
+                else:
+                    await message.channel.send(
+                        "⚠ 処理中になんらかの問題が発生しました。"
+                    )
+        else:
+            await message.channel.send("❌ コマンドが不正です。")
+    else:
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+
 
 async def setChat(message):
     response = parse("!set chat <@&{}>", message.content)

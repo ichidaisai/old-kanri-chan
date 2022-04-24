@@ -18,6 +18,8 @@ async def doResp(client, message):
         await channel.pruneRoleInteract(client, message)
     elif message.content.startswith("!role get"):
         await channel.showRole(message)
+    elif message.content.startswith("!role set staff"):
+        await channel.setStaffRole(message)
     elif message.content.startswith("!ch set chat"):
         await channel.setChat(message)
     elif message.content.startswith("!cat set chat"):

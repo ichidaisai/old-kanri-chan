@@ -147,6 +147,25 @@ def delRole(id, guild):
     session.query(Role).filter(Role.id == id).delete()
     session.commit()
 
+# setStaffRole: スタッフ用ロールを設定する
+def setStaffRole(id):
+    exists = session.query(Config).filter(Config.key == "staff_role").first()
+
+    if exists is None:
+        # `post_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "staff_role"
+        config.value = id
+
+        session.add(config)
+        session.commit()
+        return True
+    else:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+        return True
+
 
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setChatTc(id, tc):
