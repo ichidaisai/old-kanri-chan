@@ -177,6 +177,7 @@ async def pruneRoleInteract(client, message):
                             + "** の削除をキャンセルしました。"
                         )
 
+
 async def setStaffRole(message):
     # サーバーの管理者権限を持っているか確認する
     if message.author.guild_permissions.administrator:
@@ -197,9 +198,7 @@ async def setStaffRole(message):
                         + "** に設定しました。"
                     )
                 else:
-                    await message.channel.send(
-                        "⚠ 処理中になんらかの問題が発生しました。"
-                    )
+                    await message.channel.send("⚠ 処理中になんらかの問題が発生しました。")
         else:
             await message.channel.send("❌ コマンドが不正です。")
     else:

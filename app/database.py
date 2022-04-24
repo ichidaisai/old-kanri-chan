@@ -147,6 +147,7 @@ def delRole(id, guild):
     session.query(Role).filter(Role.id == id).delete()
     session.commit()
 
+
 # setStaffRole: スタッフ用ロールを設定する
 def setStaffRole(id):
     exists = session.query(Config).filter(Config.key == "staff_role").first()
@@ -165,6 +166,7 @@ def setStaffRole(id):
         exists.value = id
         session.commit()
         return True
+
 
 # isStaff: 指定した Discord ロール ID がスタッフ用ロールのものであるかを True / False で返す
 def isStaff(id):
