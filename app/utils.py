@@ -40,6 +40,7 @@ def isDateTime(string, fuzzy=False):
     except ValueError:
         return False
 
+
 # isStaff: 指定したユーザーがスタッフ用ロールを持っているかを True / False で返す
 def isStaff(author, guild):
     role = discord.utils.get(guild.roles, id=int(database.getStaffRole()))
