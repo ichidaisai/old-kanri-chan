@@ -13,16 +13,16 @@ import utils
 async def initRoleInteract(client, message):
     if utils.isStaff(message.author, message.guild):
         await message.channel.send("📛 ロールの名前は何にしますか？")
-    
+
         def check(m):
             return m.channel == message.channel and m.author == message.author
-    
+
         try:
             m_role_name = await client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
-    
+
             if (
                 discord.utils.get(
                     message.guild.categories, id=int(database.getCategory("chat"))
@@ -51,14 +51,14 @@ async def initRoleInteract(client, message):
                     await message.channel.send(
                         ":pick: ロール名 **" + role_name + "** で初期化処理を実行します..."
                     )
-    
+
                     # ロールを作る
                     guild = message.guild
                     role = await guild.create_role(name=role_name)
-    
+
                     # ロールをデータベースに登録する
                     database.addRole(role.id, guild)
-    
+
                     # テキストチャンネルの権限設定を定義する
                     ## @everyone の権限設定
                     ow_everyone = discord.PermissionOverwrite()
@@ -75,7 +75,7 @@ async def initRoleInteract(client, message):
                     ow_target.attach_files = True
                     ow_target.mention_everyone = False
                     ow_target.send_tts_messages = False
-    
+
                     # テキストチャンネルを作る
                     chat_category = discord.utils.get(
                         guild.categories, id=int(database.getCategory("chat"))
@@ -89,7 +89,7 @@ async def initRoleInteract(client, message):
                     post_channel = await guild.create_text_channel(
                         role_name, category=post_category
                     )
-    
+
                     # テキストチャンネルの権限を設定する
                     await chat_channel.set_permissions(role, overwrite=ow_target)
                     await chat_channel.set_permissions(
@@ -99,11 +99,11 @@ async def initRoleInteract(client, message):
                     await post_channel.set_permissions(
                         guild.default_role, overwrite=ow_everyone
                     )
-    
+
                     # テキストチャンネルをデータベースに登録する
                     database.setChatTc(role.id, chat_channel.id)
                     database.setPostTc(role.id, post_channel.id)
-    
+
                     await message.channel.send("✅ 処理が完了しました!")
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
@@ -116,10 +116,10 @@ async def pruneRoleInteract(client, message):
             "📛 ロールの情報と、それに関係するテキストチャンネルを削除したいロールを Discord の機能を用いてメンションしてください。"
         )
         guild = message.guild
-    
+
         def check(m):
             return m.channel == message.channel and m.author == message.author
-    
+
         try:
             msg = await client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
@@ -131,7 +131,7 @@ async def pruneRoleInteract(client, message):
                 )
             else:
                 target = guild.get_role(int(utils.mentionToRoleId(msg.content)))
-    
+
                 if target is None:
                     await message.channel.send(
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
@@ -148,32 +148,38 @@ async def pruneRoleInteract(client, message):
                             "message", check=check, timeout=30
                         )
                     except asyncio.TimeoutError:
-                        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        await message.channel.send(
+                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                        )
                     else:
                         if msg_confirm.content == "y":
                             await message.channel.send(
                                 ":pick: ロール **" + target.name + "** の削除を処理しています..."
                             )
-    
+
                             # テキストチャンネルの削除
                             ## テキストチャンネルの取得
-                            chat_tc = guild.get_channel(database.getTc(target.id, "chat"))
-                            post_tc = guild.get_channel(database.getTc(target.id, "post"))
-    
+                            chat_tc = guild.get_channel(
+                                database.getTc(target.id, "chat")
+                            )
+                            post_tc = guild.get_channel(
+                                database.getTc(target.id, "post")
+                            )
+
                             ## 削除の実行
                             await chat_tc.delete()
                             await post_tc.delete()
-    
+
                             # データベース上からのロールの削除
                             database.delRole(target.id, guild)
-    
+
                             # Discord 上からのロールの削除
                             await target.delete()
-    
+
                             await message.channel.send(
                                 "✅ ロール **" + target.name + "** の削除が完了しました。"
                             )
-    
+
                         else:
                             await message.channel.send(
                                 ":congratulations: ロール **"
@@ -182,6 +188,7 @@ async def pruneRoleInteract(client, message):
                             )
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+
 
 async def setStaffRole(message):
     # サーバーの管理者権限を持っているか確認する
@@ -203,9 +210,7 @@ async def setStaffRole(message):
                         + "** に設定しました。"
                     )
                 else:
-                    await message.channel.send(
-                        "⚠ 処理中になんらかの問題が発生しました。"
-                    )
+                    await message.channel.send("⚠ 処理中になんらかの問題が発生しました。")
         else:
             await message.channel.send("❌ コマンドが不正です。")
     else:
@@ -240,7 +245,9 @@ async def setChatCategory(message):
         response = parse("!cat set chat {}", message.content)
         if response:
             if response[0].isdigit():
-                category = discord.utils.get(message.guild.categories, id=int(response[0]))
+                category = discord.utils.get(
+                    message.guild.categories, id=int(response[0])
+                )
                 if category is not None:
                     database.setChatCategory(category.id)
                     await message.channel.send(
@@ -284,7 +291,9 @@ async def setPostCategory(message):
         response = parse("!cat set post {}", message.content)
         if response:
             if response[0].isdigit():
-                category = discord.utils.get(message.guild.categories, id=int(response[0]))
+                category = discord.utils.get(
+                    message.guild.categories, id=int(response[0])
+                )
                 if category is not None:
                     database.setPostCategory(category.id)
                     await message.channel.send(
@@ -312,7 +321,7 @@ async def addRole(message):
                     + "** は既にボットに登録されています。"
                 )
             else:
-    
+
                 await message.channel.send(
                     "✅ ロール "
                     + message.guild.get_role(int(response[0])).name
