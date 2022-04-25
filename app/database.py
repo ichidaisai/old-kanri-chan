@@ -135,14 +135,14 @@ def setPostCategory(id):
 # addRole: ロールをボットに認識させる（データベースに登録する）
 def addRole(id, guild):
     exists = session.query(Role).filter(Role.id == int(id)).first()
-    
+
     if exists:
         return False
     else:
         role = Role()
         role.id = id
         role.name = guild.get_role(int(id)).name
-    
+
         session.add(role)
         session.commit()
         return True
@@ -157,7 +157,6 @@ def delRole(id, guild):
         return True
     else:
         return False
-        
 
 
 # setStaffRole: スタッフ用ロールを設定する
@@ -178,7 +177,6 @@ def setStaffRole(id):
         session.add(config)
         session.commit()
         return True
-        
 
 
 # getStaffRole: スタッフ用の Discord ロールの ID を返す。未設定のときは None を返す。
