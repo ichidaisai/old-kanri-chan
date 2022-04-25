@@ -253,12 +253,19 @@ async def listItem(client, message):
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
                     )
                 else:
-                    await message.channel.send(
-                        "**"
-                        + utils.roleIdToName(target.id, message.guild)
-                        + "** に提出が指示された提出物は以下の通りです: \n"
-                        + returnItemByRoleId(target.id, "all")
-                    )
+                    if database.getTc(target.id, "post") is None:
+                        await message.channel.send(
+                            "⚠ ロール **"
+                            + target.name
+                            + "** は、提出を指示する先のロールとしては登録されていません。"
+                        )
+                    else:
+                        await message.channel.send(
+                            "**"
+                            + utils.roleIdToName(target.id, message.guild)
+                            + "** に提出が指示された提出物は以下の通りです: \n"
+                            + returnItemByRoleId(target.id, "all")
+                        )
     else:
         await message.channel.send(
             "**"

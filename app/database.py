@@ -312,11 +312,14 @@ def getRole(channel_id):
 ### post: 提出用テキストチャンネル
 def getTc(id, type):
     role = session.query(Role).filter(Role.id == int(id)).first()
-
-    if type == "chat":
-        return role.chat_tc
-    elif type == "post":
-        return role.post_tc
+    
+    if role:
+        if type == "chat":
+            return role.chat_tc
+        elif type == "post":
+            return role.post_tc
+        else:
+            return None
     else:
         return None
 
