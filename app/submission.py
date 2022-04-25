@@ -493,8 +493,8 @@ async def listSubmitInteract(client, message):
             + utils.roleIdToName(
                 int(database.getRole(message.channel.id)), message.guild
             )
-            + "** に提出が指示された提出物は以下の通りです: \n"
-            + "履歴を閲覧したい項目を選んでください。"
+            + "** に提出が指示された提出物は以下の通りです。 \n"
+            + "履歴を閲覧したい項目を選んでください: \n"
             + returnItem(message, "all")
         )
         try:
