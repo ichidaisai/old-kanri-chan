@@ -530,19 +530,22 @@ async def listSubmitInteract(client, message):
 
 def formatSubmitList(client, submit_list):
     list_fmt = ""
-                
-    for submit in submit_list:
-        list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
-        list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
-        if submit.format == "file":
-            list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
-        elif submit.format == "plain":
-            list_fmt += "📝 内容: " + submit.plain + "\n"
-        list_fmt += ":man_construction_worker: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
-        if submit.verified:
-            list_fmt += "✅ 委員会からの承認: **済**\n"
-        else:
-            list_fmt += "✅ 委員会からの承認: **未**\n"
-        list_fmt += "\n"
+    
+    if len(submit_list) == 0:
+        list_fmt += "まだ、この項目に対して何も提出されていません。"
+    else:
+        for submit in submit_list:
+            list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
+            list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+            if submit.format == "file":
+                list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
+            elif submit.format == "plain":
+                list_fmt += "📝 内容: " + submit.plain + "\n"
+            list_fmt += ":man_construction_worker: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
+            if submit.verified:
+                list_fmt += "✅ 委員会からの承認: **済**\n"
+            else:
+                list_fmt += "✅ 委員会からの承認: **未**\n"
+            list_fmt += "\n"
     
     return list_fmt
