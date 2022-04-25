@@ -354,6 +354,22 @@ def getItemName(id):
     else:
         return None
 
+# getSubmitAuthor: 提出 ID から、提出者を返す
+def getSubmitAuthor(id):
+    submit = session.query(Submission).filter(Submission.id == int(id)).first()
+    if submit:
+        return submit.author
+    else:
+        return None
+
+# getSubmitAuthor: 提出 ID から、提出を返す
+def getSubmit(id):
+    submit = session.query(Submission).filter(Submission.id == int(id)).first()
+    if submit:
+        return submit
+    else:
+        return None
+
 
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
