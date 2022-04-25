@@ -159,6 +159,7 @@ def delRole(id, guild):
         return False
         
 
+
 # setStaffRole: スタッフ用ロールを設定する
 def setStaffRole(id):
     exists = session.query(Config).filter(Config.key == "staff_role").first()
@@ -178,6 +179,7 @@ def setStaffRole(id):
         session.commit()
         return True
         
+
 
 # getStaffRole: スタッフ用の Discord ロールの ID を返す。未設定のときは None を返す。
 def getStaffRole():
