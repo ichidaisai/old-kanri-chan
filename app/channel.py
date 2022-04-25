@@ -173,20 +173,20 @@ async def pruneRoleInteract(client, message):
                                 )
                             else:
                                 await chat_tc.delete()
-                            
+
                             if chat_tc is None:
                                 await message.channel.send(
                                     ":information_source: 提出用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。"
                                 )
                             else:
                                 await post_tc.delete()
-    
+
                             # データベース上からのロールの削除
                             if database.delRole(target.id, guild) is False:
                                 await message.channel.send(
                                     ":information_source: データベース上のロールは既に削除されています。この処理はスキップされます。"
                                 )
-    
+
                             # Discord 上からのロールの削除
                             if target is None:
                                 await message.channel.send(
@@ -194,7 +194,7 @@ async def pruneRoleInteract(client, message):
                                 )
                             else:
                                 await target.delete()
-    
+
                             await message.channel.send(
                                 "✅ ロール **" + target.name + "** の削除が完了しました。"
                             )
