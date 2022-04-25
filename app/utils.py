@@ -34,6 +34,7 @@ def roleIdToName(role_id, guild):
     else:
         return role.name
 
+
 # userIdToName: Discord のユーザー ID から名前に変換する
 def userIdToName(client, user_id):
     user = client.get_user(int(user_id))
