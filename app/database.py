@@ -316,7 +316,7 @@ def getRole(channel_id):
 ### post: 提出用テキストチャンネル
 def getTc(id, type):
     role = session.query(Role).filter(Role.id == int(id)).first()
-    
+
     if role:
         if type == "chat":
             return role.chat_tc
@@ -354,6 +354,7 @@ def getItemName(id):
     else:
         return None
 
+
 # getSubmitAuthor: 提出 ID から、提出者を返す
 def getSubmitAuthor(id):
     submit = session.query(Submission).filter(Submission.id == int(id)).first()
@@ -361,6 +362,7 @@ def getSubmitAuthor(id):
         return submit.author
     else:
         return None
+
 
 # getSubmitAuthor: 提出 ID から、提出を返す
 def getSubmit(id):
@@ -406,7 +408,10 @@ def isPostTc(post_tc):
     role = session.query(Role).filter(Role.post_tc == post_tc).first()
     return role
 
+
 # getSubmitList(item_id): 提出物の ID から、提出された項目のデータを返す
 def getSubmitList(item_id):
-    submission = session.query(Submission).filter(Submission.item_id == int(item_id)).all()
+    submission = (
+        session.query(Submission).filter(Submission.item_id == int(item_id)).all()
+    )
     return submission
