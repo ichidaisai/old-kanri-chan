@@ -36,6 +36,8 @@ async def doResp(client, message):
         await submission.delItem(message)
     elif message.content.startswith("!item list"):
         await submission.listItem(client, message)
+    elif message.content.startswith("!submit list"):
+        await submission.listSubmitInteract(client, message)
     elif message.attachments:
         if database.isPostTc(message.channel.id):
             await submission.submitFileItem(client, message)

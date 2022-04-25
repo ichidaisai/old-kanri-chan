@@ -24,7 +24,9 @@ def main():
     # config.yml のトークン部分が正常なことを確認する
     if config.checkConfig():
         # 定義されたクライアントを読み込み、ボットを起動する
-        client = MyClient()
+        intents = discord.Intents.default()
+        intents.members = True
+        client = MyClient(intents=intents)
         client.run(config.getToken())
     else:
         print(f"config.yml の内容が正しくありません。終了します。")

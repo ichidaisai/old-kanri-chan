@@ -86,7 +86,8 @@ class Submission(Base):
 
     # filename: format が file のとき参照。実体ファイルへのパスを格納する。
     # plain: format が plain のとき参照。プレーンテキストの中身を格納する。
-    filename = Column("filename", VARCHAR(300), nullable=True)
+    path = Column("path", VARCHAR(500), nullable=True)
+    filename = Column("filename", VARCHAR(500), nullable=True)
     plain = Column("plain", VARCHAR(300), nullable=True)
 
     target = Column("target", BIGINT(unsigned=True))
@@ -273,7 +274,7 @@ def showItem(role_id, format):
 
 
 # addSubmit: ボットに提出されたファイルまたはプレーンテキストを登録する（データベースに登録する）
-def addSubmit(item_id, datetime, filename, plain, author, target, format):
+def addSubmit(item_id, datetime, filename, path, plain, author, target, format):
     submission = Submission()
 
     submission.item_id = item_id
@@ -284,6 +285,7 @@ def addSubmit(item_id, datetime, filename, plain, author, target, format):
 
     if format == "file":
         submission.filename = filename
+        submission.path = path
     elif format == "plain":
         submission.plain = plain
     else:
@@ -369,7 +371,7 @@ def getItemFormat(id):
         if item.format == "file" or item.format == "plain":
             return item.format
         else:
-            return False
+            return None
     else:
         return None
 
@@ -387,3 +389,8 @@ def getItemLimit(id):
 def isPostTc(post_tc):
     role = session.query(Role).filter(Role.post_tc == post_tc).first()
     return role
+
+# getSubmitList(item_id): 提出物の ID から、提出された項目のデータを返す
+def getSubmitList(item_id):
+    submission = session.query(Submission).filter(Submission.item_id == int(item_id)).all()
+    return submission

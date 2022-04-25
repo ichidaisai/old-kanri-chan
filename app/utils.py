@@ -28,7 +28,19 @@ def mentionToRoleId(mention):
 
 # roleIdToName: Discord のロール ID からロール名に変換する
 def roleIdToName(role_id, guild):
-    return guild.get_role(int(role_id)).name
+    role = guild.get_role(int(role_id))
+    if role is None:
+        return None
+    else:
+        return role.name
+
+# userIdToName: Discord のユーザー ID から名前に変換する
+def userIdToName(client, user_id):
+    user = client.get_user(int(user_id))
+    if user is None:
+        return "-"
+    else:
+        return user.name
 
 
 # is_datetime: 与えられた str が日時として認識できるかを確認する。

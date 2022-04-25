@@ -323,7 +323,8 @@ async def submitFileItem(client, message):
                         # ファイル名を決定
                         JST = dateutil.tz.gettz("Asia/Tokyo")
                         dt_now = datetime.datetime.now(JST)
-                        filename = dt_now.strftime(
+                        filename = attachment.filename
+                        path = dt_now.strftime(
                             # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
                             # ファイルは `posts/` 以下に保存される。
                             "posts/"
@@ -336,12 +337,13 @@ async def submitFileItem(client, message):
                             + "_"
                             + attachment.filename
                         )
-                        await attachment.save(filename)
+                        await attachment.save(path)
                         item_count += 1
                         database.addSubmit(
                             msg.content,  # item_id
                             dt_now,  # datetime
                             filename,  # filename
+                            path, # path, サーバー上のファイルの場所
                             None,  # plain, file なので NULL
                             message.author.id, # author, 提出者の Discord 内部 ID
                             database.getItemTarget(msg.content),  # target
@@ -411,3 +413,136 @@ def returnItemByRoleId(role_id, format):
     if items == "":
         items += "今のところ、提出を指示されている項目はありません。"
     return items
+
+async def listSubmitInteract(client, message):
+    result = database.getRole(message.channel.id)
+    def check(m):
+        return m.channel == message.channel and m.author == message.author
+    
+    if result is None:
+        await message.channel.send(
+            ":man_mage: どのロールが提出した提出物を見ますか？\n"
+            + "Discord のメンション機能を用いて、ロールを指定してください。"
+            )
+            
+        try:
+            msg_role = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            target_id = utils.mentionToRoleId(msg_role.content)
+
+            if target_id is None:
+                await message.channel.send(
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いて、ロールを指定してください。"
+                )
+            else:
+                target = message.guild.get_role(int(target_id))
+
+                if target is None:
+                    await message.channel.send(
+                        "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
+                    )
+                else:
+                    if database.getTc(target.id, "post") is None:
+                        await message.channel.send(
+                            "⚠ ロール **"
+                            + target.name
+                            + "** は、提出を指示する先のロールとしては登録されていません。"
+                        )
+                    else:
+                        await message.channel.send(
+                            "**"
+                            + utils.roleIdToName(target.id, message.guild)
+                            + "** に提出が指示された提出物は以下の通りです。\n"
+                            + "履歴を閲覧したい項目を選んでください。"
+                            + returnItemByRoleId(target.id, "all")
+                        )
+                        try:
+                            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+                        except asyncio.TimeoutError:
+                            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        else:
+                            if msg_item_id.content.isdigit():
+                                if database.getItemLimit(msg_item_id.content) is None:
+                                    await message.channel.send(
+                                        "⚠ 指定された ID **" 
+                                        + msg_item_id.content
+                                        + "** 持つ提出物が見つかりませんでした。"
+                                        )
+                                else:
+                                    item_id = msg_item_id.content
+                    
+                                    submit_list = database.getSubmitList(item_id)
+                                    list_fmt = formatSubmitList(client, submit_list)
+                                        
+                                    
+                                    await message.channel.send(
+                                        ":information_source: 以下が提出物 **"
+                                        + database.getItemName(item_id)
+                                        + "** (対象: "
+                                        + database.getItemTarget(item_id)
+                                        + ") の提出履歴です。\n"
+                                        + list_fmt
+                                        )
+                            else:
+                                await message.channel.send("⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。")
+    else:
+        await message.channel.send(
+            "**"
+            + utils.roleIdToName(
+                int(database.getRole(message.channel.id)), message.guild
+            )
+            + "** に提出が指示された提出物は以下の通りです: \n"
+            + "履歴を閲覧したい項目を選んでください。"
+            + returnItem(message, "all")
+        )
+        try:
+            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            if msg_item_id.content.isdigit():
+                if database.getItemLimit(msg_item_id.content) is None:
+                    await message.channel.send(
+                        "⚠ 指定された ID **" 
+                        + msg_item_id.content
+                        + "** 持つ提出物が見つかりませんでした。"
+                        )
+                else:
+                    item_id = msg_item_id.content
+                    
+                    submit_list = database.getSubmitList(item_id)
+                    list_fmt = formatSubmitList(client, submit_list)
+                        
+                    
+                    await message.channel.send(
+                        ":information_source: 以下が提出物 **"
+                        + database.getItemName(item_id)
+                        + "** (対象: "
+                        + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
+                        + ") の提出履歴です。\n\n"
+                        + list_fmt
+                        )
+            else:
+                await message.channel.send("⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。")
+
+
+def formatSubmitList(client, submit_list):
+    list_fmt = ""
+                
+    for submit in submit_list:
+        list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
+        list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+        if submit.format == "file":
+            list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
+        elif submit.format == "plain":
+            list_fmt += "📝 内容: " + submit.plain + "\n"
+        list_fmt += ":man_construction_worker: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
+        if submit.verified:
+            list_fmt += "✅ 委員会からの承認: **済**\n"
+        else:
+            list_fmt += "✅ 委員会からの承認: **未**\n"
+        list_fmt += "\n"
+    
+    return list_fmt
