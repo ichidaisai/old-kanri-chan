@@ -42,7 +42,7 @@ async def initRoleInteract(client, message):
                     "⚠ 提出用チャンネルのカテゴリーが未設定か、または不正な値に設定されているため、処理を中断します。"
                 )
             else:
-                if utils.isValidAsRoleName(m_role_name.content) is False:
+                if utils.isValidAsName(m_role_name.content) is False:
                     await message.channel.send(
                         "⚠ ロールの名前の指定方法が間違っています。もう一度、最初から操作をやり直してください。"
                     )
@@ -161,14 +161,33 @@ async def pruneRoleInteract(client, message):
                             post_tc = guild.get_channel(database.getTc(target.id, "post"))
     
                             ## 削除の実行
-                            await chat_tc.delete()
-                            await post_tc.delete()
+                            if chat_tc is None:
+                                await message.channel.send(
+                                    ":information_source: チャット用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。"
+                                )
+                            else:
+                                await chat_tc.delete()
+                            
+                            if chat_tc is None:
+                                await message.channel.send(
+                                    ":information_source: 提出用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。"
+                                )
+                            else:
+                                await post_tc.delete()
     
                             # データベース上からのロールの削除
-                            database.delRole(target.id, guild)
+                            if database.delRole(target.id, guild) is False:
+                                await message.channel.send(
+                                    ":information_source: データベース上のロールは既に削除されています。この処理はスキップされます。"
+                                )
     
                             # Discord 上からのロールの削除
-                            await target.delete()
+                            if target is None:
+                                await message.channel.send(
+                                    ":information_source: Discord 上のロールは既に削除されています。この処理はスキップされます。"
+                                )
+                            else:
+                                await target.delete()
     
                             await message.channel.send(
                                 "✅ ロール **" + target.name + "** の削除が完了しました。"
@@ -214,7 +233,7 @@ async def setStaffRole(message):
 
 async def setChat(message):
     if utils.isStaff(message.author, message.guild):
-        response = parse("!set chat <@&{}>", message.content)
+        response = parse("!ch set chat <@&{}>", message.content)
         if response:
             result = database.setChatTc(response[0], message.channel.id)
             if result:
@@ -258,7 +277,7 @@ async def setChatCategory(message):
 
 async def setPost(message):
     if utils.isStaff(message.author, message.guild):
-        response = parse("!set post <@&{}>", message.content)
+        response = parse("!ch set post <@&{}>", message.content)
         if response:
             result = database.setPostTc(response[0], message.channel.id)
             if result:
@@ -302,21 +321,20 @@ async def setPostCategory(message):
 
 async def addRole(message):
     if utils.isStaff(message.author, message.guild):
-        response = parse("!add role <@&{}>", message.content)
+        response = parse("!role add <@&{}>", message.content)
         if response:
             result = database.addRole(response[0], message.guild)
             if result:
                 await message.channel.send(
-                    "⚠ 指定されたロール **"
-                    + message.guild.get_role(int(response[0])).name
-                    + "** は既にボットに登録されています。"
-                )
-            else:
-    
-                await message.channel.send(
                     "✅ ロール "
                     + message.guild.get_role(int(response[0])).name
                     + " をボットに登録しました。"
+                )
+            else:
+                await message.channel.send(
+                    "⚠ 指定されたロール **"
+                    + message.guild.get_role(int(response[0])).name
+                    + "** は既にボットに登録されています。"
                 )
         else:
             await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
@@ -326,7 +344,7 @@ async def addRole(message):
 
 async def delRole(message):
     if utils.isStaff(message.author, message.guild):
-        response = parse("!del role <@&{}>", message.content)
+        response = parse("!role delete <@&{}>", message.content)
         if response:
             result = database.delRole(response[0], message.guild)
             if result:

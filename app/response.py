@@ -12,6 +12,8 @@ import database
 async def doResp(client, message):
     if message.content.startswith("!role add"):
         await channel.addRole(message)
+    elif message.content.startswith("!role delete"):
+        await channel.delRole(message)
     elif message.content.startswith("!role init"):
         await channel.initRoleInteract(client, message)
     elif message.content.startswith("!role prune"):
@@ -33,7 +35,7 @@ async def doResp(client, message):
     elif message.content.startswith("!item delete"):
         await submission.delItem(message)
     elif message.content.startswith("!item list"):
-        await submission.showItem(message)
+        await submission.listItem(client, message)
     elif message.attachments:
         if database.isPostTc(message.channel.id):
             await submission.submitFileItem(client, message)

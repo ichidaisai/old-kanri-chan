@@ -134,24 +134,41 @@ def setPostCategory(id):
 
 # addRole: ロールをボットに認識させる（データベースに登録する）
 def addRole(id, guild):
-    role = Role()
-    role.id = id
-    role.name = guild.get_role(int(id)).name
-
-    session.add(role)
-    session.commit()
+    exists = session.query(Role).filter(Role.id == int(id)).first()
+    
+    if exists:
+        return False
+    else:
+        role = Role()
+        role.id = id
+        role.name = guild.get_role(int(id)).name
+    
+        session.add(role)
+        session.commit()
+        return True
 
 
 # addRole: ロールをボットから削除する（データベースから削除する）
 def delRole(id, guild):
-    session.query(Role).filter(Role.id == id).delete()
-    session.commit()
+    exists = session.query(Role).filter(Role.id == int(id)).first()
+    if exists:
+        session.delete(exists)
+        session.commit()
+        return True
+    else:
+        return False
+        
 
 # setStaffRole: スタッフ用ロールを設定する
 def setStaffRole(id):
     exists = session.query(Config).filter(Config.key == "staff_role").first()
 
-    if exists is None:
+    if exists:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+        return True
+    else:
         # `post_category` キーが存在しないとき、INSERT 文を発行する
         config = Config()
         config.key = "staff_role"
@@ -160,20 +177,16 @@ def setStaffRole(id):
         session.add(config)
         session.commit()
         return True
-    else:
-        # `post_category` キーが存在するとき、UPDATE 文を発行する
-        exists.value = id
-        session.commit()
-        return True
+        
 
 # getStaffRole: スタッフ用の Discord ロールの ID を返す。未設定のときは None を返す。
 def getStaffRole():
     exists = session.query(Config).filter(Config.key == "staff_role").first()
 
-    if exists is None:
-        return None
-    else:
+    if exists:
         return exists.value
+    else:
+        return None
 
 
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
@@ -192,14 +205,14 @@ def setChatTc(id, tc):
 # setPostTc: ファイル提出用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setPostTc(id, tc):
     exists = session.query(Role).filter(Role.id == id).first()
-    if exists is None:
-        return False
-    else:
+    if exists:
         role = session.query(Role).filter(Role.id == id).first()
 
         role.post_tc = tc
         session.commit()
         return True
+    else:
+        return False
 
 
 # addItem: ボットに提出物を登録する（データベースに登録する）
@@ -222,7 +235,7 @@ def delItem(id):
     query = session.query(Item).filter(Item.id == id)
     result = session.query(query.exists()).scalar()
 
-    if result is True:
+    if result:
         session.query(Item).filter(Item.id == id).delete()
         session.commit()
         return True
@@ -287,10 +300,10 @@ def getRole(channel_id):
         .filter(or_(Role.chat_tc == int(channel_id), Role.post_tc == int(channel_id)))
         .first()
     )
-    if role is None:
-        return None
-    else:
+    if role:
         return str(role.id)
+    else:
+        return None
 
 
 # getTc: ロールに帰属するテキストチャンネルの ID を返す
@@ -329,46 +342,43 @@ def getCategory(type):
 # getItemName: 提出物の ID から、提出物の名前を返す
 def getItemName(id):
     item = session.query(Item).filter(Item.id == id).first()
-    if item is None:
-        return False
-    else:
+    if item:
         return str(item.name)
+    else:
+        return None
 
 
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
     item = session.query(Item).filter(Item.id == id).first()
-    if item is None:
-        return False
-    else:
+    if item:
         return str(item.target)
+    else:
+        return None
 
 
 # getItemFormat: 提出物の ID から、指示された提出物の形式を返す
 def getItemFormat(id):
     item = session.query(Item).filter(Item.id == id).first()
-    if item is None:
-        return False
-    else:
+    if item:
         if item.format == "file" or item.format == "plain":
             return item.format
         else:
             return False
+    else:
+        return None
 
 
 # getItemLimit: 提出物の ID から、提出物の期限を datetime 型で返す
 def getItemLimit(id):
     item = session.query(Item).filter(Item.id == id).first()
-    if item is None:
-        return False
-    else:
+    if item:
         return item.limit
+    else:
+        return None
 
 
 # isPostTc: 引数の Discord テキストチャンネルが提出用のチャンネルかを返す (True / False)
 def isPostTc(post_tc):
     role = session.query(Role).filter(Role.post_tc == post_tc).first()
-    if role is None:
-        return False
-    else:
-        return True
+    return role

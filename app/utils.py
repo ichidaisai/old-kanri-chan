@@ -46,11 +46,11 @@ def isStaff(author, guild):
     return role in author.roles
 
 
-# isValidAsRoleName: 新規作成するロールの名前として正しいかを True / False で返す
-def isValidAsRoleName(role_name):
-    checkNotRole = parse("<@&{}>", role_name)
-    checkNotMention = parse("<@{}>", role_name)
-    checkNotChannel = parse("<#{}>", role_name)
+# isValidAsName: 新規作成する項目の名前として正しいかを True / False で返す
+def isValidAsName(name):
+    checkNotRole = parse("<@&{}>", name)
+    checkNotMention = parse("<@{}>", name)
+    checkNotChannel = parse("<#{}>", name)
 
     if checkNotRole or checkNotMention or checkNotChannel:
         return False
