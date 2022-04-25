@@ -90,6 +90,7 @@ class Submission(Base):
     plain = Column("plain", VARCHAR(300), nullable=True)
 
     target = Column("target", BIGINT(unsigned=True))
+    author = Column("author", BIGINT(unsigned=True))
     verified = Column("verified", Boolean, default=False)
     format = Column("format", VARCHAR(300), default="file")
 
@@ -272,13 +273,14 @@ def showItem(role_id, format):
 
 
 # addSubmit: ボットに提出されたファイルまたはプレーンテキストを登録する（データベースに登録する）
-def addSubmit(item_id, datetime, filename, plain, target, format):
+def addSubmit(item_id, datetime, filename, plain, author, target, format):
     submission = Submission()
 
     submission.item_id = item_id
     submission.datetime = datetime
     submission.format = format
     submission.target = target
+    submission.author = author
 
     if format == "file":
         submission.filename = filename

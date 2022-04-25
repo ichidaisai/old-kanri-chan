@@ -343,6 +343,7 @@ async def submitFileItem(client, message):
                             dt_now,  # datetime
                             filename,  # filename
                             None,  # plain, file なので NULL
+                            message.author.id, # author, 提出者の Discord 内部 ID
                             database.getItemTarget(msg.content),  # target
                             "file",  # format
                         )
