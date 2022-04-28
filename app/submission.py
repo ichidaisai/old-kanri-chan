@@ -329,7 +329,7 @@ async def submitFileItem(client, message):
                             path = dt_now.strftime(
                                 # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
                                 # ファイルは `posts/` 以下に保存される。
-                                "posts/"
+                                "./data/posts/"
                                 + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
                                 + utils.roleIdToName(
                                     database.getRole(message.channel.id), message.guild

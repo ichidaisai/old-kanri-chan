@@ -5,7 +5,7 @@ from os.path import exists
 
 
 def getToken():
-    with open("config.yml") as file:
+    with open("./data/config.yml") as file:
         obj = yaml.safe_load(file)
         token = obj["DISCORD_TOKEN"]
     return token
@@ -14,8 +14,8 @@ def getToken():
 def checkConfig():
     flag = True
 
-    if exists("./config.yml"):
-        with open("config.yml") as file:
+    if exists("./data/config.yml"):
+        with open("./data/config.yml") as file:
             obj = yaml.safe_load(file)
 
             # 型チェック
