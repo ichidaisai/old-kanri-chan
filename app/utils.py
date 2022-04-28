@@ -39,7 +39,7 @@ def roleIdToName(role_id, guild):
 def userIdToName(client, user_id):
     user = client.get_user(int(user_id))
     if user is None:
-        return "-"
+        return None
     else:
         return user.name
 
