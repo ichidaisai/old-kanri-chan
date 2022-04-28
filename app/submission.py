@@ -2,6 +2,7 @@
 import discord
 from parse import *
 import datetime
+import asyncio
 import dateutil.parser
 import asyncio
 
@@ -49,7 +50,7 @@ async def addItemInteract(client, message):
 
                     # 提出物の対象を読み込む
                     await message.channel.send(
-                        "👤 提出物の対象者はいつにしますか？\n" + "Discord のメンション機能を使用して、ロールを指定してください。"
+                        "👤 提出物の対象者はいつにしますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。"
                     )
                     try:
                         m_item_target = await client.wait_for(
@@ -129,7 +130,7 @@ async def addItemInteract(client, message):
                         else:
                             await message.channel.send(
                                 "⚠ 対象者が正確に指定されていません。\n"
-                                + "Discord のメンション機能を使用して、ロールを指定してください。\n"
+                                + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
                                 + "もう一度、最初から操作をやり直してください。"
                             )
 
@@ -228,7 +229,7 @@ async def listItem(client, message):
 
     if result is None:
         await message.channel.send(
-            ":mage: どのロールの提出物を確認しますか？\nDiscord のメンション機能を使用して、ロールを指定してください。"
+            ":mage: どのロールの提出物を確認しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
         )
 
         def check(m):

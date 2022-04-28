@@ -34,9 +34,20 @@ class Role(Base):
         "id", BIGINT(unsigned=True), primary_key=True, unique=True, nullable=False
     )
     name = Column("name", VARCHAR(300))
+    parent_role = Column("parent_role", BIGINT(unsigned=True))
     chat_tc = Column("chat_tc", BIGINT(unsigned=True))
     post_tc = Column("post_tc", BIGINT(unsigned=True))
 
+# テーブル モデル: `parent_role` - 親ロールの情報を格納する
+## id: Discord のロール ID
+## type: `staff` / `member`
+class ParentRole(Base):
+    __tablename__ = "parent_role"
+    __table_args__ = {"mysql_charset": "utf8mb4"}
+    id = Column(
+        "id", BIGINT(unsigned=True), primary_key=True, unique=True, nullable=False
+    )
+    type = Column("type", VARCHAR(300))
 
 # テーブル モデル: `Config` - チャンネル カテゴリの情報等、ボット全体に関わる情報を格納する
 class Config(Base):
@@ -415,3 +426,72 @@ def getSubmitList(item_id):
         session.query(Submission).filter(Submission.item_id == int(item_id)).all()
     )
     return submission
+
+# getParentRoleList(): ボットに登録されている親ロールのリストを返す
+def getParentRoleList():
+    parent_role = session.query(ParentRole).all()
+    return parent_role
+
+# addParentRole(id, type): 親ロールをボットに登録する
+def addParentRole(id, type):
+    exists = session.query(ParentRole).filter(ParentRole.id == id).first()
+    if exists:
+        return False
+    else:
+        parent_role = ParentRole()
+        if str(id).isdigit():
+            if type == "staff":
+                parent_role.id = int(id)
+                parent_role.type = "staff"
+                session.add(parent_role)
+                session.commit()
+                return True
+            elif type == "member":
+                parent_role.id = int(id)
+                parent_role.type = "member"
+                session.add(parent_role)
+                session.commit()
+                return True
+            else:
+                return False
+        else:
+            return False
+
+# delParentRole(id): 親ロールをボットから削除する
+def delParentRole(role_id):
+    exists = session.query(ParentRole).filter(ParentRole.id == role_id).first()
+    if exists:
+        session.delete(exists)
+        session.commit()
+        return True
+    else:
+        return False
+
+# setParentRole(id, parent_role): 既にボットに登録されている子ロールの親ロールを更新する
+def setParentRole(id, parent_role):
+    if type == "staff" or type == "member":
+        role = session.query(Role).filter(Role.id == id).first()
+        if role:
+            role.parent_role = parent_role
+            session.commit()
+            return True
+        else:
+            return False
+    else:
+        return False
+
+# isParentRole(id): 指定したロールが親ロールとしてボットに登録されているか返す
+def isParentRole(id):
+    parent_role = session.query(ParentRole).filter(ParentRole.id == id).first()
+    if parent_role:
+        return True
+    else:
+        return False
+
+# getParentRole(role_id): 指定したロールの親ロールを取得する
+def getParentRole(role_id):
+    role = session.query(Role).filter(Role.id == role_id).first()
+    if role:
+        return role.parent_role
+    else:
+        return None

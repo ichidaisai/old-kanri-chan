@@ -20,6 +20,7 @@ class MyClient(discord.Client):
         await response.doResp(self, message)
 
 
+
 def main():
     # config.yml のトークン部分が正常なことを確認する
     if config.checkConfig():

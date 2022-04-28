@@ -56,8 +56,12 @@ def isDateTime(string, fuzzy=False):
 
 # isStaff: 指定したユーザーがスタッフ用ロールを持っているかを True / False で返す
 def isStaff(author, guild):
-    role = discord.utils.get(guild.roles, id=int(database.getStaffRole()))
-    return role in author.roles
+    staff_role = database.getStaffRole()
+    if staff_role is None:
+        return None
+    else:
+        role = discord.utils.get(guild.roles, id=int(staff_role))
+        return role in author.roles
 
 
 # isValidAsName: 新規作成する項目の名前として正しいかを True / False で返す
