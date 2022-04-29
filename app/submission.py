@@ -256,7 +256,7 @@ async def listItem(client, message):
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
                     )
                 else:
-                    if database.getTc(target.id, "post") is None:
+                    if database.getTc(target.id, "post") is None and database.isParentRole(target.id) is False:
                         await message.channel.send(
                             "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
                         )
@@ -417,6 +417,17 @@ def returnItem(message, format):
 def returnItemByRoleId(role_id, format):
     items = ""
     for item in database.showItem(role_id, format):
+        items += "\n"
+        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "📛 項目名: " + item.name + "\n"
+        items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+        if item.format == "file":
+            items += "💾 提出形式: 📄 ファイル\n"
+        elif item.format == "plain":
+            items += "💾 提出形式: 📜 プレーンテキスト\n"
+        else:
+            items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    for item in database.showItem(database.getParentRole(role_id), format):
         items += "\n"
         items += "🆔 提出物 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"
