@@ -99,10 +99,12 @@ async def addItemInteract(client, message):
                                     await message.channel.send(
                                         "✅ 提出物の形式を **" + format_fmt + "** にしました。"
                                     )
+                                    
+                                    item_handler = database.getUserParentRole(message)
 
                                     # データベースにコミット
                                     result = database.addItem(
-                                        item_name, item_limit, item_target, item_format
+                                        item_name, item_limit, item_target, item_handler, item_format
                                     )
                                     await message.channel.send(
                                         "✅ 以下の提出物を登録しました: "
@@ -211,7 +213,7 @@ async def addItem(message):
 
 # 登録された提出物の削除
 async def delItem(message):
-    response = parse("!del item {}", message.content)
+    response = parse("!item delete {}", message.content)
     if response:
         item_name = database.getItemName(response[0])
         result = database.delItem(response[0])
@@ -280,6 +282,7 @@ async def listItem(client, message):
 async def submitFileItem(client, message):
     if not message.author.bot:
         if returnItem(message, "file") == "今のところ、提出を指示されている項目はありません。":
+            print("parent role: " + str(database.getParentRole(database.getRole(message.channel.id))))
             await message.channel.send(
                 "⚠ ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n"
                 + "委員会が提出物を登録するまで、しばらくお待ちください。"
@@ -307,69 +310,67 @@ async def submitFileItem(client, message):
                     await channel.send(
                         "⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。"
                     )
-                elif database.getItemTarget(msg.content) != database.getRole(
-                    message.channel.id
-                ):
-                    print("getItemTarget: " + str(database.getItemTarget(msg.content)))
-                    print("\n")
-                    print(
-                        "database.getRole(message.channel.id): "
-                        + database.getRole(message.channel.id)
-                    )
-                    await channel.send(
-                        "⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。"
-                    )
                 else:
-                    if database.getItemFormat(msg.content) == "file":
-                        item_count = 0
-                        for attachment in message.attachments:
-                            # ファイル名を決定
-                            JST = dateutil.tz.gettz("Asia/Tokyo")
-                            dt_now = datetime.datetime.now(JST)
-                            filename = attachment.filename
-                            path = dt_now.strftime(
-                                # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
-                                # ファイルは `posts/` 以下に保存される。
-                                "./data/posts/"
-                                + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
-                                + utils.roleIdToName(
-                                    database.getRole(message.channel.id), message.guild
-                                )  # ロール名
-                                + "_"
+                    target = database.getItemTarget(msg.content)
+                    role_id = database.getRole(message.channel.id)
+                    parent_role_id = database.getParentRole(database.getRole(message.channel.id))
+                    
+                    # 特定の子ロールだけに指示された提出物
+                    if target == role_id or target == str(parent_role_id):
+                        if database.getItemFormat(msg.content) == "file":
+                            item_count = 0
+                            for attachment in message.attachments:
+                                # ファイル名を決定
+                                JST = dateutil.tz.gettz("Asia/Tokyo")
+                                dt_now = datetime.datetime.now(JST)
+                                filename = attachment.filename
+                                path = dt_now.strftime(
+                                    # アウトプット 例: `2022-05-01_20-30-21_サークルA_申込用紙1_提出物1.docx`
+                                    # ファイルは `posts/` 以下に保存される。
+                                    "./data/posts/"
+                                    + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
+                                    + utils.roleIdToName(
+                                        database.getRole(message.channel.id), message.guild
+                                    )  # ロール名
+                                    + "_"
+                                    + database.getItemName(msg.content)
+                                    + "_"
+                                    + attachment.filename
+                                )
+                                await attachment.save(path)
+                                item_count += 1
+                                database.addSubmit(
+                                    msg.content,  # item_id
+                                    dt_now,  # datetime
+                                    filename,  # filename
+                                    path,  # path, サーバー上のファイルの場所
+                                    None,  # plain, file なので NULL
+                                    message.author.id,  # author, 提出者の Discord 内部 ID
+                                    database.getItemTarget(msg.content),  # target
+                                    "file",  # format
+                                )
+    
+                            await channel.send(
+                                "✅ 提出物 "
+                                + "**"
                                 + database.getItemName(msg.content)
-                                + "_"
-                                + attachment.filename
+                                + "** を提出しました。("
+                                + str(item_count)
+                                + "件のファイル)"
                             )
-                            await attachment.save(path)
-                            item_count += 1
-                            database.addSubmit(
-                                msg.content,  # item_id
-                                dt_now,  # datetime
-                                filename,  # filename
-                                path,  # path, サーバー上のファイルの場所
-                                None,  # plain, file なので NULL
-                                message.author.id,  # author, 提出者の Discord 内部 ID
-                                database.getItemTarget(msg.content),  # target
-                                "file",  # format
+                        elif database.getItemFormat(msg.content) == "plain":
+                            await channel.send(
+                                "⚠ 提出物 "
+                                + "**"
+                                + database.getItemName(msg.content)
+                                + "** はファイルではなくテキストで提出してください。"
                             )
-
-                        await channel.send(
-                            "✅ 提出物 "
-                            + "**"
-                            + database.getItemName(msg.content)
-                            + "** を提出しました。("
-                            + str(item_count)
-                            + "件のファイル)"
-                        )
-                    elif database.getItemFormat(msg.content) == "plain":
-                        await channel.send(
-                            "⚠ 提出物 "
-                            + "**"
-                            + database.getItemName(msg.content)
-                            + "** はファイルではなくテキストで提出してください。"
-                        )
+                        else:
+                            await channel.send("⚠ 処理中になんらかの問題が発生しました。")
                     else:
-                        await channel.send("⚠ 処理中になんらかの問題が発生しました。")
+                        await channel.send(
+                            "⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。"
+                        )
 
 
 # 提出物の一覧を整形して str として返す (テキストチャンネルの ID で絞り込む)
@@ -379,7 +380,20 @@ async def submitFileItem(client, message):
 ## plain: プレーンテキスト形式の提出物を返す
 def returnItem(message, format):
     items = ""
+    # 特定ロールのみに指示された提出物
     for item in database.showItem(database.getRole(message.channel.id), format):
+        items += "\n"
+        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "📛 項目名: " + item.name + "\n"
+        items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+        if item.format == "file":
+            items += "💾 提出形式: 📄 ファイル\n"
+        elif item.format == "plain":
+            items += "💾 提出形式: 📜 プレーンテキスト\n"
+        else:
+            items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    # 親ロールに指示された提出物
+    for item in database.showItem(database.getParentRole(database.getRole(message.channel.id)), format):
         items += "\n"
         items += "🆔 提出物 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"

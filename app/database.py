@@ -62,6 +62,7 @@ class Config(Base):
 ## name: 提出物の名前。
 ## limit: 提出期限。YYYY-MM-DD-HH-mm
 ## target: その提出物を提出するべきロールの ID。ID は role テーブルの id と対応するようにする。
+## handler: その提出先を作成したロールの ID。
 ## verified: その提出物が委員会サイドから承認されたか。
 ## format: 提出物の形式。`file` または `plain` で、既定は `file`。
 class Item(Base):
@@ -78,6 +79,7 @@ class Item(Base):
     name = Column("name", VARCHAR(300))
     limit = Column("limit", DateTime)
     target = Column("target", BIGINT(unsigned=True))
+    handler = Column("handler", BIGINT(unsigned=True))
     format = Column("format", VARCHAR(300), default="file")
 
 
@@ -229,11 +231,12 @@ def setPostTc(id, tc):
 
 
 # addItem: ボットに提出物を登録する（データベースに登録する）
-def addItem(name, limit, target, format):
+def addItem(name, limit, target, handler, format):
     item = Item()
     item.name = name
     item.limit = limit
     item.target = target
+    item.handler = handler
     item.format = format
 
     session.add(item)
@@ -469,14 +472,12 @@ def delParentRole(role_id):
 
 # setParentRole(id, parent_role): 既にボットに登録されている子ロールの親ロールを更新する
 def setParentRole(id, parent_role):
-    if type == "staff" or type == "member":
-        role = session.query(Role).filter(Role.id == id).first()
-        if role:
-            role.parent_role = parent_role
-            session.commit()
-            return True
-        else:
-            return False
+    role = session.query(Role).filter(Role.id == id).first()
+    if role:
+        role.parent_role = parent_role
+        
+        session.commit()
+        return True
     else:
         return False
 
@@ -495,3 +496,22 @@ def getParentRole(role_id):
         return role.parent_role
     else:
         return None
+
+# getUserParentRole(client, user_id): 指定したユーザの親ロールを返す
+def getUserParentRole(message):
+    member = message.guild.get_member(message.author.id)
+    if member is None:
+        return None
+    else:
+        parent_roles = []
+        roles = []
+        
+        for parent_role in getParentRoleList():
+            parent_roles.append(parent_role.id)
+        
+        for role in member.roles:
+            roles.append(role.id)
+        
+        and_list = list(set(parent_roles) & set(roles))
+        
+        return and_list[0]
