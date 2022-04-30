@@ -8,8 +8,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - type: bind
-        source: "./config.yml"
-        target: "/app/config.yml"
+        source: "./data/config.yml"
+        target: "/app/data/config.yml"
+      - type: bind
+        source: "./data/posts"
+        target: "/app/data/posts"
     
   db:
     image: mariadb:10.5

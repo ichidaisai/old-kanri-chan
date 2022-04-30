@@ -12,7 +12,7 @@
 1. `./utils/up.sh` を実行して、開発用コンテナを立ち上げます。
 2. `./utils/attach.sh` を実行して、開発用アンテナのシェルに入ります。
 3. `pip install -r requirements.txt` を実行して、前提となるライブラリをインストールします。
-4. (初回のみ) `config.sample.yml` を `config.yml` としてコピーし、適宜値を編集します。
+4. (初回のみ) `./data/config.sample.yml` を `./data/config.yml` としてコピーし、適宜値を編集します。
 5. `python main.py` を実行して、ボットを起動します。
 
 ## コマンド チートシート
