@@ -50,7 +50,8 @@ async def addItemInteract(client, message):
 
                     # 提出物の対象を読み込む
                     await message.channel.send(
-                        "👤 提出物の対象者はいつにしますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。"
+                        "👤 提出物の対象者はいつにしますか？\n"
+                        + "__Discord のメンション機能を使用して、__ロールを指定してください。"
                     )
                     try:
                         m_item_target = await client.wait_for(
@@ -99,12 +100,16 @@ async def addItemInteract(client, message):
                                     await message.channel.send(
                                         "✅ 提出物の形式を **" + format_fmt + "** にしました。"
                                     )
-                                    
+
                                     item_handler = database.getUserParentRole(message)
 
                                     # データベースにコミット
                                     result = database.addItem(
-                                        item_name, item_limit, item_target, item_handler, item_format
+                                        item_name,
+                                        item_limit,
+                                        item_target,
+                                        item_handler,
+                                        item_format,
                                     )
                                     await message.channel.send(
                                         "✅ 以下の提出物を登録しました: "
@@ -256,7 +261,10 @@ async def listItem(client, message):
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
                     )
                 else:
-                    if database.getTc(target.id, "post") is None and database.isParentRole(target.id) is False:
+                    if (
+                        database.getTc(target.id, "post") is None
+                        and database.isParentRole(target.id) is False
+                    ):
                         await message.channel.send(
                             "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
                         )
@@ -282,7 +290,10 @@ async def listItem(client, message):
 async def submitFileItem(client, message):
     if not message.author.bot:
         if returnItem(message, "file") == "今のところ、提出を指示されている項目はありません。":
-            print("parent role: " + str(database.getParentRole(database.getRole(message.channel.id))))
+            print(
+                "parent role: "
+                + str(database.getParentRole(database.getRole(message.channel.id)))
+            )
             await message.channel.send(
                 "⚠ ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n"
                 + "委員会が提出物を登録するまで、しばらくお待ちください。"
@@ -313,8 +324,10 @@ async def submitFileItem(client, message):
                 else:
                     target = database.getItemTarget(msg.content)
                     role_id = database.getRole(message.channel.id)
-                    parent_role_id = database.getParentRole(database.getRole(message.channel.id))
-                    
+                    parent_role_id = database.getParentRole(
+                        database.getRole(message.channel.id)
+                    )
+
                     # 特定の子ロールだけに指示された提出物
                     if target == role_id or target == str(parent_role_id):
                         if database.getItemFormat(msg.content) == "file":
@@ -330,7 +343,8 @@ async def submitFileItem(client, message):
                                     "./data/posts/"
                                     + "%Y-%m-%d_%H-%M-%S_"  # タイムスタンプ
                                     + utils.roleIdToName(
-                                        database.getRole(message.channel.id), message.guild
+                                        database.getRole(message.channel.id),
+                                        message.guild,
                                     )  # ロール名
                                     + "_"
                                     + database.getItemName(msg.content)
@@ -349,7 +363,7 @@ async def submitFileItem(client, message):
                                     database.getItemTarget(msg.content),  # target
                                     "file",  # format
                                 )
-    
+
                             await channel.send(
                                 "✅ 提出物 "
                                 + "**"
@@ -393,7 +407,9 @@ def returnItem(message, format):
         else:
             items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     # 親ロールに指示された提出物
-    for item in database.showItem(database.getParentRole(database.getRole(message.channel.id)), format):
+    for item in database.showItem(
+        database.getParentRole(database.getRole(message.channel.id)), format
+    ):
         items += "\n"
         items += "🆔 提出物 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"

@@ -38,6 +38,7 @@ class Role(Base):
     chat_tc = Column("chat_tc", BIGINT(unsigned=True))
     post_tc = Column("post_tc", BIGINT(unsigned=True))
 
+
 # テーブル モデル: `parent_role` - 親ロールの情報を格納する
 ## id: Discord のロール ID
 ## type: `staff` / `member`
@@ -48,6 +49,7 @@ class ParentRole(Base):
         "id", BIGINT(unsigned=True), primary_key=True, unique=True, nullable=False
     )
     type = Column("type", VARCHAR(300))
+
 
 # テーブル モデル: `Config` - チャンネル カテゴリの情報等、ボット全体に関わる情報を格納する
 class Config(Base):
@@ -430,10 +432,12 @@ def getSubmitList(item_id):
     )
     return submission
 
+
 # getParentRoleList(): ボットに登録されている親ロールのリストを返す
 def getParentRoleList():
     parent_role = session.query(ParentRole).all()
     return parent_role
+
 
 # addParentRole(id, type): 親ロールをボットに登録する
 def addParentRole(id, type):
@@ -460,6 +464,7 @@ def addParentRole(id, type):
         else:
             return False
 
+
 # delParentRole(id): 親ロールをボットから削除する
 def delParentRole(role_id):
     exists = session.query(ParentRole).filter(ParentRole.id == role_id).first()
@@ -470,16 +475,18 @@ def delParentRole(role_id):
     else:
         return False
 
+
 # setParentRole(id, parent_role): 既にボットに登録されている子ロールの親ロールを更新する
 def setParentRole(id, parent_role):
     role = session.query(Role).filter(Role.id == id).first()
     if role:
         role.parent_role = parent_role
-        
+
         session.commit()
         return True
     else:
         return False
+
 
 # isParentRole(id): 指定したロールが親ロールとしてボットに登録されているか返す
 def isParentRole(id):
@@ -489,6 +496,7 @@ def isParentRole(id):
     else:
         return False
 
+
 # getParentRole(role_id): 指定したロールの親ロールを取得する
 def getParentRole(role_id):
     role = session.query(Role).filter(Role.id == role_id).first()
@@ -496,6 +504,7 @@ def getParentRole(role_id):
         return role.parent_role
     else:
         return None
+
 
 # getUserParentRole(client, user_id): 指定したユーザの親ロールを返す
 def getUserParentRole(message):
@@ -505,13 +514,13 @@ def getUserParentRole(message):
     else:
         parent_roles = []
         roles = []
-        
+
         for parent_role in getParentRoleList():
             parent_roles.append(parent_role.id)
-        
+
         for role in member.roles:
             roles.append(role.id)
-        
+
         and_list = list(set(parent_roles) & set(roles))
-        
+
         return and_list[0]
