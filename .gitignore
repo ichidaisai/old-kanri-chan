@@ -4,11 +4,14 @@ mysql/log
 
 # app
 *.pyc
-app/data/
+app/data/posts
+app/data/config.yml
 app/logs
 app/.env
 app/posts
 config.yml
+data/config.yml
+data/posts
 
 # misc
 .DS_Store
