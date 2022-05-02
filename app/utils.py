@@ -76,12 +76,13 @@ def isValidAsName(name):
     else:
         return True
 
+
 # convFileName(name): 日本語を含むファイル名をローマ字に変換する
 def convFileName(name):
-    name = name.replace('./data/posts/', '')
+    name = name.replace("./data/posts/", "")
     kks = pykakasi.kakasi()
     converted = kks.convert(name)
     result = ""
     for item in converted:
-        result += item['hepburn']
+        result += item["hepburn"]
     return result
