@@ -5,6 +5,7 @@ import datetime
 import asyncio
 import dateutil.parser
 import asyncio
+import unicodedata
 
 # 内部関数
 import database
@@ -520,7 +521,7 @@ async def listSubmitInteract(client, message):
                                         + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
                                         + ", "
                                         + "提出者: "
-                                        + utils.roleIdToName(database.getSubmitAuthorRole(item_id))
+                                        + utils.roleIdToName(database.getSubmitAuthorRole(item_id), message.guild)
                                         + ") の提出履歴です。\n"
                                         + list_fmt
                                     )
@@ -549,7 +550,7 @@ async def listSubmitInteract(client, message):
                         "⚠ 指定された ID **" + msg_item_id.content + "** 持つ提出物が見つかりませんでした。"
                     )
                 else:
-                    item_id = msg_item_id.content
+                    item_id = message.content = unicodedata.normalize("NFKC", msg_item_id.content)
 
                     submit_list = database.getSubmitList(
                                         item_id,
@@ -625,16 +626,15 @@ async def getSubmitInteract(client, message):
                                 "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                             )
                         else:
-                            if msg_item_id.content.isdigit():
-                                if database.getItemLimit(msg_item_id.content) is None:
+                            item_id = message.content = unicodedata.normalize("NFKC", msg_item_id.content)
+                            if item_id.isdigit():
+                                if database.getItemLimit(item_id) is None:
                                     await message.channel.send(
                                         "⚠ 指定された ID **"
                                         + msg_item_id.content
                                         + "** 持つ提出物が見つかりませんでした。"
                                     )
                                 else:
-                                    item_id = msg_item_id.content
-
                                     submit_list = database.getSubmitList(item_id, None)
                                     list_fmt = formatSubmitList(
                                         client, submit_list, "file"
@@ -659,9 +659,10 @@ async def getSubmitInteract(client, message):
                                             "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                                         )
                                     else:
+                                        submit_id = unicodedata.normalize("NFKC", msg_submit_id.content)
                                         if (
                                             database.getSubmitAuthor(
-                                                msg_submit_id.content
+                                                submit_id
                                             )
                                             is None
                                         ):
@@ -674,16 +675,16 @@ async def getSubmitInteract(client, message):
                                                 + formatSubmit(
                                                     client,
                                                     database.getSubmit(
-                                                        msg_submit_id.content
+                                                        submit_id
                                                     ),
                                                 ),
                                                 file=discord.File(
                                                     database.getSubmit(
-                                                        msg_submit_id.content
+                                                        submit_id
                                                     ).path,
                                                     filename=utils.convFileName(
                                                         database.getSubmit(
-                                                            msg_submit_id.content
+                                                            submit_id
                                                         ).path
                                                     ),
                                                 ),
@@ -708,14 +709,13 @@ async def getSubmitInteract(client, message):
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
-            if msg_item_id.content.isdigit():
-                if database.getItemLimit(msg_item_id.content) is None:
+            item_id = unicodedata.normalize("NFKC", msg_item_id.content)
+            if item_id.isdigit():
+                if database.getItemLimit(item_id) is None:
                     await message.channel.send(
-                        "⚠ 指定された ID **" + msg_item_id.content + "** 持つ提出物が見つかりませんでした。"
+                        "⚠ 指定された ID **" + item_id + "** 持つ提出物が見つかりませんでした。"
                     )
                 else:
-                    item_id = msg_item_id.content
-
                     submit_list = database.getSubmitList(
                                         item_id,
                                         database.getRole(message.channel.id)
@@ -742,7 +742,8 @@ async def getSubmitInteract(client, message):
                             "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                         )
                     else:
-                        if database.getSubmitAuthor(msg_submit_id.content) is None:
+                        submit_id = unicodedata.normalize("NFKC", msg_submit_id.content)
+                        if database.getSubmitAuthor(submit_id) is None:
                             await message.channel.send(
                                 "⚠ 提出 ID が間違っています。もう一度、最初から操作をやり直してください。"
                             )
@@ -750,13 +751,13 @@ async def getSubmitInteract(client, message):
                             await message.channel.send(
                                 "✅ 以下の提出を送信します: \n\n"
                                 + formatSubmit(
-                                    client, database.getSubmit(msg_submit_id.content)
+                                    client, database.getSubmit(submit_id)
                                 ),
                                 file=discord.File(
-                                    database.getSubmit(msg_submit_id.content).path,
+                                    database.getSubmit(submit_id).path,
                                     filename=utils.convFileName(
                                         database.getSubmit(
-                                            msg_submit_id.content
+                                            submit_id
                                         ).path
                                     ),
                                     spoiler=False,
@@ -892,18 +893,19 @@ async def verifySubmitInteract(client, message):
                     except asyncio.TimeoutError:
                         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
                     else:
-                        if m_submit_id.content.isdigit():
-                            result = database.verifySubmit(m_submit_id.content)
+                        submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
+                        if submit_id.isdigit():
+                            result = database.verifySubmit(submit_id)
                             if result is None:
                                 await message.channel.send(
                                     "⚠ 指定した提出は存在しません。\n"
                                     + "もう一度、最初から操作をやり直してください。"
                                 )
                             else:
-                                submit = database.getSubmit(m_submit_id.content)
+                                submit = database.getSubmit(submit_id)
                                 await message.channel.send(
                                     "✅ 提出 ID: "
-                                    + m_submit_id.content
+                                    + submit_id
                                     + " (提出先: "
                                     + database.getItemName(submit.item_id)
                                     + ", "

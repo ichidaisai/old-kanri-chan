@@ -2,6 +2,7 @@
 
 # 外部ライブラリ
 import discord
+import unicodedata
 
 # 内部関数
 import channel
@@ -10,6 +11,7 @@ import database
 
 
 async def doResp(client, message):
+    message.content = unicodedata.normalize("NFKC", message.content)
     if message.content.startswith("!role add"):
         await channel.addRole(message)
     elif message.content.startswith("!role delete"):
