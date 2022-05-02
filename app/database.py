@@ -392,7 +392,6 @@ def getSubmit(id):
     else:
         return None
 
-
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
     item = session.query(Item).filter(Item.id == id).first()
@@ -401,6 +400,11 @@ def getItemTarget(id):
     else:
         return None
 
+
+# getChildRole: 親ロール ID から、帰属するロールを返す
+def getChildRole(id):
+    role = session.query(Role).filter(Role.parent_role == id).all()
+    return role
 
 # getItemFormat: 提出物の ID から、指示された提出物の形式を返す
 def getItemFormat(id):
@@ -513,9 +517,12 @@ def setParentRole(id, parent_role):
 
 # isParentRole(id): 指定したロールが親ロールとしてボットに登録されているか返す
 def isParentRole(id):
-    parent_role = session.query(ParentRole).filter(ParentRole.id == id).first()
-    if parent_role:
-        return True
+    if str(id).isdigit():
+        parent_role = session.query(ParentRole).filter(ParentRole.id == id).first()
+        if parent_role:
+            return True
+        else:
+            return False
     else:
         return False
 

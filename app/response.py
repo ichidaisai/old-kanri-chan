@@ -50,6 +50,8 @@ async def doResp(client, message):
         await submission.listSubmitInteract(client, message)
     elif message.content.startswith("!submit get"):
         await submission.getSubmitInteract(client, message)
+    elif message.content.startswith("!submit check"):
+        await submission.checkSubmitInteract(client, message)
     elif message.content.startswith("!submit verify"):
         await submission.verifySubmitInteract(client, message)
     elif message.content.startswith("提出"):
