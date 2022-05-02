@@ -151,14 +151,16 @@ async def pruneRoleInteract(client, message):
         else:
             if utils.mentionToRoleId(msg.content) is None:
                 await message.channel.send(
-                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。"
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。\n"
+                    + "もう一度、最初から操作をやり直してください。"
                 )
             else:
                 target = guild.get_role(int(utils.mentionToRoleId(msg.content)))
 
                 if target is None:
                     await message.channel.send(
-                        "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
+                        "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。\n"
+                        + "もう一度、最初から操作をやり直してください。"
                     )
                 else:
                     await message.channel.send(
@@ -242,7 +244,8 @@ async def setStaffRole(message):
             # ロールが存在しないとき
             if message.guild.get_role(int(response[0])) is None:
                 await message.channel.send(
-                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。"
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。\n"
+                    + "もう一度、最初から操作をやり直してください。"
                 )
             else:
                 result = database.setStaffRole(response[0])
@@ -360,9 +363,15 @@ async def setChatCategory(message):
                         "✅ チャット用のチャンネル カテゴリーを **" + category.name + "** に設定しました。"
                     )
                 else:
-                    await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+                    await message.channel.send(
+                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n"
+                        + "もう一度、最初から操作をやり直してください。"
+                    )
             else:
-                await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+                await message.channel.send(
+                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n"
+                    + "もう一度、最初から操作をやり直してください。"
+                )
         else:
             await message.channel.send("❌ コマンドが不正です。")
     else:
@@ -387,7 +396,10 @@ async def setPost(message):
                     + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send(
+                "❌ コマンドが不正です。\n"
+                + "もう一度、最初から操作をやり直してください。"
+            )
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
@@ -406,9 +418,15 @@ async def setPostCategory(message):
                         "✅ 提出用のチャンネル カテゴリーを **" + category.name + "** に設定しました。"
                     )
                 else:
-                    await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+                    await message.channel.send(
+                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n"
+                        + "もう一度、最初から操作をやり直してください。"
+                    )
             else:
-                await message.channel.send("⚠ チャンネル カテゴリーの ID を正確に指定してください。")
+                await message.channel.send(
+                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n"
+                    + "もう一度、最初から操作をやり直してください。"
+                )
         else:
             await message.channel.send("❌ コマンドが不正です。")
     else:
@@ -433,7 +451,10 @@ async def addRole(message):
                     + "** は既にボットに登録されています。"
                 )
         else:
-            await message.channel.send("ボットにロールを追加できませんでした。コマンドを確認してください。")
+            await message.channel.send(
+                "ボットにロールを追加できませんでした。コマンドを確認してください。\n"
+                + "もう一度、最初から操作をやり直してください。"
+            )
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
@@ -520,7 +541,7 @@ async def addParentRoleInteract(client, message):
                         result = database.addParentRole(role_id, msg_role_type.content)
                         if result is False:
                             await message.channel.send(
-                                "⚠ ロールの区分の指定方法が間違っています。\n"
+                                "⚠ ロールの区別の指定方法が間違っています。\n"
                                  + "委員会の場合は `staff`、出店者の場合は `member` と返信してください。\n"
                                  + "もう一度、最初から操作をやり直してください。"
                                 )
@@ -532,7 +553,7 @@ async def addParentRoleInteract(client, message):
                             await message.channel.send(
                                 "✅ ロール **"
                                 + role_name
-                                + "** を 区分 **"
+                                + "** を 区別 **"
                                 + type_fmt
                                 + "** としてボットに登録しました。"
                                 )
