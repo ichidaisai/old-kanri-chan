@@ -384,7 +384,7 @@ def getSubmitAuthor(id):
         return None
 
 
-# getSubmitAuthor: 提出 ID から、提出を返す
+# getSubmit: 提出 ID から、提出を返す
 def getSubmit(id):
     submit = session.query(Submission).filter(Submission.id == int(id)).first()
     if submit:
