@@ -4,3 +4,4 @@ sqlalchemy
 parse
 mysqlclient
 python-dateutil
+pykakasi
