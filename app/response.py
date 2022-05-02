@@ -54,7 +54,7 @@ async def doResp(client, message):
         await submission.verifySubmitInteract(client, message)
     elif message.content.startswith("提出"):
         if database.isPostTc(message.channel.id):
-            await submission.submitPlainText(client, message)
+            await submission.submitPlainTextInteract(client, message)
     elif message.attachments:
         if database.isPostTc(message.channel.id):
             await submission.submitFileItem(client, message)

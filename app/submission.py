@@ -965,8 +965,8 @@ async def verifySubmitInteract(client, message):
                             )
 
 
-# submitPlainText(client, message): プレーンテキスト方式の提出先に提出する
-async def submitPlainText(client, message):
+# submitPlainText(client, message): プレーンテキスト方式の提出先に提出する (対話方式)
+async def submitPlainTextInteract(client, message):
     if returnItem(message, "plain") == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
             "⚠ あなたが提出するべき項目は登録されていません。\n" + "委員会が提出物を登録するまで、しばらくお待ちください。"
