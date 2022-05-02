@@ -2,10 +2,7 @@ version: '3.9'
 
 services:
   app:
-    image: ghcr.io/ichidaisai/discord-bot-2022:main
-    build:
-      context: app
-      dockerfile: Dockerfile
+    image: ghcr.io/ichidaisai/kanri-chan:main
     volumes:
       - type: bind
         source: "./data/config.yml"
