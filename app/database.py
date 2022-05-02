@@ -105,6 +105,7 @@ class Submission(Base):
 
     target = Column("target", BIGINT(unsigned=True))
     author = Column("author", BIGINT(unsigned=True))
+    author_role = Column("author_role", BIGINT(unsigned=True))
     verified = Column("verified", Boolean, default=False)
     format = Column("format", VARCHAR(300), default="file")
 
@@ -288,7 +289,7 @@ def showItem(role_id, format):
 
 
 # addSubmit: ボットに提出されたファイルまたはプレーンテキストを登録する（データベースに登録する）
-def addSubmit(item_id, datetime, filename, path, plain, author, target, format):
+def addSubmit(item_id, datetime, filename, path, plain, author, author_role, target, format):
     submission = Submission()
 
     submission.item_id = item_id
@@ -296,6 +297,7 @@ def addSubmit(item_id, datetime, filename, path, plain, author, target, format):
     submission.format = format
     submission.target = target
     submission.author = author
+    submission.author_role = author_role
 
     if format == "file":
         submission.filename = filename
@@ -417,17 +419,35 @@ def getItemLimit(id):
         return None
 
 
+# getSubmitAuthorRole(id): 提出 ID から、その提出を行ったロールの ID を返す
+def getSubmitAuthorRole(id):
+    submit = session.query(Submission).filter(Submission.id == id).first()
+    if submit:
+        return submit.author_role
+    else:
+        return None
+
 # isPostTc: 引数の Discord テキストチャンネルが提出用のチャンネルかを返す (True / False)
 def isPostTc(post_tc):
     role = session.query(Role).filter(Role.post_tc == post_tc).first()
     return role
 
 
-# getSubmitList(item_id): 提出物の ID から、提出された項目のデータを返す
-def getSubmitList(item_id):
-    submission = (
-        session.query(Submission).filter(Submission.item_id == int(item_id)).all()
-    )
+# getSubmitList(item_id, author_role): 提出物の ID と提出者のロール ID から、提出された項目のデータを返す
+def getSubmitList(item_id, author_role):
+    if author_role is None:
+        submission = (
+            session.query(Submission).filter(
+                Submission.item_id == int(item_id)
+            )
+        )
+    else:
+        submission = (
+            session.query(Submission).filter(
+                Submission.item_id == int(item_id),
+                Submission.author_role == int(author_role)
+            ).all()
+        )
     return submission
 
 # getParentRoleList(): ボットに登録されている親ロールのリストを返す
@@ -515,3 +535,13 @@ def getUserParentRole(message):
         and_list = list(set(parent_roles) & set(roles))
         
         return and_list[0]
+
+# verifySubmit(id): 指定した提出を承認する
+def verifySubmit(id):
+    submit = session.query(Submission).filter(Submission.id == id).first()
+    if submit is None:
+        return None
+    else:
+        submit.verified = True
+        session.commit()
+        return True

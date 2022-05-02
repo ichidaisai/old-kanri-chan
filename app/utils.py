@@ -74,7 +74,3 @@ def isValidAsName(name):
         return False
     else:
         return True
-
-# checkResp(): 対話方式のコマンドの処理において、受け取った返信が条件に適合するかを返す
-def checkResp(m):
-    return m.channel == message.channel and m.author == message.author
