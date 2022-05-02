@@ -392,6 +392,7 @@ def getSubmit(id):
     else:
         return None
 
+
 # getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
     item = session.query(Item).filter(Item.id == id).first()
@@ -405,6 +406,7 @@ def getItemTarget(id):
 def getChildRole(id):
     role = session.query(Role).filter(Role.parent_role == id).all()
     return role
+
 
 # getItemFormat: 提出物の ID から、指示された提出物の形式を返す
 def getItemFormat(id):

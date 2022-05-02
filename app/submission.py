@@ -1056,12 +1056,13 @@ async def submitPlainTextInteract(client, message):
                         "⚠ その提出物はあなたに割り当てられていません。" + "もう一度、最初から操作をやり直してください。"
                     )
 
+
 # checkSubmitInteract(client, message): 各ロールの提出状況を表示する (対話方式)
 async def checkSubmitInteract(client, message):
     await message.channel.send(
-        ":mage: どのロールに指示された提出物の提出状況を確認しますか？\n"
-        + "Discord のメンション機能を使用して、ロールを指定してください。"
+        ":mage: どのロールに指示された提出物の提出状況を確認しますか？\n" + "Discord のメンション機能を使用して、ロールを指定してください。"
     )
+
     def check(m):
         return m.channel == message.channel and m.author == message.author
 
@@ -1071,7 +1072,7 @@ async def checkSubmitInteract(client, message):
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
         target_id = utils.mentionToRoleId(m_target.content)
-        
+
         if target_id is None:
             await message.channel.send(
                 "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いて、ロールを指定してください。"
@@ -1086,9 +1087,14 @@ async def checkSubmitInteract(client, message):
                     + "もう一度、最初から操作をやり直してください。"
                 )
             else:
-                if database.getTc(target.id, "post") is None and database.isParentRole(target.id) is False:
+                if (
+                    database.getTc(target.id, "post") is None
+                    and database.isParentRole(target.id) is False
+                ):
                     await message.channel.send(
-                        "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
+                        "⚠ ロール **"
+                        + target.name
+                        + "** は、提出を指示する先のロールとしては登録されていません。"
                         + "もう一度、最初から操作をやり直してください。"
                     )
                 else:
@@ -1096,11 +1102,14 @@ async def checkSubmitInteract(client, message):
                         "**"
                         + utils.roleIdToName(target.id, message.guild)
                         + "** に提出が指示された提出物は以下の通りです: \n"
-                        + returnItemByRoleId(target.id, "all") + "\n"
+                        + returnItemByRoleId(target.id, "all")
+                        + "\n"
                         + "提出状況を確認したい提出先 ID を指定してください。"
                     )
                     try:
-                        m_item_id = await client.wait_for("message", check=check, timeout=30)
+                        m_item_id = await client.wait_for(
+                            "message", check=check, timeout=30
+                        )
                     except asyncio.TimeoutError:
                         await message.channel.send(
                             "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
@@ -1108,7 +1117,7 @@ async def checkSubmitInteract(client, message):
                         )
                     else:
                         item_id = m_item_id.content
-                        
+
                         if item_id.isdigit():
                             fmt_check_list = ""
                             target_list = []
@@ -1117,25 +1126,29 @@ async def checkSubmitInteract(client, message):
                                     target_list.append(str(role.id))
                             else:
                                 target_list.append(database.getItemTarget(item_id))
-                            
+
                             for target in target_list:
-                                fmt_check_list += utils.roleIdToName(target, message.guild)
+                                fmt_check_list += utils.roleIdToName(
+                                    target, message.guild
+                                )
                                 fmt_check_list += ": "
-                                
+
                                 submit = database.getSubmitList(item_id, target)
                                 if not submit:
                                     fmt_check_list += "❌\n"
                                 else:
                                     fmt_check_list += "✅\n"
-                                    
+
                             await message.channel.send(
-                                    ":notepad_spiral: 以下が提出先 **"
-                                    + database.getItemName(item_id)
-                                    + "** (対象: "
-                                    + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
-                                    + ") の提出状況です。\n\n"
-                                    + fmt_check_list
+                                ":notepad_spiral: 以下が提出先 **"
+                                + database.getItemName(item_id)
+                                + "** (対象: "
+                                + utils.roleIdToName(
+                                    database.getItemTarget(item_id), message.guild
                                 )
+                                + ") の提出状況です。\n\n"
+                                + fmt_check_list
+                            )
                         else:
                             await message.channel.send(
                                 "⚠ 提出先の指定方法が間違っています。提出状況を確認したい提出先 ID を番号で指定してください。"
