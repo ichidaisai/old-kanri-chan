@@ -11,8 +11,6 @@ cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 # Runner
 FROM python:3.9.10-bullseye AS runner
 
-RUN apt update; apt -y install libmagic-dev
-
 # Copy dependencies from builder
 COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
