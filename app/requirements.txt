@@ -5,3 +5,4 @@ parse
 mysqlclient
 python-dateutil
 pykakasi
+unicodedata
