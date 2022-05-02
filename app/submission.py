@@ -13,10 +13,10 @@ import channel
 import utils
 
 
-# 提出物の登録 (対話方式)
+# 提出先の登録 (対話方式)
 async def addItemInteract(client, message):
-    # 提出物の名前を読み込む
-    await message.channel.send("📛 提出物の名前は何にしますか？")
+    # 提出先の名前を読み込む
+    await message.channel.send("📛 提出先の名前は何にしますか？")
 
     def check(m):
         return m.channel == message.channel and m.author == message.author
@@ -28,13 +28,13 @@ async def addItemInteract(client, message):
     else:
         item_name = m_item_name.content
         if utils.isValidAsName(item_name) is False:
-            await message.channel.send("⚠ 提出物の名前として正しくありません。もう一度、最初から操作をやり直してください。")
+            await message.channel.send("⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。")
         else:
-            await message.channel.send("✅ 提出物の名前を **" + item_name + "** にしました。")
+            await message.channel.send("✅ 提出先の名前を **" + item_name + "** にしました。")
 
-            # 提出物の期限を読み込む
+            # 提出先の期限を読み込む
             await message.channel.send(
-                "⏰ 提出物の期限はいつにしますか？\n"
+                "⏰ 提出期限はいつにしますか？\n"
                 + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
             )
 
@@ -46,12 +46,12 @@ async def addItemInteract(client, message):
                 if utils.isDateTime(m_item_limit.content):
                     item_limit = dateutil.parser.parse(m_item_limit.content)
                     await message.channel.send(
-                        "✅ 提出物の期限を `" + utils.dtToStr(item_limit) + "` にしました。"
+                        "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
                     )
 
-                    # 提出物の対象を読み込む
+                    # 提出先の対象を読み込む
                     await message.channel.send(
-                        "👤 提出物の対象者はいつにしますか？\n"
+                        "👤 対象者はどのロールにしますか？\n"
                         + "__Discord のメンション機能を使用して、__ロールを指定してください。"
                     )
                     try:
@@ -67,14 +67,14 @@ async def addItemInteract(client, message):
                         if role_id is not None:
                             item_target = role_id
                             await message.channel.send(
-                                "✅ 提出物の対象者を **"
+                                "✅ 提出先の対象者を **"
                                 + utils.roleIdToName(role_id, message.guild)
                                 + "** にしました。"
                             )
 
-                            # 提出物の形式を読み込む
+                            # 提出先の形式を読み込む
                             await message.channel.send(
-                                "💾 提出物の形式はどちらにしますか？\n"
+                                "💾 提出形式はどちらにしますか？\n"
                                 + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
                             )
                             try:
@@ -99,7 +99,7 @@ async def addItemInteract(client, message):
                                         format_fmt = "📜 プレーンテキスト"
 
                                     await message.channel.send(
-                                        "✅ 提出物の形式を **" + format_fmt + "** にしました。"
+                                        "✅ 提出形式を **" + format_fmt + "** にしました。"
                                     )
 
                                     item_handler = database.getUserParentRole(message)
@@ -113,7 +113,7 @@ async def addItemInteract(client, message):
                                         item_format,
                                     )
                                     await message.channel.send(
-                                        "✅ 以下の提出物を登録しました: "
+                                        "✅ 以下の提出先を登録しました: "
                                         + "\n📛 項目名: "
                                         + database.getItemName(result)
                                         + "\n⏰ 期限: "
@@ -150,7 +150,7 @@ async def addItemInteract(client, message):
                     )
 
 
-# 提出物の登録
+# 提出先の登録
 async def addItem(message):
     response = parse("!add item {} {} {} {}", message.content)
     # コマンドの内容を精査する。
@@ -181,7 +181,7 @@ async def addItem(message):
                         format_fmt = "📜 プレーンテキスト"
 
                     await message.channel.send(
-                        "✅ 以下の提出物を登録しました: "
+                        "✅ 以下の提出先を登録しました: "
                         + "\n📛 項目名: "
                         + database.getItemName(result)
                         + "\n⏰ 期限: "
@@ -210,34 +210,34 @@ async def addItem(message):
         await message.channel.send(
             "❌ コマンドが不正です。\n"
             + "使用法: `!add item [名前] [期限] [対象] [種類]`\n"
-            + "[名前]: 提出物の項目名を指定してください。\n"
+            + "[名前]: 項目名を指定してください。\n"
             + "[期限]: 提出期限を `西暦-月-日-時-分` で指定してください。(例: `2022-04-19-18-00`)\n"
-            + "[対象]: その提出物を提出するべきロールをメンションしてください。(例: `@サークルA`)\n"
+            + "[対象]: その提出先に提出するべきロールをメンションしてください。(例: `@サークルA`)\n"
             + "[種類]: 提出の形式を、ファイルの場合は `file`、テキストの場合は `plain` で指定します。"
         )
 
 
-# 登録された提出物の削除
+# 登録された提出先の削除
 async def delItem(message):
     response = parse("!item delete {}", message.content)
     if response:
         item_name = database.getItemName(response[0])
         result = database.delItem(response[0])
         if result is False:
-            await message.channel.send("⚠ 提出物が見つかりません。ID をご確認ください。")
+            await message.channel.send("⚠ 提出先が見つかりません。ID をご確認ください。")
         else:
-            await message.channel.send("✅ 提出物 " + item_name + " を削除しました。")
+            await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
     else:
         await message.channel.send("❌ コマンドが不正です。")
 
 
-# 登録された提出物を表示, 特定のロールに紐付いた提出物のみ表示する
+# 登録された提出先を表示, 特定のロールに紐付いた提出先のみ表示する
 async def listItem(client, message):
     result = database.getRole(message.channel.id)
 
     if result is None:
         await message.channel.send(
-            ":mage: どのロールの提出物を確認しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
+            ":mage: どのロールの提出先を確認しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
         )
 
         def check(m):
@@ -273,7 +273,7 @@ async def listItem(client, message):
                         await message.channel.send(
                             "**"
                             + utils.roleIdToName(target.id, message.guild)
-                            + "** に提出が指示された提出物は以下の通りです: \n"
+                            + "** に提出が指示された提出先は以下の通りです: \n"
                             + returnItemByRoleId(target.id, "all")
                         )
     else:
@@ -282,12 +282,12 @@ async def listItem(client, message):
             + utils.roleIdToName(
                 int(database.getRole(message.channel.id)), message.guild
             )
-            + "** に提出が指示された提出物は以下の通りです: \n"
+            + "** に提出が指示された提出先は以下の通りです: \n"
             + returnItem(message, "all")
         )
 
 
-# 提出物を提出する
+# ファイルを提出する
 async def submitFileItem(client, message):
     if not message.author.bot:
         if returnItem(message, "file") == "今のところ、提出を指示されている項目はありません。":
@@ -297,14 +297,14 @@ async def submitFileItem(client, message):
             )
             await message.channel.send(
                 "⚠ ファイルを検出しましたが、あなたが提出するべき項目は登録されていません。\n"
-                + "委員会が提出物を登録するまで、しばらくお待ちください。"
+                + "委員会が提出先を登録するまで、しばらくお待ちください。"
             )
         else:
             channel = message.channel
 
             await channel.send(
                 "❗ ファイルを検出しました。\n"
-                + "どの提出物を提出しようとしていますか？\n"
+                + "何を提出しようとしていますか？\n"
                 + returnItem(message, "file")
                 + "\n提出したい項目の ID を、このチャンネルで発言してください。"
             )
@@ -387,21 +387,21 @@ async def submitFileItem(client, message):
                             await channel.send("⚠ 処理中になんらかの問題が発生しました。")
                     else:
                         await channel.send(
-                            "⚠ その提出物はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。"
+                            "⚠ その提出先はあなたに割り当てられていません。もう一度、ファイルのアップロードからやり直してください。"
                         )
 
 
-# 提出物の一覧を整形して str として返す (テキストチャンネルの ID で絞り込む)
+# 提出先の一覧を整形して str として返す (テキストチャンネルの ID で絞り込む)
 ## format:
-## all: すべての提出形式の提出物を返す
-## file: ファイル形式の提出物を返す
-## plain: プレーンテキスト形式の提出物を返す
+## all: すべての提出形式の提出先を返す
+## file: ファイル形式の提出先を返す
+## plain: プレーンテキスト形式の提出先を返す
 def returnItem(message, format):
     items = ""
-    # 特定ロールのみに指示された提出物
+    # 特定ロールのみに指示された提出先
     for item in database.showItem(database.getRole(message.channel.id), format):
         items += "\n"
-        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "🆔 提出先 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"
         items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
         if item.format == "file":
@@ -410,12 +410,12 @@ def returnItem(message, format):
             items += "💾 提出形式: 📜 プレーンテキスト\n"
         else:
             items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
-    # 親ロールに指示された提出物
+    # 親ロールに指示された提出先
     for item in database.showItem(
         database.getParentRole(database.getRole(message.channel.id)), format
     ):
         items += "\n"
-        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "🆔 提出先 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"
         items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
         if item.format == "file":
@@ -429,16 +429,16 @@ def returnItem(message, format):
     return items
 
 
-# 提出物の一覧を整形して str として返す (Discord 上のロール ID で絞り込む)
+# 提出先の一覧を整形して str として返す (Discord 上のロール ID で絞り込む)
 ## format:
-## all: すべての提出形式の提出物を返す
-## file: ファイル形式の提出物を返す
-## plain: プレーンテキスト形式の提出物を返す
+## all: すべての提出形式の提出先を返す
+## file: ファイル形式の提出先を返す
+## plain: プレーンテキスト形式の提出先を返す
 def returnItemByRoleId(role_id, format):
     items = ""
     for item in database.showItem(role_id, format):
         items += "\n"
-        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "🆔 提出先 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"
         items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
         if item.format == "file":
@@ -449,7 +449,7 @@ def returnItemByRoleId(role_id, format):
             items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     for item in database.showItem(database.getParentRole(role_id), format):
         items += "\n"
-        items += "🆔 提出物 ID: " + str(item.id) + "\n"
+        items += "🆔 提出先 ID: " + str(item.id) + "\n"
         items += "📛 項目名: " + item.name + "\n"
         items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
         if item.format == "file":
@@ -471,7 +471,7 @@ async def listSubmitInteract(client, message):
 
     if result is None:
         await message.channel.send(
-            ":man_mage: どのロールが提出した提出物を見ますか？\n" + "Discord のメンション機能を用いて、ロールを指定してください。"
+            ":man_mage: どのロールが提出した提出先を見ますか？\n" + "Discord のメンション機能を用いて、ロールを指定してください。"
         )
 
         try:
@@ -522,7 +522,7 @@ async def listSubmitInteract(client, message):
                                     await message.channel.send(
                                         "⚠ 指定された ID **"
                                         + msg_item_id.content
-                                        + "** 持つ提出物が見つかりませんでした。"
+                                        + "** を持つ提出先が見つかりませんでした。"
                                     )
                                 else:
                                     item_id = msg_item_id.content
@@ -533,7 +533,7 @@ async def listSubmitInteract(client, message):
                                     )
 
                                     await message.channel.send(
-                                        ":information_source: 以下が提出物 **"
+                                        ":information_source: 以下が提出先 **"
                                         + database.getItemName(item_id)
                                         + "** (対象: "
                                         + utils.roleIdToName(
@@ -551,7 +551,7 @@ async def listSubmitInteract(client, message):
                                     )
                             else:
                                 await message.channel.send(
-                                    "⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。"
+                                    "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。"
                                 )
     else:
         await message.channel.send(
@@ -559,7 +559,7 @@ async def listSubmitInteract(client, message):
             + utils.roleIdToName(
                 int(database.getRole(message.channel.id)), message.guild
             )
-            + "** に提出が指示された提出物は以下の通りです。 \n"
+            + "** に提出が指示されたものは以下の通りです。 \n"
             + "履歴を閲覧したい項目を選んでください: \n"
             + returnItem(message, "all")
         )
@@ -571,7 +571,7 @@ async def listSubmitInteract(client, message):
             if msg_item_id.content.isdigit():
                 if database.getItemLimit(msg_item_id.content) is None:
                     await message.channel.send(
-                        "⚠ 指定された ID **" + msg_item_id.content + "** 持つ提出物が見つかりませんでした。"
+                        "⚠ 指定された ID **" + msg_item_id.content + "** を持つ提出先が見つかりませんでした。"
                     )
                 else:
                     item_id = message.content = unicodedata.normalize(
@@ -584,7 +584,7 @@ async def listSubmitInteract(client, message):
                     list_fmt = formatSubmitList(client, submit_list, "all")
 
                     await message.channel.send(
-                        ":information_source: 以下が提出物 **"
+                        ":information_source: 以下が提出先 **"
                         + database.getItemName(item_id)
                         + "** (対象: "
                         + utils.roleIdToName(
@@ -599,7 +599,7 @@ async def listSubmitInteract(client, message):
                     )
             else:
                 await message.channel.send(
-                    "⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。"
+                    "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。"
                 )
 
 
@@ -666,7 +666,7 @@ async def getSubmitInteract(client, message):
                                     await message.channel.send(
                                         "⚠ 指定された ID **"
                                         + msg_item_id.content
-                                        + "** 持つ提出物が見つかりませんでした。"
+                                        + "** を持つ提出先が見つかりませんでした。"
                                     )
                                 else:
                                     submit_list = database.getSubmitList(item_id, None)
@@ -675,7 +675,7 @@ async def getSubmitInteract(client, message):
                                     )
 
                                     await message.channel.send(
-                                        ":information_source: 以下が提出物 **"
+                                        ":information_source: 以下が提出先 **"
                                         + database.getItemName(item_id)
                                         + "** (対象: "
                                         + utils.roleIdToName(
@@ -722,7 +722,7 @@ async def getSubmitInteract(client, message):
 
                             else:
                                 await message.channel.send(
-                                    "⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。"
+                                    "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。"
                                 )
     else:
         await message.channel.send(
@@ -730,7 +730,7 @@ async def getSubmitInteract(client, message):
             + utils.roleIdToName(
                 int(database.getRole(message.channel.id)), message.guild
             )
-            + "** に提出が指示された提出物は以下の通りです。 \n"
+            + "** に提出が指示されたものは以下の通りです。 \n"
             + "ダウンロードしたい項目を選んでください: \n"
             + returnItem(message, "all")
         )
@@ -743,7 +743,7 @@ async def getSubmitInteract(client, message):
             if item_id.isdigit():
                 if database.getItemLimit(item_id) is None:
                     await message.channel.send(
-                        "⚠ 指定された ID **" + item_id + "** 持つ提出物が見つかりませんでした。"
+                        "⚠ 指定された ID **" + item_id + "** 持つ提出先が見つかりませんでした。"
                     )
                 else:
                     submit_list = database.getSubmitList(
@@ -752,7 +752,7 @@ async def getSubmitInteract(client, message):
                     list_fmt = formatSubmitList(client, submit_list, "file")
 
                     await message.channel.send(
-                        ":information_source: 以下が提出物 **"
+                        ":information_source: 以下が提出先 **"
                         + database.getItemName(item_id)
                         + "** (対象: "
                         + utils.roleIdToName(
@@ -794,7 +794,7 @@ async def getSubmitInteract(client, message):
                             )
             else:
                 await message.channel.send(
-                    "⚠ 番号で提出物 ID を指定してください。もう一度、最初から操作をやり直してください。"
+                    "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。"
                 )
 
 
@@ -969,12 +969,12 @@ async def verifySubmitInteract(client, message):
 async def submitPlainTextInteract(client, message):
     if returnItem(message, "plain") == "今のところ、提出を指示されている項目はありません。":
         await message.channel.send(
-            "⚠ あなたが提出するべき項目は登録されていません。\n" + "委員会が提出物を登録するまで、しばらくお待ちください。"
+            "⚠ あなたが提出するべき項目は登録されていません。\n" + "委員会が提出先を登録するまで、しばらくお待ちください。"
         )
     else:
         channel = message.channel
         await channel.send(
-            ":mage: どの提出物を提出しようとしていますか？\n"
+            ":mage: どの提出先に提出しようとしていますか？\n"
             + returnItem(message, "plain")
             + "\n提出したい項目の ID を、このチャンネルで発言してください。"
         )
@@ -995,7 +995,7 @@ async def submitPlainTextInteract(client, message):
                 parent_role_id = database.getParentRole(
                     database.getRole(message.channel.id)
                 )
-                # 特定の子ロールだけに指示された提出物
+                # 特定の子ロールだけに指示された提出先
                 if target == role_id or target == str(parent_role_id):
                     if database.getItemFormat(msg.content) == "plain":
                         await channel.send(
@@ -1053,7 +1053,7 @@ async def submitPlainTextInteract(client, message):
                         await channel.send("⚠ 処理中になんらかの問題が発生しました。")
                 else:
                     await channel.send(
-                        "⚠ その提出物はあなたに割り当てられていません。" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ その提出先はあなたに割り当てられていません。" + "もう一度、最初から操作をやり直してください。"
                     )
 
 # checkSubmitInteract(client, message): 各ロールの提出状況を表示する (対話方式)
@@ -1119,7 +1119,7 @@ async def checkSubmitInteract(client, message):
                                 target_list.append(database.getItemTarget(item_id))
                             
                             for target in target_list:
-                                fmt_check_list += utils.roleIdToName(target, message.guild)
+                                # fmt_check_list += utils.roleIdToName(target, message.guild)
                                 fmt_check_list += ": "
                                 
                                 submit = database.getSubmitList(item_id, target)

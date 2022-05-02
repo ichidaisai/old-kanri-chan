@@ -59,14 +59,14 @@ class Config(Base):
     value = Column("value", VARCHAR(300))
 
 
-# テーブル モデル: `item` - 提出物の情報を格納する
-## id: 提出物の一意な ID。自動インクリメントなので、INSERT の際に手動で指定することはない。
-## name: 提出物の名前。
+# テーブル モデル: `item` - 提出先の情報を格納する
+## id: 提出先の一意な ID。自動インクリメントなので、INSERT の際に手動で指定することはない。
+## name: 提出先の名前。
 ## limit: 提出期限。YYYY-MM-DD-HH-mm
-## target: その提出物を提出するべきロールの ID。ID は role テーブルの id と対応するようにする。
+## target: その提出先を提出するべきロールの ID。ID は role テーブルの id と対応するようにする。
 ## handler: その提出先を作成したロールの ID。
-## verified: その提出物が委員会サイドから承認されたか。
-## format: 提出物の形式。`file` または `plain` で、既定は `file`。
+## verified: その提出先が委員会サイドから承認されたか。
+## format: 提出先の形式。`file` または `plain` で、既定は `file`。
 class Item(Base):
     __tablename__ = "item"
     __table_args__ = {"mysql_charset": "utf8mb4"}
@@ -233,7 +233,7 @@ def setPostTc(id, tc):
         return False
 
 
-# addItem: ボットに提出物を登録する（データベースに登録する）
+# addItem: ボットに提出先を登録する（データベースに登録する）
 def addItem(name, limit, target, handler, format):
     item = Item()
     item.name = name
@@ -248,8 +248,8 @@ def addItem(name, limit, target, handler, format):
     return item.id
 
 
-# delItem: ボットから提出物を削除する（データベースから削除する）
-## id: 提出物の ID
+# delItem: ボットから提出先を削除する（データベースから削除する）
+## id: 提出先の ID
 def delItem(id):
     query = session.query(Item).filter(Item.id == id)
     result = session.query(query.exists()).scalar()
@@ -262,12 +262,12 @@ def delItem(id):
         return False
 
 
-# showItem: ボットに登録されている提出物のうち、特定のロールが提出するべきものを返す。
+# showItem: ボットに登録されている提出先のうち、特定のロールが提出するべきものを返す。
 ## role_id: Discord のロール ID
 ## format:
-## all: すべての提出形式の提出物を返す
-## file: ファイル形式の提出物を返す
-## plain: プレーンテキスト形式の提出物を返す
+## all: すべての提出形式の提出先を返す
+## file: ファイル形式の提出先を返す
+## plain: プレーンテキスト形式の提出先を返す
 def showItem(role_id, format):
     if format == "all":
         items = session.query(Item).filter(Item.target == role_id).all()
@@ -366,7 +366,7 @@ def getCategory(type):
         return config.value
 
 
-# getItemName: 提出物の ID から、提出物の名前を返す
+# getItemName: 提出先の ID から、提出先の名前を返す
 def getItemName(id):
     item = session.query(Item).filter(Item.id == id).first()
     if item:
@@ -392,7 +392,7 @@ def getSubmit(id):
     else:
         return None
 
-# getItemTarget: 提出物の ID から、提出物の対象者の Discord 上のロール ID を返す
+# getItemTarget: 提出先の ID から、提出先の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
     item = session.query(Item).filter(Item.id == id).first()
     if item:
@@ -406,7 +406,7 @@ def getChildRole(id):
     role = session.query(Role).filter(Role.parent_role == id).all()
     return role
 
-# getItemFormat: 提出物の ID から、指示された提出物の形式を返す
+# getItemFormat: 提出先の ID から、指示された提出先の形式を返す
 def getItemFormat(id):
     item = session.query(Item).filter(Item.id == id).first()
     if item:
@@ -418,7 +418,7 @@ def getItemFormat(id):
         return None
 
 
-# getItemLimit: 提出物の ID から、提出物の期限を datetime 型で返す
+# getItemLimit: 提出先の ID から、提出先の期限を datetime 型で返す
 def getItemLimit(id):
     item = session.query(Item).filter(Item.id == id).first()
     if item:
@@ -442,7 +442,7 @@ def isPostTc(post_tc):
     return role
 
 
-# getSubmitList(item_id, author_role): 提出物の ID と提出者のロール ID から、提出された項目のデータを返す
+# getSubmitList(item_id, author_role): 提出先の ID と提出者のロール ID から、提出された項目のデータを返す
 def getSubmitList(item_id, author_role):
     if author_role is None:
         submission = (
