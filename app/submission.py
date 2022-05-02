@@ -918,3 +918,90 @@ async def verifySubmitInteract(client, message):
                                 "⚠ 提出 ID の指定方法が間違っています。\n"
                                 + "もう一度、最初から操作をやり直してください。"
                             )
+
+# submitPlainText(client, message): プレーンテキスト方式の提出先に提出する
+async def submitPlainText(client, message):
+    if returnItem(message, "plain") == "今のところ、提出を指示されている項目はありません。":
+            await message.channel.send(
+                "⚠ あなたが提出するべき項目は登録されていません。\n"
+                + "委員会が提出物を登録するまで、しばらくお待ちください。"
+            )
+    else:
+        channel = message.channel
+        await channel.send(
+                ":mage: どの提出物を提出しようとしていますか？\n"
+                + returnItem(message, "plain")
+                + "\n提出したい項目の ID を、このチャンネルで発言してください。"
+            )
+        def check(m):
+                return m.channel == channel and m.author == message.author
+        try:
+            msg = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
+        else:
+            if database.getItemName(msg.content) is False:
+                await channel.send(
+                    "⚠ 指定された ID は間違っています。もう一度、ファイルのアップロードからやり直してください。"
+                )
+            else:
+                target = database.getItemTarget(msg.content)
+                role_id = database.getRole(message.channel.id)
+                parent_role_id = database.getParentRole(database.getRole(message.channel.id))
+                # 特定の子ロールだけに指示された提出物
+                if target == role_id or target == str(parent_role_id):
+                    if database.getItemFormat(msg.content) == "plain":
+                        await channel.send(
+                                ":mage: 提出内容はどのようにしますか？\n"
+                                + "内容をこのテキストチャンネルに送信してください。\n"
+                                + "キャンセルする場合は、このままの状態で30秒放置してください。"
+                            )
+                        try:
+                            msg_submit_content = await client.wait_for("message", check=check, timeout=30)
+                        except asyncio.TimeoutError:
+                            await channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        else:
+                            if utils.isValidAsName(msg_submit_content.content):
+                                JST = dateutil.tz.gettz("Asia/Tokyo")
+                                dt_now = datetime.datetime.now(JST)
+                                database.addSubmit(
+                                    msg.content,  # item_id
+                                    dt_now,  # datetime
+                                    None,  # filename, plain なので NULL
+                                    None,  # path, サーバー上のファイルの場所, plain なので NULL
+                                    msg_submit_content.content,  # plain
+                                    message.author.id,  # author, 提出者の Discord 内部 ID
+                                    database.getRole(message.channel.id), # author_role, 提出者のロール ID
+                                    database.getItemTarget(msg.content),  # target
+                                    "plain",  # format
+                                )
+    
+                                await channel.send(
+                                    "✅ 提出物 "
+                                    + "**"
+                                    + database.getItemName(msg.content)
+                                    + "** を以下の内容で提出しました:\n"
+                                    + "```\n"
+                                    + msg_submit_content.content + "\n"
+                                    + "```\n"
+                                )
+                            else:
+                                channel.send(
+                                    "⚠ 提出内容として正しくありません。\n"
+                                    + "もう一度、最初から操作をやり直してください。"
+                                )
+                            
+                    elif database.getItemFormat(msg.content) == "file":
+                        await channel.send(
+                            "⚠ 提出物 "
+                            + "**"
+                            + database.getItemName(msg.content)
+                            + "** はファイルで提出してください。"
+                        )
+                    else:
+                        await channel.send("⚠ 処理中になんらかの問題が発生しました。") 
+                else:
+                    await channel.send(
+                        "⚠ その提出物はあなたに割り当てられていません。"
+                        + "もう一度、最初から操作をやり直してください。"
+                    )
