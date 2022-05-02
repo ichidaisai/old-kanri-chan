@@ -474,7 +474,7 @@ async def listSubmitInteract(client, message):
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
                     )
                 else:
-                    if database.getTc(target.id, "post") is None:
+                    if database.getTc(target.id, "post") is None and database.isParentRole(target.id) is False:
                         await message.channel.send(
                             "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
                         )
@@ -517,7 +517,7 @@ async def listSubmitInteract(client, message):
                                         ":information_source: 以下が提出物 **"
                                         + database.getItemName(item_id)
                                         + "** (対象: "
-                                        + database.getItemTarget(item_id)
+                                        + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
                                         + ", "
                                         + "提出者: "
                                         + utils.roleIdToName(database.getSubmitAuthorRole(item_id))
@@ -561,9 +561,7 @@ async def listSubmitInteract(client, message):
                         ":information_source: 以下が提出物 **"
                         + database.getItemName(item_id)
                         + "** (対象: "
-                        + utils.roleIdToName(
-                            database.getItemTarget(item_id), message.guild
-                        )
+                        + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
                         + ", 提出元: "
                         + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
                         + ") の提出履歴です。\n"
@@ -606,7 +604,7 @@ async def getSubmitInteract(client, message):
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
                     )
                 else:
-                    if database.getTc(target.id, "post") is None:
+                    if database.getTc(target.id, "post") is None and database.isParentRole(target.id) is False:
                         await message.channel.send(
                             "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
                         )
@@ -646,7 +644,7 @@ async def getSubmitInteract(client, message):
                                         ":information_source: 以下が提出物 **"
                                         + database.getItemName(item_id)
                                         + "** (対象: "
-                                        + database.getItemTarget(item_id)
+                                        + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
                                         + ") の提出履歴です。\n"
                                         + "ダウンロードしたいファイルを選んでください。\n"
                                         + list_fmt
@@ -682,7 +680,12 @@ async def getSubmitInteract(client, message):
                                                 file=discord.File(
                                                     database.getSubmit(
                                                         msg_submit_id.content
-                                                    ).path
+                                                    ).path,
+                                                    filename=utils.convFileName(
+                                                        database.getSubmit(
+                                                            msg_submit_id.content
+                                                        ).path
+                                                    ),
                                                 ),
                                             )
 
@@ -723,9 +726,7 @@ async def getSubmitInteract(client, message):
                         ":information_source: 以下が提出物 **"
                         + database.getItemName(item_id)
                         + "** (対象: "
-                        + utils.roleIdToName(
-                            database.getItemTarget(item_id), message.guild
-                        )
+                        + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
                         + ", 提出元: "
                         + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
                         + ") の提出履歴です。\n"
@@ -752,8 +753,14 @@ async def getSubmitInteract(client, message):
                                     client, database.getSubmit(msg_submit_id.content)
                                 ),
                                 file=discord.File(
-                                    database.getSubmit(msg_submit_id.content).path
-                                ),
+                                    database.getSubmit(msg_submit_id.content).path,
+                                    filename=utils.convFileName(
+                                        database.getSubmit(
+                                            msg_submit_id.content
+                                        ).path
+                                    ),
+                                    spoiler=False,
+                                )
                             )
             else:
                 await message.channel.send(

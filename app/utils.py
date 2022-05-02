@@ -3,6 +3,7 @@ import datetime
 import dateutil
 import discord
 from parse import *
+import pykakasi
 
 # 内部関数
 import database
@@ -74,3 +75,13 @@ def isValidAsName(name):
         return False
     else:
         return True
+
+# convFileName(name): 日本語を含むファイル名をローマ字に変換する
+def convFileName(name):
+    name = name.replace('./data/posts/', '')
+    kks = pykakasi.kakasi()
+    converted = kks.convert(name)
+    result = ""
+    for item in converted:
+        result += item['hepburn']
+    return result

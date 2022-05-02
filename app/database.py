@@ -439,7 +439,7 @@ def getSubmitList(item_id, author_role):
         submission = (
             session.query(Submission).filter(
                 Submission.item_id == int(item_id)
-            )
+            ).all()
         )
     else:
         submission = (
