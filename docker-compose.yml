@@ -13,6 +13,8 @@ services:
       - type: bind
         source: "./data/posts"
         target: "/app/data/posts"
+    depends_on:
+      - db
     
   db:
     image: mariadb:10.5
@@ -36,6 +38,8 @@ services:
       - PMA_USER=root
       - PMA_PASSWORD=root
     ports:
-       - 2525:80
+      - 2525:80
     volumes:
-       - ./phpmyadmin/sessions:/sessions
+      - ./phpmyadmin/sessions:/sessions
+    depends_on:
+      - db
