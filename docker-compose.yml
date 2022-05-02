@@ -30,16 +30,16 @@ services:
         TZ: 'Asia/Tokyo'
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
     
-  phpmyadmin:
-    image: phpmyadmin:latest
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOST=db
-      - PMA_USER=root
-      - PMA_PASSWORD=root
-    ports:
-      - 2525:80
-    volumes:
-      - ./phpmyadmin/sessions:/sessions
-    depends_on:
-      - db
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #     - PMA_HOST=db
+  #     - PMA_USER=root
+  #     - PMA_PASSWORD=root
+  #   ports:
+  #     - 2525:80
+  #   volumes:
+  #     - ./phpmyadmin/sessions:/sessions
+  #   depends_on:
+  #     - db
