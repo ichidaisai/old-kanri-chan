@@ -13,6 +13,10 @@ def dtToStr(dt):
     return dt.strftime("%Y/%-m/%-d %-H:%M:%S")
 
 
+# dtToStrFileName: datetime 型の入力を、人間可読な str として返す (例: YYYY-MM-dd_HH-mm-ss)
+def dtToStrFileName(dt):
+    return dt.strftime("%Y-%m-%d_%H-%M-%S")
+
 # roleIdToMention: Discord 上のロール ID をメンションのための str として返す
 def roleIdToMention(role_id):
     return "<@&" + role_id + ">"
