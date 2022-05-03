@@ -216,6 +216,7 @@ def setGuild(guild_id):
         session.commit()
         return True
 
+
 # getGuild: ボットを使用するサーバーの ID を返す
 def getGuild():
     exists = session.query(Config).filter(Config.key == "guild").first()
@@ -223,6 +224,7 @@ def getGuild():
         return exists.value
     else:
         return None
+
 
 # getStaffRole: スタッフ用の Discord ロールの ID を返す。未設定のときは None を返す。
 def getStaffRole():
@@ -594,6 +596,7 @@ def verifySubmit(id):
         submit.verified = True
         session.commit()
         return True
+
 
 # getRoles(): 登録されているすべての子ロールを返す
 def getRoles():
