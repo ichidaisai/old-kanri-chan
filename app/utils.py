@@ -17,6 +17,7 @@ def dtToStr(dt):
 def dtToStrFileName(dt):
     return dt.strftime("%Y-%m-%d_%H-%M-%S")
 
+
 # roleIdToMention: Discord 上のロール ID をメンションのための str として返す
 def roleIdToMention(role_id):
     return "<@&" + role_id + ">"

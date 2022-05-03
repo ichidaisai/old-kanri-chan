@@ -673,11 +673,13 @@ async def getSubmitInteract(client, message):
                                 else:
                                     # ファイルの場合
                                     if database.getItemFormat(item_id) == "file":
-                                        submit_list = database.getSubmitList(item_id, None)
+                                        submit_list = database.getSubmitList(
+                                            item_id, None
+                                        )
                                         list_fmt = formatSubmitList(
                                             client, submit_list, "file"
                                         )
-    
+
                                         await message.channel.send(
                                             ":information_source: 以下が提出先 **"
                                             + database.getItemName(item_id)
@@ -690,7 +692,7 @@ async def getSubmitInteract(client, message):
                                             + "ダウンロードしたいファイルを選んでください。\n"
                                             + list_fmt
                                         )
-    
+
                                         try:
                                             msg_submit_id = await client.wait_for(
                                                 "message", check=check, timeout=30
@@ -703,7 +705,10 @@ async def getSubmitInteract(client, message):
                                             submit_id = unicodedata.normalize(
                                                 "NFKC", msg_submit_id.content
                                             )
-                                            if database.getSubmitAuthor(submit_id) is None:
+                                            if (
+                                                database.getSubmitAuthor(submit_id)
+                                                is None
+                                            ):
                                                 await message.channel.send(
                                                     "⚠ 提出 ID が間違っています。もう一度、最初から操作をやり直してください。"
                                                 )
@@ -715,7 +720,9 @@ async def getSubmitInteract(client, message):
                                                         database.getSubmit(submit_id),
                                                     ),
                                                     file=discord.File(
-                                                        database.getSubmit(submit_id).path,
+                                                        database.getSubmit(
+                                                            submit_id
+                                                        ).path,
                                                         filename=utils.convFileName(
                                                             database.getSubmit(
                                                                 submit_id
@@ -724,18 +731,32 @@ async def getSubmitInteract(client, message):
                                                     ),
                                                 )
                                     elif database.getItemFormat(item_id) == "plain":
-                                        tmp_dir = './data/tmp'
+                                        tmp_dir = "./data/tmp"
                                         if not os.path.exists(tmp_dir):
                                             os.makedirs(tmp_dir)
-                                        submit_list = database.getSubmitList(item_id, None)
+                                        submit_list = database.getSubmitList(
+                                            item_id, None
+                                        )
                                         JST = dateutil.tz.gettz("Asia/Tokyo")
                                         dt_now = datetime.datetime.now(JST)
                                         fmt_dt = utils.dtToStrFileName(dt_now)
                                         # ファイル名の例: 2022-05-02_16-15_提出先A.csv
-                                        filename = fmt_dt + '_' + database.getItemName(item_id) + ".xlsx"
-                                        header = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
-                                        save_path = tmp_dir + '/' + filename
-                                            
+                                        filename = (
+                                            fmt_dt
+                                            + "_"
+                                            + database.getItemName(item_id)
+                                            + ".xlsx"
+                                        )
+                                        header = [
+                                            "提出 ID",
+                                            "提出日時",
+                                            "提出者",
+                                            "提出元ロール",
+                                            "提出内容",
+                                            "承認",
+                                        ]
+                                        save_path = tmp_dir + "/" + filename
+
                                         # 各列のために用意する配列
                                         export_list = []
                                         submit_id_list = []
@@ -744,12 +765,22 @@ async def getSubmitInteract(client, message):
                                         submit_author_role_list = []
                                         submit_plain_list = []
                                         submit_verified_list = []
-                                        
+
                                         for submit in submit_list:
                                             submit_id_list.append(submit.id)
-                                            submit_datetime_list.append(utils.dtToStr(submit.datetime))
-                                            submit_author_list.append(utils.userIdToName(client, submit.author))
-                                            submit_author_role_list.append(utils.roleIdToName(submit.author_role, message.guild))
+                                            submit_datetime_list.append(
+                                                utils.dtToStr(submit.datetime)
+                                            )
+                                            submit_author_list.append(
+                                                utils.userIdToName(
+                                                    client, submit.author
+                                                )
+                                            )
+                                            submit_author_role_list.append(
+                                                utils.roleIdToName(
+                                                    submit.author_role, message.guild
+                                                )
+                                            )
                                             if submit.plain is None:
                                                 submit_plain_list.append("未記入")
                                             else:
@@ -758,24 +789,37 @@ async def getSubmitInteract(client, message):
                                                 submit_verified_list.append("済")
                                             else:
                                                 submit_verified_list.append("未")
-                                        
+
                                         export_list.append(submit_id_list)
                                         export_list.append(submit_datetime_list)
                                         export_list.append(submit_author_list)
                                         export_list.append(submit_author_role_list)
                                         export_list.append(submit_plain_list)
                                         export_list.append(submit_verified_list)
-                                               
+
                                         df = pd.DataFrame(export_list)
-                                        df.index = ['提出 ID', '提出日時', '提出者', "提出元ロール", "提出内容", "承認"]
-                                        
-                                        df.T.to_excel(save_path, sheet_name=database.getItemName(item_id))
-                                                
+                                        df.index = [
+                                            "提出 ID",
+                                            "提出日時",
+                                            "提出者",
+                                            "提出元ロール",
+                                            "提出内容",
+                                            "承認",
+                                        ]
+
+                                        df.T.to_excel(
+                                            save_path,
+                                            sheet_name=database.getItemName(item_id),
+                                        )
+
                                         await message.channel.send(
                                             ":mage: 提出先 **"
                                             + database.getItemName(item_id)
                                             + "** (対象: "
-                                            + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
+                                            + utils.roleIdToName(
+                                                database.getItemTarget(item_id),
+                                                message.guild,
+                                            )
                                             + ") に提出された内容を Excel (`.xlsx`) ファイルとして送信します。",
                                             file=discord.File(
                                                 save_path,
@@ -819,7 +863,7 @@ async def getSubmitInteract(client, message):
                     # ファイルの場合
                     if database.getItemFormat(item_id) == "file":
                         list_fmt = formatSubmitList(client, submit_list, "file")
-    
+
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
                             + database.getItemName(item_id)
@@ -844,7 +888,9 @@ async def getSubmitInteract(client, message):
                                 "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                             )
                         else:
-                            submit_id = unicodedata.normalize("NFKC", msg_submit_id.content)
+                            submit_id = unicodedata.normalize(
+                                "NFKC", msg_submit_id.content
+                            )
                             if database.getSubmitAuthor(submit_id) is None:
                                 await message.channel.send(
                                     "⚠ 提出 ID が間違っています。もう一度、最初から操作をやり直してください。"
@@ -852,7 +898,9 @@ async def getSubmitInteract(client, message):
                             else:
                                 await message.channel.send(
                                     "✅ 以下の提出を送信します: \n\n"
-                                    + formatSubmit(client, database.getSubmit(submit_id)),
+                                    + formatSubmit(
+                                        client, database.getSubmit(submit_id)
+                                    ),
                                     file=discord.File(
                                         database.getSubmit(submit_id).path,
                                         filename=utils.convFileName(
@@ -862,17 +910,19 @@ async def getSubmitInteract(client, message):
                                     ),
                                 )
                     elif database.getItemFormat(item_id) == "plain":
-                        tmp_dir = './data/tmp'
+                        tmp_dir = "./data/tmp"
                         if not os.path.exists(tmp_dir):
                             os.makedirs(tmp_dir)
                         JST = dateutil.tz.gettz("Asia/Tokyo")
                         dt_now = datetime.datetime.now(JST)
                         fmt_dt = utils.dtToStrFileName(dt_now)
                         # ファイル名の例: 2022-05-02_16-15_提出先A.csv
-                        filename = fmt_dt + '_' + database.getItemName(item_id) + ".xlsx"
+                        filename = (
+                            fmt_dt + "_" + database.getItemName(item_id) + ".xlsx"
+                        )
                         header = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
-                        save_path = tmp_dir + '/' + filename
-                            
+                        save_path = tmp_dir + "/" + filename
+
                         # 各列のために用意する配列
                         export_list = []
                         submit_id_list = []
@@ -881,12 +931,16 @@ async def getSubmitInteract(client, message):
                         submit_author_role_list = []
                         submit_plain_list = []
                         submit_verified_list = []
-                        
+
                         for submit in submit_list:
                             submit_id_list.append(submit.id)
                             submit_datetime_list.append(utils.dtToStr(submit.datetime))
-                            submit_author_list.append(utils.userIdToName(client, submit.author))
-                            submit_author_role_list.append(utils.roleIdToName(submit.author_role, message.guild))
+                            submit_author_list.append(
+                                utils.userIdToName(client, submit.author)
+                            )
+                            submit_author_role_list.append(
+                                utils.roleIdToName(submit.author_role, message.guild)
+                            )
                             if submit.plain is None:
                                 submit_plain_list.append("未記入")
                             else:
@@ -895,24 +949,28 @@ async def getSubmitInteract(client, message):
                                 submit_verified_list.append("済")
                             else:
                                 submit_verified_list.append("未")
-                        
+
                         export_list.append(submit_id_list)
                         export_list.append(submit_datetime_list)
                         export_list.append(submit_author_list)
                         export_list.append(submit_author_role_list)
                         export_list.append(submit_plain_list)
                         export_list.append(submit_verified_list)
-                               
+
                         df = pd.DataFrame(export_list)
-                        df.index = ['提出 ID', '提出日時', '提出者', "提出元ロール", "提出内容", "承認"]
-                        
-                        df.T.to_excel(save_path, sheet_name=database.getItemName(item_id))
-                                
+                        df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
+
+                        df.T.to_excel(
+                            save_path, sheet_name=database.getItemName(item_id)
+                        )
+
                         await message.channel.send(
                             ":mage: 提出先 **"
                             + database.getItemName(item_id)
                             + "** (対象: "
-                            + utils.roleIdToName(database.getItemTarget(item_id), message.guild)
+                            + utils.roleIdToName(
+                                database.getItemTarget(item_id), message.guild
+                            )
                             + ") に提出された内容を Excel (`.xlsx`) ファイルとして送信します。",
                             file=discord.File(
                                 save_path,
