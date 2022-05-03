@@ -6,3 +6,5 @@ mysqlclient
 python-dateutil
 pykakasi
 unicodedata2
+pandas
+openpyxl
