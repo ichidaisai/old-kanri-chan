@@ -34,6 +34,8 @@ async def doResp(client, message):
         await channel.setStaffRole(message)
     elif message.content.startswith("!ch set chat"):
         await channel.setChat(message)
+    elif message.content.startswith("!guild set"):
+        await channel.setGuild(client, message)
     elif message.content.startswith("!cat set chat"):
         await channel.setChatCategory(message)
     elif message.content.startswith("!cat set post"):

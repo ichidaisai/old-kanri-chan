@@ -197,6 +197,33 @@ def setStaffRole(id):
         return True
 
 
+# setGuild: ボットを使用する対象サーバーを設定する
+def setGuild(guild_id):
+    exists = session.query(Config).filter(Config.key == "guild").first()
+
+    if exists:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = guild_id
+        session.commit()
+        return True
+    else:
+        # `post_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "guild"
+        config.value = guild_id
+
+        session.add(config)
+        session.commit()
+        return True
+
+# getGuild: ボットを使用するサーバーの ID を返す
+def getGuild():
+    exists = session.query(Config).filter(Config.key == "guild").first()
+    if exists:
+        return exists.value
+    else:
+        return None
+
 # getStaffRole: スタッフ用の Discord ロールの ID を返す。未設定のときは None を返す。
 def getStaffRole():
     exists = session.query(Config).filter(Config.key == "staff_role").first()
@@ -567,3 +594,8 @@ def verifySubmit(id):
         submit.verified = True
         session.commit()
         return True
+
+# getRoles(): 登録されているすべての子ロールを返す
+def getRoles():
+    roles = session.query(Role).all()
+    return roles

@@ -602,3 +602,67 @@ async def deleteParentRoleInteract(client, message):
                     )
                 else:
                     await message.channel.send("⚠ 指定されたロールは親ロールとしてボットに登録されていません。")
+
+# setGuild(message):
+async def setGuild(client, message):
+    if utils.isStaff(message.author, message.guild):
+        await message.channel.send(
+            "❓ 本当にサーバー **"
+            + str(message.guild)
+            + "** をボットを使用するサーバーとして設定しますか？\n"
+            + "続行する場合は `y`、キャンセルする場合は `n` と返信してください。"
+        )
+    
+        def check(m):
+            return m.channel == message.channel and m.author == message.author
+        try:
+            msg_role = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            database.setGuild(message.guild.id)
+            await message.channel.send(
+                "✅ サーバー **"
+                + str(message.guild)
+                + "** をボットを使用するサーバーとして設定しました。"
+            )
+    else:
+        await message.channel.send(
+            "⚠ あなたはサーバー **"
+            + str(message.guild)
+            + "** の管理者権限を持っていないため、この操作を実行することはできません。"
+        )
+
+
+# autoRole(before, after): ロールの自動付与を処理する
+async def autoRole(client, before, after):
+    guild_id = database.getGuild()
+    if guild_id:
+        guild = client.get_guild(int(guild_id))
+        if guild is None:
+            print("[WARN] ボットを使用するサーバーの設定が間違っています。修正してください！")
+        else:
+            # 親ロール追加
+            if before.roles == [guild.default_role]:
+                tmp_roles = after.roles
+                tmp_roles.pop(0)
+                if database.isParentRole(tmp_roles[0].id) is False:
+                    roles = database.getRoles()
+                    isChildRole = False
+                    for role in roles:
+                        print(role.id)
+                        if role.id == tmp_roles[0].id:
+                            isChildRole = True
+                    print("a")
+                    if isChildRole:
+                        parent_role = guild.get_role(
+                            database.getParentRole(
+                                tmp_roles[0].id
+                            )
+                        )
+                        if parent_role is None:
+                            pass
+                        else:
+                            await after.add_roles(parent_role)
+    else:
+        print("[WARN] ボットを使用するサーバーを設定してください！")
