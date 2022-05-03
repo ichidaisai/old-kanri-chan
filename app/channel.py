@@ -603,6 +603,7 @@ async def deleteParentRoleInteract(client, message):
                 else:
                     await message.channel.send("⚠ 指定されたロールは親ロールとしてボットに登録されていません。")
 
+
 # setGuild(message):
 async def setGuild(client, message):
     if utils.isStaff(message.author, message.guild):
@@ -612,9 +613,10 @@ async def setGuild(client, message):
             + "** をボットを使用するサーバーとして設定しますか？\n"
             + "続行する場合は `y`、キャンセルする場合は `n` と返信してください。"
         )
-    
+
         def check(m):
             return m.channel == message.channel and m.author == message.author
+
         try:
             msg_role = await client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
@@ -622,9 +624,7 @@ async def setGuild(client, message):
         else:
             database.setGuild(message.guild.id)
             await message.channel.send(
-                "✅ サーバー **"
-                + str(message.guild)
-                + "** をボットを使用するサーバーとして設定しました。"
+                "✅ サーバー **" + str(message.guild) + "** をボットを使用するサーバーとして設定しました。"
             )
     else:
         await message.channel.send(
@@ -656,9 +656,7 @@ async def autoRole(client, before, after):
                     print("a")
                     if isChildRole:
                         parent_role = guild.get_role(
-                            database.getParentRole(
-                                tmp_roles[0].id
-                            )
+                            database.getParentRole(tmp_roles[0].id)
                         )
                         if parent_role is None:
                             pass

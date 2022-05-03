@@ -19,7 +19,7 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         print("[INFO] [Received] " + message.author.name + ": " + message.content)
         await response.doResp(self, message)
-    
+
     # ロールの自動付与を呼ぶ
     async def on_member_update(self, before, after):
         await channel.autoRole(self, before, after)
