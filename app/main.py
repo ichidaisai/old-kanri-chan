@@ -31,6 +31,7 @@ def main():
         # 定義されたクライアントを読み込み、ボットを起動する
         intents = discord.Intents.default()
         intents.members = True
+        intents.message_content = True
         client = MyClient(intents=intents)
         client.run(config.getToken())
     else:
