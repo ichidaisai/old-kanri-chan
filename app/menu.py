@@ -31,7 +31,7 @@ class doCommand(discord.ui.Button):
             if label == "🏷️ 提出履歴を見る":
                 await interaction.response.send_message(f'提出履歴を表示します...')
                 await submission.listSubmitInteract(client, message)
-            elif label == "💾 提出したファイルをダウンロードする":
+            elif label == "💾 提出したファイルをダウンロードする" or label == "💾 提出されたファイルをダウンロードする":
                 await interaction.response.send_message(f'提出したファイルのダウンロードをご案内します...')
                 await submission.getSubmitInteract(client, message)
             elif label == "📜 プレーンテキストを提出する":
@@ -76,9 +76,7 @@ class doCommand(discord.ui.Button):
 async def showMenu(client, message):
     await message.channel.send(":m: メニュー")
     
-    # 提出先への提出、提出履歴の閲覧など、一般ユーザー向けの項目
-    args = ["🏷️ 提出履歴を見る", "💾 提出したファイルをダウンロードする", "📜 プレーンテキストを提出する", "📄 ファイルを提出する"]
-    await message.channel.send(':mailbox_closed: 提出物について', view=initButton(args))
+    
     
     if database.getBotTc() is None:
         print("[WARN] 管理用コマンドを実行するためのテキストチャンネルを設定してください！\n"
@@ -87,8 +85,12 @@ async def showMenu(client, message):
         # スタッフ向け
         if message.channel.id == database.getBotTc():
             ## 提出先 / 提出物の管理
-            args = ["➕ 提出先の作成", "➖ 提出先の削除", "✅ 提出物の承認"]
+            args = ["➕ 提出先の作成", "➖ 提出先の削除", "✅ 提出物の承認", "🏷️ 提出履歴を見る", "💾 提出されたファイルをダウンロードする"]
             await message.channel.send(':open_file_folder: 提出先 / 提出物の管理について', view=initButton(args))
             ## ロールの管理
             args = ["➕ ロールの作成", "➖ ロールの削除", "🧺 このチャンネルに割り当てられているロールの確認"]
             await message.channel.send(':person_tipping_hand: ロールの管理について', view=initButton(args))
+        else:
+            # 提出先への提出、提出履歴の閲覧など、一般ユーザー向けの項目
+            args = ["🏷️ 提出履歴を見る", "💾 提出したファイルをダウンロードする", "📜 プレーンテキストを提出する", "📄 ファイルを提出する"]
+            await message.channel.send(':mailbox_closed: 提出物について', view=initButton(args))
