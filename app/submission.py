@@ -232,6 +232,99 @@ async def delItem(message):
     else:
         await message.channel.send("❌ コマンドが不正です。")
 
+# 登録された提出先の削除 (対話方式)
+async def delItemInteract(client, message):
+    result = database.getRole(message.channel.id)
+
+    if result is None:
+        await message.channel.send(
+            ":mage: どのロールの提出先を確認しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
+        )
+
+        def check(m):
+            return m.channel == message.channel and m.author == message.author
+
+        try:
+            msg = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            target_id = utils.mentionToRoleId(msg.content)
+
+            if target_id is None:
+                await message.channel.send(
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いて、ロールを指定してください。"
+                )
+            else:
+                target = message.guild.get_role(int(target_id))
+
+                if target is None:
+                    await message.channel.send(
+                        "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。"
+                    )
+                else:
+                    if (
+                        database.getTc(target.id, "post") is None
+                        and database.isParentRole(target.id) is False
+                    ):
+                        await message.channel.send(
+                            "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
+                        )
+                    else:
+                        await message.channel.send(
+                            "**"
+                            + utils.roleIdToName(target.id, message.guild)
+                            + "** に提出が指示された提出先は以下の通りです: \n"
+                            + returnItemByRoleId(target.id, "all")
+                            + "\nどの提出先を削除しますか？"
+                        )
+                        try:
+                            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+                        except asyncio.TimeoutError:
+                            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        else:
+                            item_id = msg_item_id.content
+                            if item_id.isdigit():
+                                item_name = database.getItemName(item_id)
+                                result = database.delItem(item_id)
+                                if result is False:
+                                    await message.channel.send("⚠ 提出先が見つかりません。ID をご確認ください。")
+                                else:
+                                    await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
+                            else:
+                                await message.channel.send(
+                                    "⚠ 提出先の指定方法が間違っています。\n"
+                                    + "もう一度、最初から操作をやり直してください。"
+                                )
+    else:
+        await message.channel.send(
+            "**"
+            + utils.roleIdToName(
+                int(database.getRole(message.channel.id)), message.guild
+            )
+            + "** に提出が指示された提出先は以下の通りです: \n"
+            + returnItem(message, "all")
+            + "\nどの提出先を削除しますか？"
+        )
+        try:
+            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        else:
+            item_id = msg_item_id.content
+            if item_id.isdigit():
+                item_name = database.getItemName(item_id)
+                result = database.delItem(item_id)
+                if result is False:
+                    await message.channel.send("⚠ 提出先が見つかりません。ID をご確認ください。")
+                else:
+                    await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
+            else:
+                await message.channel.send(
+                    "⚠ 提出先の指定方法が間違っています。\n"
+                    + "もう一度、最初から操作をやり直してください。"
+                )
+
 
 # 登録された提出先を表示, 特定のロールに紐付いた提出先のみ表示する
 async def listItem(client, message):
