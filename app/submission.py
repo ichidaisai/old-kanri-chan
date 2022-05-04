@@ -1202,7 +1202,7 @@ async def verifySubmitInteract(client, message):
                         + utils.roleIdToName(target.id, message.guild)
                         + "** に提出が指示された提出物は以下の通りです: \n"
                         + returnItemByRoleId(target.id, "all")
-                        + "\n承認したい提出の ID を返信してください。"
+                        + "\n目的の提出先 ID を返信してください。"
                     )
 
                     def check(m):
@@ -1211,7 +1211,7 @@ async def verifySubmitInteract(client, message):
                         )
 
                     try:
-                        m_submit_id = await client.wait_for(
+                        m_item_id = await client.wait_for(
                             "message", check=check, timeout=30
                         )
                     except asyncio.TimeoutError:
@@ -1219,32 +1219,67 @@ async def verifySubmitInteract(client, message):
                             "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                         )
                     else:
-                        submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
-                        if submit_id.isdigit():
-                            result = database.verifySubmit(submit_id)
-                            if result is None:
-                                await message.channel.send(
-                                    "⚠ 指定した提出は存在しません。\n" + "もう一度、最初から操作をやり直してください。"
-                                )
-                            else:
-                                submit = database.getSubmit(submit_id)
-                                await message.channel.send(
-                                    "✅ 提出 ID: "
-                                    + submit_id
-                                    + " (提出先: "
-                                    + database.getItemName(submit.item_id)
-                                    + ", "
-                                    + "対象: "
-                                    + utils.roleIdToName(
-                                        database.getItemTarget(submit.item_id),
-                                        message.guild,
-                                    )
-                                    + ") を承認しました。"
-                                )
-                        else:
-                            await message.channel.send(
-                                "⚠ 提出 ID の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
+                        item_id = m_item_id.content
+
+                        submit_list = database.getSubmitList(item_id, None)
+                        list_fmt = formatSubmitList(
+                            client, submit_list, "all"
+                        )
+
+                        await message.channel.send(
+                            ":information_source: 以下が提出先 **"
+                            + database.getItemName(item_id)
+                            + "** (対象: "
+                            + utils.roleIdToName(
+                                database.getItemTarget(item_id),
+                                message.guild,
                             )
+                            + ", "
+                            + "提出者: "
+                            + utils.roleIdToName(
+                                database.getSubmitAuthorRole(item_id),
+                                message.guild,
+                            )
+                            + ") の提出履歴です。\n"
+                            + list_fmt
+                        )
+                        if list_fmt != "まだ、この項目に対して何も提出されていません。":
+                            await message.channel.send("承認したい提出の ID を返信してください。")
+                        try:
+                            m_submit_id = await client.wait_for(
+                                "message", check=check, timeout=30
+                            )
+                        except asyncio.TimeoutError:
+                            await message.channel.send(
+                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            )
+                        else:
+                            submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
+                            if submit_id.isdigit():
+                                result = database.verifySubmit(submit_id)
+                                if result is None:
+                                    await message.channel.send(
+                                        "⚠ 指定した提出は存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                                    )
+                                else:
+                                    submit = database.getSubmit(submit_id)
+                                    await message.channel.send(
+                                        "✅ 提出 ID: "
+                                        + submit_id
+                                        + " (提出先: "
+                                        + database.getItemName(submit.item_id)
+                                        + ", "
+                                        + "対象: "
+                                        + utils.roleIdToName(
+                                            database.getItemTarget(submit.item_id),
+                                            message.guild,
+                                        )
+                                        + ") を承認しました。"
+                                    )
+                            else:
+                                await message.channel.send(
+                                    "⚠ 提出 ID の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
+                                )
 
 
 # submitPlainText(client, message): プレーンテキスト方式の提出先に提出する (対話方式)
@@ -1410,7 +1445,7 @@ async def checkSubmitInteract(client, message):
                                 target_list.append(database.getItemTarget(item_id))
 
                             for target in target_list:
-                                # fmt_check_list += utils.roleIdToName(target, message.guild)
+                                fmt_check_list += utils.roleIdToName(target, message.guild)
                                 fmt_check_list += ": "
 
                                 submit = database.getSubmitList(item_id, target)
