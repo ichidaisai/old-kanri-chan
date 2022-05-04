@@ -8,12 +8,15 @@ import unicodedata
 import channel
 import submission
 import database
+import menu
 
 
 async def doResp(client, message):
     message.content = unicodedata.normalize("NFKC", message.content)
     if message.content.startswith("!role add"):
         await channel.addRole(message)
+    elif message.content.startswith("!menu") or message.content == "メニュー":
+        await menu.showMenu(client, message)
     elif message.content.startswith("!role delete"):
         await channel.delRole(message)
     elif message.content.startswith("!role parent add"):
@@ -56,7 +59,7 @@ async def doResp(client, message):
         await submission.checkSubmitInteract(client, message)
     elif message.content.startswith("!submit verify"):
         await submission.verifySubmitInteract(client, message)
-    elif message.content.startswith("提出"):
+    elif message.content == "提出":
         if database.isPostTc(message.channel.id):
             await submission.submitPlainTextInteract(client, message)
     elif message.attachments:
