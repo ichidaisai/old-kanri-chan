@@ -1243,43 +1243,45 @@ async def verifySubmitInteract(client, message):
                             + ") の提出履歴です。\n"
                             + list_fmt
                         )
-                        if list_fmt != "まだ、この項目に対して何も提出されていません。":
-                            await message.channel.send("承認したい提出の ID を返信してください。")
-                        try:
-                            m_submit_id = await client.wait_for(
-                                "message", check=check, timeout=30
-                            )
-                        except asyncio.TimeoutError:
-                            await message.channel.send(
-                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
-                            )
+                        if list_fmt == "まだ、この項目に対して何も提出されていません。":
+                            pass
                         else:
-                            submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
-                            if submit_id.isdigit():
-                                result = database.verifySubmit(submit_id)
-                                if result is None:
-                                    await message.channel.send(
-                                        "⚠ 指定した提出は存在しません。\n" + "もう一度、最初から操作をやり直してください。"
-                                    )
-                                else:
-                                    submit = database.getSubmit(submit_id)
-                                    await message.channel.send(
-                                        "✅ 提出 ID: "
-                                        + submit_id
-                                        + " (提出先: "
-                                        + database.getItemName(submit.item_id)
-                                        + ", "
-                                        + "対象: "
-                                        + utils.roleIdToName(
-                                            database.getItemTarget(submit.item_id),
-                                            message.guild,
-                                        )
-                                        + ") を承認しました。"
-                                    )
-                            else:
-                                await message.channel.send(
-                                    "⚠ 提出 ID の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
+                            await message.channel.send("承認したい提出の ID を返信してください。")
+                            try:
+                                m_submit_id = await client.wait_for(
+                                    "message", check=check, timeout=30
                                 )
+                            except asyncio.TimeoutError:
+                                await message.channel.send(
+                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                )
+                            else:
+                                submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
+                                if submit_id.isdigit():
+                                    result = database.verifySubmit(submit_id)
+                                    if result is None:
+                                        await message.channel.send(
+                                            "⚠ 指定した提出は存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                                        )
+                                    else:
+                                        submit = database.getSubmit(submit_id)
+                                        await message.channel.send(
+                                            "✅ 提出 ID: "
+                                            + submit_id
+                                            + " (提出先: "
+                                            + database.getItemName(submit.item_id)
+                                            + ", "
+                                            + "対象: "
+                                            + utils.roleIdToName(
+                                                database.getItemTarget(submit.item_id),
+                                                message.guild,
+                                            )
+                                            + ") を承認しました。"
+                                        )
+                                else:
+                                    await message.channel.send(
+                                        "⚠ 提出 ID の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
+                                    )
 
 
 # submitPlainText(client, message): プレーンテキスト方式の提出先に提出する (対話方式)
