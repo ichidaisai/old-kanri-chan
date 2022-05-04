@@ -57,9 +57,6 @@ class doCommand(discord.ui.Button):
             elif label == "➖ ロールの削除":
                 await interaction.response.send_message(f'ロールの削除をご案内します...')
                 await channel.pruneRoleInteract(client, message)
-            elif label == "🧺 このチャンネルに割り当てられているロールの確認":
-                await interaction.response.send_message(f'このチャンネルに割り当てられているロールを表示します...')
-                await channel.showRole(message)
             else:
                 await interaction.response.send_message(
                     "⚠ 処理中に問題が発生しました。\n"
@@ -88,7 +85,7 @@ async def showMenu(client, message):
             args = ["➕ 提出先の作成", "➖ 提出先の削除", "✅ 提出物の承認", "🏷️ 提出履歴を見る", "💾 提出されたファイルをダウンロードする"]
             await message.channel.send(':open_file_folder: 提出先 / 提出物の管理について', view=initButton(args))
             ## ロールの管理
-            args = ["➕ ロールの作成", "➖ ロールの削除", "🧺 このチャンネルに割り当てられているロールの確認"]
+            args = ["➕ ロールの作成", "➖ ロールの削除"]
             await message.channel.send(':person_tipping_hand: ロールの管理について', view=initButton(args))
         else:
             # 提出先への提出、提出履歴の閲覧など、一般ユーザー向けの項目
