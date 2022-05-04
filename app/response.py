@@ -43,6 +43,8 @@ async def doResp(client, message):
         await channel.setPostCategory(message)
     elif message.content.startswith("!ch set post"):
         await channel.setPost(message)
+    elif message.content.startswith("!ch set bot"):
+        await channel.setBotTc(message)
     elif message.content.startswith("!item add"):
         await submission.addItemInteract(client, message)
     elif message.content.startswith("!item delete"):

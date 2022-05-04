@@ -216,6 +216,34 @@ def setGuild(guild_id):
         session.commit()
         return True
 
+# setBotTc: 管理用コマンドを実行するためのテキストチャンネルをボットに設定する
+def setBotTc(id):
+    key = "bot_tc"
+    exists = session.query(Config).filter(Config.key == key).first()
+
+    if exists:
+        # `bot_tc` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+        return True
+    else:
+        # `bot_tc` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = key
+        config.value = id
+
+        session.add(config)
+        session.commit()
+        return True
+
+# getBotTc: 管理用コマンドを実行するためのテキストチャンネルの ID を返す
+def getBotTc():
+    exists = session.query(Config).filter(Config.key == "bot_tc").first()
+    if exists:
+        return int(exists.value)
+    else:
+        return None
+
 
 # getGuild: ボットを使用するサーバーの ID を返す
 def getGuild():

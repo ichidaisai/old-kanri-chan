@@ -390,6 +390,19 @@ async def setChatCategory(message):
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
+async def setBotTc(message):
+    if utils.isStaff(message.author, message.guild):
+        channel = message.channel
+        if channel is not None:
+            database.setBotTc(channel.id)
+            await message.channel.send(
+                "✅ 管理用コマンドを実行するためのテキストチャンネルを **" + channel.name + "** に設定しました。"
+            )
+        else:
+            await message.channel.send("⚠ 処理中に問題が発生しました。\n" + "もう一度、最初から操作をやり直してください。")
+    else:
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+
 
 async def setPost(message):
     if utils.isStaff(message.author, message.guild):
@@ -491,13 +504,22 @@ async def delRole(message):
 
 async def showRole(message):
     if utils.isStaff(message.author, message.guild):
-        await message.channel.send(
-            "<#"
-            + str(message.channel.id)
-            + "> に紐付けられているロールは **"
-            + utils.roleIdToName(database.getRole(message.channel.id), message.guild)
-            + "** です。"
-        )
+        role_id = database.getRole(message.channel.id)
+        if role_id is None:
+            await message.channel.send(
+                "<#"
+                + str(message.channel.id)
+                + "> に紐付けられているロールはありません。\n"
+                + "手動で紐付けるには、`!role add` コマンドを実行します。"
+            )
+        else:
+            await message.channel.send(
+                "<#"
+                + str(message.channel.id)
+                + "> に紐付けられているロールは **"
+                + utils.roleIdToName(role_id, message.guild)
+                + "** です。"
+            )
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
