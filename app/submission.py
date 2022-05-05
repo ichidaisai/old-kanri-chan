@@ -1506,7 +1506,7 @@ async def sendNotify(submit_id, client, guild):
             + "🆔 提出 ID: " + str(submit.id) + "\n"
             + ":mailbox_closed: 提出先: " + database.getItemName(submit.item_id) + "\n"
             + ":alarm_clock: 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
-            + ":pencil2: 提出元ロール: " + utils.roleIdToName(database.getItemTarget(submit.item_id), guild) + "\n"
+            + ":pencil2: 提出元ロール: " + utils.roleIdToName(submit.author_role, guild) + "\n"
             + ":person_juggling: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
         )
         
