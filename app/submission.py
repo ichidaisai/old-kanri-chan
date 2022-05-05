@@ -18,15 +18,17 @@ import utils
 # 提出先の登録 (対話方式)
 async def addItemInteract(client, message):
     if database.getUserParentRole(message) is None:
-        await message.channel.send("⚠ あなたが持つ親ロールがまだボットに認識されていないか、または親ロールを何も持っていないため操作を続行できません。")
+        await message.channel.send(
+            "⚠ あなたが持つ親ロールがまだボットに認識されていないか、または親ロールを何も持っていないため操作を続行できません。"
+        )
     else:
         if utils.isStaff(message.author, message.guild):
             # 提出先の名前を読み込む
             await message.channel.send("📛 提出先の名前は何にしますか？")
-        
+
             def check(m):
                 return m.channel == message.channel and m.author == message.author
-        
+
             try:
                 m_item_name = await client.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
@@ -34,27 +36,33 @@ async def addItemInteract(client, message):
             else:
                 item_name = m_item_name.content
                 if utils.isValidAsName(item_name) is False:
-                    await message.channel.send("⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。")
+                    await message.channel.send(
+                        "⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。"
+                    )
                 else:
                     await message.channel.send("✅ 提出先の名前を **" + item_name + "** にしました。")
-        
+
                     # 提出先の期限を読み込む
                     await message.channel.send(
                         "⏰ 提出期限はいつにしますか？\n"
                         + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
                     )
-        
+
                     try:
-                        m_item_limit = await client.wait_for("message", check=check, timeout=30)
+                        m_item_limit = await client.wait_for(
+                            "message", check=check, timeout=30
+                        )
                     except asyncio.TimeoutError:
-                        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                        await message.channel.send(
+                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                        )
                     else:
                         if utils.isDateTime(m_item_limit.content):
                             item_limit = dateutil.parser.parse(m_item_limit.content)
                             await message.channel.send(
                                 "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
                             )
-        
+
                             # 提出先の対象を読み込む
                             await message.channel.send(
                                 "👤 対象者はどのロールにしますか？\n"
@@ -77,7 +85,7 @@ async def addItemInteract(client, message):
                                         + utils.roleIdToName(role_id, message.guild)
                                         + "** にしました。"
                                     )
-        
+
                                     # 提出先の形式を読み込む
                                     await message.channel.send(
                                         "💾 提出形式はどちらにしますか？\n"
@@ -103,13 +111,15 @@ async def addItemInteract(client, message):
                                                 format_fmt = "📄 ファイル"
                                             else:
                                                 format_fmt = "📜 プレーンテキスト"
-        
+
                                             await message.channel.send(
                                                 "✅ 提出形式を **" + format_fmt + "** にしました。"
                                             )
-        
-                                            item_handler = database.getUserParentRole(message)
-        
+
+                                            item_handler = database.getUserParentRole(
+                                                message
+                                            )
+
                                             # データベースにコミット
                                             result = database.addItem(
                                                 item_name,
@@ -123,7 +133,9 @@ async def addItemInteract(client, message):
                                                 + "\n📛 項目名: "
                                                 + database.getItemName(result)
                                                 + "\n⏰ 期限: "
-                                                + utils.dtToStr(database.getItemLimit(result))
+                                                + utils.dtToStr(
+                                                    database.getItemLimit(result)
+                                                )
                                                 + "\n👤 対象: "
                                                 + utils.roleIdToName(
                                                     database.getItemTarget(result),
@@ -140,14 +152,14 @@ async def addItemInteract(client, message):
                                                 + "`file` か `plain` のどちらかを返信してください。\n"
                                                 + "もう一度、最初から操作をやり直してください。"
                                             )
-        
+
                                 else:
                                     await message.channel.send(
                                         "⚠ 対象者が正確に指定されていません。\n"
                                         + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
                                         + "もう一度、最初から操作をやり直してください。"
                                     )
-        
+
                         else:
                             await message.channel.send(
                                 "⚠ 指定された期限をうまく解釈できませんでした。\n"
@@ -155,9 +167,7 @@ async def addItemInteract(client, message):
                                 + "もう一度、最初から操作をやり直してください。"
                             )
         else:
-            await message.channel.send(
-                "⚠ このコマンドを実行する権限がありません。"
-            )
+            await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
 
 # 提出先の登録
@@ -240,6 +250,7 @@ async def delItem(message):
     else:
         await message.channel.send("❌ コマンドが不正です。")
 
+
 # 登録された提出先の削除 (対話方式)
 async def delItemInteract(client, message):
     result = database.getRole(message.channel.id)
@@ -287,22 +298,29 @@ async def delItemInteract(client, message):
                             + "\nどの提出先を削除しますか？"
                         )
                         try:
-                            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+                            msg_item_id = await client.wait_for(
+                                "message", check=check, timeout=30
+                            )
                         except asyncio.TimeoutError:
-                            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                            await message.channel.send(
+                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            )
                         else:
                             item_id = msg_item_id.content
                             if item_id.isdigit():
                                 item_name = database.getItemName(item_id)
                                 result = database.delItem(item_id)
                                 if result is False:
-                                    await message.channel.send("⚠ 提出先が見つかりません。ID をご確認ください。")
+                                    await message.channel.send(
+                                        "⚠ 提出先が見つかりません。ID をご確認ください。"
+                                    )
                                 else:
-                                    await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
+                                    await message.channel.send(
+                                        "✅ 提出先 " + item_name + " を削除しました。"
+                                    )
                             else:
                                 await message.channel.send(
-                                    "⚠ 提出先の指定方法が間違っています。\n"
-                                    + "もう一度、最初から操作をやり直してください。"
+                                    "⚠ 提出先の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
                                 )
     else:
         await message.channel.send(
@@ -329,8 +347,7 @@ async def delItemInteract(client, message):
                     await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
             else:
                 await message.channel.send(
-                    "⚠ 提出先の指定方法が間違っています。\n"
-                    + "もう一度、最初から操作をやり直してください。"
+                    "⚠ 提出先の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
                 )
 
 
@@ -1231,9 +1248,7 @@ async def verifySubmitInteract(client, message):
                         item_id = m_item_id.content
 
                         submit_list = database.getSubmitList(item_id, None)
-                        list_fmt = formatSubmitList(
-                            client, submit_list, "all"
-                        )
+                        list_fmt = formatSubmitList(client, submit_list, "all")
 
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
@@ -1265,12 +1280,15 @@ async def verifySubmitInteract(client, message):
                                     "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                                 )
                             else:
-                                submit_id = unicodedata.normalize("NFKC", m_submit_id.content)
+                                submit_id = unicodedata.normalize(
+                                    "NFKC", m_submit_id.content
+                                )
                                 if submit_id.isdigit():
                                     result = database.verifySubmit(submit_id)
                                     if result is None:
                                         await message.channel.send(
-                                            "⚠ 指定した提出は存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                                            "⚠ 指定した提出は存在しません。\n"
+                                            + "もう一度、最初から操作をやり直してください。"
                                         )
                                     else:
                                         submit = database.getSubmit(submit_id)
@@ -1289,7 +1307,8 @@ async def verifySubmitInteract(client, message):
                                         )
                                 else:
                                     await message.channel.send(
-                                        "⚠ 提出 ID の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。"
+                                        "⚠ 提出 ID の指定方法が間違っています。\n"
+                                        + "もう一度、最初から操作をやり直してください。"
                                     )
 
 
@@ -1365,7 +1384,7 @@ async def submitPlainTextInteract(client, message):
                                     + "\n"
                                     + "```\n"
                                 )
-                                
+
                                 await sendNotify(submit_id, client, message.guild)
                             else:
                                 channel.send(
@@ -1458,7 +1477,9 @@ async def checkSubmitInteract(client, message):
                                 target_list.append(database.getItemTarget(item_id))
 
                             for target in target_list:
-                                fmt_check_list += utils.roleIdToName(target, message.guild)
+                                fmt_check_list += utils.roleIdToName(
+                                    target, message.guild
+                                )
                                 fmt_check_list += ": "
 
                                 submit = database.getSubmitList(item_id, target)
@@ -1483,6 +1504,7 @@ async def checkSubmitInteract(client, message):
                                 + "もう一度、最初から操作をやり直してください。"
                             )
 
+
 # sendNotify: 提出通知を送信する
 async def sendNotify(submit_id, client, guild):
     submit = database.getSubmit(submit_id)
@@ -1492,21 +1514,33 @@ async def sendNotify(submit_id, client, guild):
         parent_role_id = database.getParentRole(submit.target)
         if parent_role_id is None:
             print(
-                  "[WARN] 通知用テキストチャンネルの取得に失敗したため、通知は行われませんでした。\n"
+                "[WARN] 通知用テキストチャンネルの取得に失敗したため、通知は行われませんでした。\n"
                 + "       デバッグ情報:\n"
-                + "       - submit_id: " + str(submit_id) + "\n"
-                + "       - target: " + str(submit.target)
+                + "       - submit_id: "
+                + str(submit_id)
+                + "\n"
+                + "       - target: "
+                + str(submit.target)
             )
             return
         notify_tc_id = database.getNotifyTc(parent_role_id)
         notify_tc = guild.get_channel(int(notify_tc_id))
-        
+
         await notify_tc.send(
             "🔔 新しい提出があります。\n\n"
-            + "🆔 提出 ID: " + str(submit.id) + "\n"
-            + ":mailbox_closed: 提出先: " + database.getItemName(submit.item_id) + "\n"
-            + ":alarm_clock: 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
-            + ":pencil2: 提出元ロール: " + utils.roleIdToName(submit.author_role, guild) + "\n"
-            + ":person_juggling: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
+            + "🆔 提出 ID: "
+            + str(submit.id)
+            + "\n"
+            + ":mailbox_closed: 提出先: "
+            + database.getItemName(submit.item_id)
+            + "\n"
+            + ":alarm_clock: 提出日時: `"
+            + utils.dtToStr(submit.datetime)
+            + "`\n"
+            + ":pencil2: 提出元ロール: "
+            + utils.roleIdToName(submit.author_role, guild)
+            + "\n"
+            + ":person_juggling: 提出者: "
+            + utils.userIdToName(client, submit.author)
+            + "\n"
         )
-        
