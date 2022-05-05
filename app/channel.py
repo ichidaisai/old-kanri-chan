@@ -390,6 +390,7 @@ async def setChatCategory(message):
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
 
+
 async def setBotTc(message):
     if utils.isStaff(message.author, message.guild):
         channel = message.channel
@@ -452,6 +453,7 @@ async def setPostCategory(message):
             await message.channel.send("❌ コマンドが不正です。")
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+
 
 async def setNotifyCategory(message):
     if utils.isStaff(message.author, message.guild):
@@ -598,9 +600,11 @@ async def addParentRoleInteract(client, message):
                         )
                     else:
                         role_type = msg_role_type.content
-                        
+
                         if role_type == "staff":
-                            result = database.addParentRole(role_id, msg_role_type.content, None)
+                            result = database.addParentRole(
+                                role_id, msg_role_type.content, None
+                            )
                             if result:
                                 await message.channel.send(
                                     "✅ 親ロール **"
@@ -609,16 +613,15 @@ async def addParentRoleInteract(client, message):
                                 )
                             else:
                                 await message.channel.send(
-                                    "⚠ 処理中に問題が発生しました。\n"
-                                    + "もう一度、最初から操作をやり直してください。"
+                                    "⚠ 処理中に問題が発生しました。\n" + "もう一度、最初から操作をやり直してください。"
                                 )
                         elif role_type == "member":
                             await message.channel.send(
-                                    "親ロール **"
-                                    + role_name
-                                    + "** を管理するのはどの委員会側の親ロールですか？\n"
-                                    + "Discord のメンション機能を使用して、親ロールを指定してください。"
-                                )
+                                "親ロール **"
+                                + role_name
+                                + "** を管理するのはどの委員会側の親ロールですか？\n"
+                                + "Discord のメンション機能を使用して、親ロールを指定してください。"
+                            )
                             try:
                                 msg_parent_role_manager = await client.wait_for(
                                     "message", check=check, timeout=30
@@ -628,14 +631,17 @@ async def addParentRoleInteract(client, message):
                                     "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                                 )
                             else:
-                                
-                                
+
                                 if utils.isStaffRole(
-                                    utils.mentionToRoleId(msg_parent_role_manager.content)
+                                    utils.mentionToRoleId(
+                                        msg_parent_role_manager.content
+                                    )
                                 ):
                                     parent_role_manager = discord.utils.get(
                                         message.guild.roles,
-                                        id=utils.mentionToRoleId(msg_parent_role_manager.content)
+                                        id=utils.mentionToRoleId(
+                                            msg_parent_role_manager.content
+                                        ),
                                     )
                                     # テキストチャンネルの権限設定を定義する
                                     ## @everyone の権限設定
@@ -652,29 +658,35 @@ async def addParentRoleInteract(client, message):
                                     ow_target.attach_files = False
                                     ow_target.mention_everyone = False
                                     ow_target.send_tts_messages = False
-        
+
                                     if database.getCategory("notify") is None:
                                         await message.channel.send(
-                                                "⚠ 通知用テキストチャンネルを作成するためのカテゴリーが未設定のため、処理を続行できません。"
-                                            )
+                                            "⚠ 通知用テキストチャンネルを作成するためのカテゴリーが未設定のため、処理を続行できません。"
+                                        )
                                     else:
                                         # テキストチャンネルを作る
                                         notify_category = discord.utils.get(
-                                            message.guild.categories, id=int(database.getCategory("notify"))
+                                            message.guild.categories,
+                                            id=int(database.getCategory("notify")),
                                         )
-                                        notify_tc = await message.guild.create_text_channel(
-                                            role_name, category=notify_category
+                                        notify_tc = (
+                                            await message.guild.create_text_channel(
+                                                role_name, category=notify_category
+                                            )
                                         )
-                                        
+
                                         # テキストチャンネルの権限を設定する
                                         await notify_tc.set_permissions(
                                             parent_role_manager, overwrite=ow_target
                                         )
                                         await notify_tc.set_permissions(
-                                            message.guild.default_role, overwrite=ow_everyone
+                                            message.guild.default_role,
+                                            overwrite=ow_everyone,
                                         )
-                                        
-                                        result = database.addParentRole(role_id, msg_role_type.content, notify_tc.id)
+
+                                        result = database.addParentRole(
+                                            role_id, msg_role_type.content, notify_tc.id
+                                        )
                                         if result:
                                             await message.channel.send(
                                                 "✅ 親ロール **"
@@ -687,17 +699,16 @@ async def addParentRoleInteract(client, message):
                                                 + "もう一度、最初から操作をやり直してください。"
                                             )
                                 else:
-                                   await message.channel.send(
+                                    await message.channel.send(
                                         "⚠ 指定されたロールは、委員会側の親ロールではありません。\n"
                                         + "もう一度、最初から操作をやり直してください。"
-                                    ) 
+                                    )
                         else:
                             await message.channel.send(
                                 "⚠ ロールの区別の指定方法が間違っています。\n"
                                 + "委員会の場合は `staff`、出店者の場合は `member` と返信してください。\n"
                                 + "もう一度、最初から操作をやり直してください。"
                             )
-                            
 
 
 async def deleteParentRoleInteract(client, message):
@@ -764,8 +775,6 @@ async def setGuild(client, message):
             + str(message.guild)
             + "** の管理者権限を持っていないため、この操作を実行することはできません。"
         )
-
-
 
 
 # autoRole(before, after): ロールの自動付与を処理する

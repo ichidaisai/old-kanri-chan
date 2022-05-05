@@ -150,6 +150,7 @@ def setPostCategory(id):
         exists.value = id
         session.commit()
 
+
 # setNotifyCategory: 新規提出物の通知用テキストチャンネルの親カテゴリーを設定する
 def setNotifyCategory(id):
     exists = session.query(Config).filter(Config.key == "notify_category").first()
@@ -234,6 +235,7 @@ def setGuild(guild_id):
         session.commit()
         return True
 
+
 # setBotTc: 管理用コマンドを実行するためのテキストチャンネルをボットに設定する
 def setBotTc(id):
     key = "bot_tc"
@@ -253,6 +255,7 @@ def setBotTc(id):
         session.add(config)
         session.commit()
         return True
+
 
 # getBotTc: 管理用コマンドを実行するためのテキストチャンネルの ID を返す
 def getBotTc():
@@ -544,22 +547,27 @@ def getParentRoleList():
     parent_role = session.query(ParentRole).all()
     return parent_role
 
+
 # getNotifyTc(role_id): 指定したロール ID の通知用テキストチャンネルを返す
 def getNotifyTc(role_id):
     if isParentRole(role_id):
         parent_role_id = role_id
     else:
         parent_role_id = getParentRole(role_id)
-    
+
     if parent_role_id is None:
         return None
     else:
-        parent_role = session.query(ParentRole).filter(ParentRole.id == int(parent_role_id)).first()
+        parent_role = (
+            session.query(ParentRole)
+            .filter(ParentRole.id == int(parent_role_id))
+            .first()
+        )
         if parent_role is None:
             return None
         else:
             return parent_role.notify_tc
-        
+
 
 # addParentRole(id, type): 親ロールをボットに登録する
 def addParentRole(id, type, notify_tc):

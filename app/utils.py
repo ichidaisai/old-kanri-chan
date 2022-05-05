@@ -69,12 +69,13 @@ def isStaff(author, guild):
         role = discord.utils.get(guild.roles, id=int(staff_role))
         return role in author.roles
 
+
 # isStaffRole(role_id): 指定したロールが委員会側のロールであるかを True / False で返す
 def isStaffRole(role_id):
     for role in database.getParentRoleList():
         if role.id == role_id and role.type == "staff":
             return True
-    
+
     return False
 
 
