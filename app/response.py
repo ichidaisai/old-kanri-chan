@@ -41,6 +41,8 @@ async def doResp(client, message):
         await channel.setChatCategory(message)
     elif message.content.startswith("!cat set post"):
         await channel.setPostCategory(message)
+    elif message.content.startswith("!cat set notify"):
+        await channel.setNotifyCategory(message)
     elif message.content.startswith("!ch set post"):
         await channel.setPost(message)
     elif message.content.startswith("!ch set bot"):

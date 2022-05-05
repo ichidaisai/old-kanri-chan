@@ -49,6 +49,7 @@ class ParentRole(Base):
         "id", BIGINT(unsigned=True), primary_key=True, unique=True, nullable=False
     )
     type = Column("type", VARCHAR(300))
+    notify_tc = Column("notify_tc", BIGINT(unsigned=True), nullable=True, default=None)
 
 
 # テーブル モデル: `Config` - チャンネル カテゴリの情報等、ボット全体に関わる情報を格納する
@@ -132,7 +133,7 @@ def setChatCategory(id):
         session.commit()
 
 
-# set: チャット用テキストチャンネルの親カテゴリーを設定する
+# setPostCategory: チャット用テキストチャンネルの親カテゴリーを設定する
 def setPostCategory(id):
     exists = session.query(Config).filter(Config.key == "post_category").first()
 
@@ -140,6 +141,23 @@ def setPostCategory(id):
         # `post_category` キーが存在しないとき、INSERT 文を発行する
         config = Config()
         config.key = "post_category"
+        config.value = id
+
+        session.add(config)
+        session.commit()
+    else:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+
+# setNotifyCategory: 新規提出物の通知用テキストチャンネルの親カテゴリーを設定する
+def setNotifyCategory(id):
+    exists = session.query(Config).filter(Config.key == "notify_category").first()
+
+    if exists is None:
+        # `post_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "notify_category"
         config.value = id
 
         session.add(config)
@@ -414,6 +432,8 @@ def getCategory(type):
         config = session.query(Config).filter(Config.key == "chat_category").first()
     elif type == "post":
         config = session.query(Config).filter(Config.key == "post_category").first()
+    elif type == "notify":
+        config = session.query(Config).filter(Config.key == "notify_category").first()
     else:
         return None
 
@@ -524,9 +544,25 @@ def getParentRoleList():
     parent_role = session.query(ParentRole).all()
     return parent_role
 
+# getNotifyTc(role_id): 指定したロール ID の通知用テキストチャンネルを返す
+def getNotifyTc(role_id):
+    if isParentRole(role_id):
+        parent_role_id = role_id
+    else:
+        parent_role_id = getParentRole(role_id)
+    
+    if parent_role_id is None:
+        return None
+    else:
+        parent_role = session.query(ParentRole).filter(ParentRole.id == int(parent_role_id)).first()
+        if parent_role is None:
+            return None
+        else:
+            return parent_role.notify_tc
+        
 
 # addParentRole(id, type): 親ロールをボットに登録する
-def addParentRole(id, type):
+def addParentRole(id, type, notify_tc):
     exists = session.query(ParentRole).filter(ParentRole.id == id).first()
     if exists:
         return False
@@ -536,12 +572,14 @@ def addParentRole(id, type):
             if type == "staff":
                 parent_role.id = int(id)
                 parent_role.type = "staff"
+                parent_role.notify_tc = None
                 session.add(parent_role)
                 session.commit()
                 return True
             elif type == "member":
                 parent_role.id = int(id)
                 parent_role.type = "member"
+                parent_role.notify_tc = notify_tc
                 session.add(parent_role)
                 session.commit()
                 return True
@@ -577,7 +615,7 @@ def setParentRole(id, parent_role):
 # isParentRole(id): 指定したロールが親ロールとしてボットに登録されているか返す
 def isParentRole(id):
     if str(id).isdigit():
-        parent_role = session.query(ParentRole).filter(ParentRole.id == id).first()
+        parent_role = session.query(ParentRole).filter(ParentRole.id == int(id)).first()
         if parent_role:
             return True
         else:
@@ -588,11 +626,14 @@ def isParentRole(id):
 
 # getParentRole(role_id): 指定したロールの親ロールを取得する
 def getParentRole(role_id):
-    role = session.query(Role).filter(Role.id == role_id).first()
-    if role:
-        return role.parent_role
+    if isParentRole(role_id):
+        return role_id
     else:
-        return None
+        role = session.query(Role).filter(Role.id == int(role_id)).first()
+        if role:
+            return role.parent_role
+        else:
+            return None
 
 
 # getUserParentRole(client, user_id): 指定したユーザの親ロールを返す
@@ -612,7 +653,10 @@ def getUserParentRole(message):
 
         and_list = list(set(parent_roles) & set(roles))
 
-        return and_list[0]
+        if len(and_list) == 0:
+            return None
+        else:
+            return and_list[0]
 
 
 # verifySubmit(id): 指定した提出を承認する

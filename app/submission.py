@@ -17,70 +17,51 @@ import utils
 
 # 提出先の登録 (対話方式)
 async def addItemInteract(client, message):
-    # 提出先の名前を読み込む
-    await message.channel.send("📛 提出先の名前は何にしますか？")
-
-    def check(m):
-        return m.channel == message.channel and m.author == message.author
-
-    try:
-        m_item_name = await client.wait_for("message", check=check, timeout=30)
-    except asyncio.TimeoutError:
-        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+    if database.getUserParentRole(message) is None:
+        await message.channel.send("⚠ あなたが持つ親ロールがまだボットに認識されていないか、または親ロールを何も持っていないため操作を続行できません。")
     else:
-        item_name = m_item_name.content
-        if utils.isValidAsName(item_name) is False:
-            await message.channel.send("⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。")
-        else:
-            await message.channel.send("✅ 提出先の名前を **" + item_name + "** にしました。")
-
-            # 提出先の期限を読み込む
-            await message.channel.send(
-                "⏰ 提出期限はいつにしますか？\n"
-                + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
-            )
-
+        if utils.isStaff(message.author, message.guild):
+            # 提出先の名前を読み込む
+            await message.channel.send("📛 提出先の名前は何にしますか？")
+        
+            def check(m):
+                return m.channel == message.channel and m.author == message.author
+        
             try:
-                m_item_limit = await client.wait_for("message", check=check, timeout=30)
+                m_item_name = await client.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
                 await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
             else:
-                if utils.isDateTime(m_item_limit.content):
-                    item_limit = dateutil.parser.parse(m_item_limit.content)
+                item_name = m_item_name.content
+                if utils.isValidAsName(item_name) is False:
+                    await message.channel.send("⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。")
+                else:
+                    await message.channel.send("✅ 提出先の名前を **" + item_name + "** にしました。")
+        
+                    # 提出先の期限を読み込む
                     await message.channel.send(
-                        "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
+                        "⏰ 提出期限はいつにしますか？\n"
+                        + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
                     )
-
-                    # 提出先の対象を読み込む
-                    await message.channel.send(
-                        "👤 対象者はどのロールにしますか？\n"
-                        + "__Discord のメンション機能を使用して、__ロールを指定してください。"
-                    )
+        
                     try:
-                        m_item_target = await client.wait_for(
-                            "message", check=check, timeout=30
-                        )
+                        m_item_limit = await client.wait_for("message", check=check, timeout=30)
                     except asyncio.TimeoutError:
-                        await message.channel.send(
-                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
-                        )
+                        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
                     else:
-                        role_id = utils.mentionToRoleId(m_item_target.content)
-                        if role_id is not None:
-                            item_target = role_id
+                        if utils.isDateTime(m_item_limit.content):
+                            item_limit = dateutil.parser.parse(m_item_limit.content)
                             await message.channel.send(
-                                "✅ 提出先の対象者を **"
-                                + utils.roleIdToName(role_id, message.guild)
-                                + "** にしました。"
+                                "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
                             )
-
-                            # 提出先の形式を読み込む
+        
+                            # 提出先の対象を読み込む
                             await message.channel.send(
-                                "💾 提出形式はどちらにしますか？\n"
-                                + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
+                                "👤 対象者はどのロールにしますか？\n"
+                                + "__Discord のメンション機能を使用して、__ロールを指定してください。"
                             )
                             try:
-                                m_item_format = await client.wait_for(
+                                m_item_target = await client.wait_for(
                                     "message", check=check, timeout=30
                                 )
                             except asyncio.TimeoutError:
@@ -88,68 +69,95 @@ async def addItemInteract(client, message):
                                     "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                                 )
                             else:
-                                if (
-                                    m_item_format.content == "file"
-                                    or m_item_format.content == "plain"
-                                ):
-                                    item_format = m_item_format.content
-                                    # 種類を日本語に変換し、可読性を良くする
-                                    format_fmt = ""
-                                    if item_format == "file":
-                                        format_fmt = "📄 ファイル"
-                                    else:
-                                        format_fmt = "📜 プレーンテキスト"
-
+                                role_id = utils.mentionToRoleId(m_item_target.content)
+                                if role_id is not None:
+                                    item_target = role_id
                                     await message.channel.send(
-                                        "✅ 提出形式を **" + format_fmt + "** にしました。"
+                                        "✅ 提出先の対象者を **"
+                                        + utils.roleIdToName(role_id, message.guild)
+                                        + "** にしました。"
                                     )
-
-                                    item_handler = database.getUserParentRole(message)
-
-                                    # データベースにコミット
-                                    result = database.addItem(
-                                        item_name,
-                                        item_limit,
-                                        item_target,
-                                        item_handler,
-                                        item_format,
-                                    )
+        
+                                    # 提出先の形式を読み込む
                                     await message.channel.send(
-                                        "✅ 以下の提出先を登録しました: "
-                                        + "\n📛 項目名: "
-                                        + database.getItemName(result)
-                                        + "\n⏰ 期限: "
-                                        + utils.dtToStr(database.getItemLimit(result))
-                                        + "\n👤 対象: "
-                                        + utils.roleIdToName(
-                                            database.getItemTarget(result),
-                                            message.guild,
+                                        "💾 提出形式はどちらにしますか？\n"
+                                        + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
+                                    )
+                                    try:
+                                        m_item_format = await client.wait_for(
+                                            "message", check=check, timeout=30
                                         )
-                                        + "\n💾 種類: "
-                                        + format_fmt
-                                        + "\n"
-                                        + "\n今までに登録した項目は、`!item list` で参照してください。"
-                                    )
+                                    except asyncio.TimeoutError:
+                                        await message.channel.send(
+                                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                        )
+                                    else:
+                                        if (
+                                            m_item_format.content == "file"
+                                            or m_item_format.content == "plain"
+                                        ):
+                                            item_format = m_item_format.content
+                                            # 種類を日本語に変換し、可読性を良くする
+                                            format_fmt = ""
+                                            if item_format == "file":
+                                                format_fmt = "📄 ファイル"
+                                            else:
+                                                format_fmt = "📜 プレーンテキスト"
+        
+                                            await message.channel.send(
+                                                "✅ 提出形式を **" + format_fmt + "** にしました。"
+                                            )
+        
+                                            item_handler = database.getUserParentRole(message)
+        
+                                            # データベースにコミット
+                                            result = database.addItem(
+                                                item_name,
+                                                item_limit,
+                                                item_target,
+                                                item_handler,
+                                                item_format,
+                                            )
+                                            await message.channel.send(
+                                                "✅ 以下の提出先を登録しました: "
+                                                + "\n📛 項目名: "
+                                                + database.getItemName(result)
+                                                + "\n⏰ 期限: "
+                                                + utils.dtToStr(database.getItemLimit(result))
+                                                + "\n👤 対象: "
+                                                + utils.roleIdToName(
+                                                    database.getItemTarget(result),
+                                                    message.guild,
+                                                )
+                                                + "\n💾 種類: "
+                                                + format_fmt
+                                                + "\n"
+                                                + "\n今までに登録した項目は、`!item list` で参照してください。"
+                                            )
+                                        else:
+                                            await message.channel.send(
+                                                "⚠ 提出形式が正確に指定されていません。\n"
+                                                + "`file` か `plain` のどちらかを返信してください。\n"
+                                                + "もう一度、最初から操作をやり直してください。"
+                                            )
+        
                                 else:
                                     await message.channel.send(
-                                        "⚠ 提出形式が正確に指定されていません。\n"
-                                        + "`file` か `plain` のどちらかを返信してください。\n"
+                                        "⚠ 対象者が正確に指定されていません。\n"
+                                        + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
                                         + "もう一度、最初から操作をやり直してください。"
                                     )
-
+        
                         else:
                             await message.channel.send(
-                                "⚠ 対象者が正確に指定されていません。\n"
-                                + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
+                                "⚠ 指定された期限をうまく解釈できませんでした。\n"
+                                + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
                                 + "もう一度、最初から操作をやり直してください。"
                             )
-
-                else:
-                    await message.channel.send(
-                        "⚠ 指定された期限をうまく解釈できませんでした。\n"
-                        + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
-                        + "もう一度、最初から操作をやり直してください。"
-                    )
+        else:
+            await message.channel.send(
+                "⚠ このコマンドを実行する権限がありません。"
+            )
 
 
 # 提出先の登録
@@ -449,7 +457,7 @@ async def submitFileItem(client, message):
                                 )
                                 await attachment.save(path)
                                 item_count += 1
-                                database.addSubmit(
+                                submit_id = database.addSubmit(
                                     msg.content,  # item_id
                                     dt_now,  # datetime
                                     filename,  # filename
@@ -471,6 +479,7 @@ async def submitFileItem(client, message):
                                 + str(item_count)
                                 + "件のファイル)"
                             )
+                            await sendNotify(submit_id, client, message.guild)
                         elif database.getItemFormat(msg.content) == "plain":
                             await channel.send(
                                 "⚠ 提出物 "
@@ -1332,7 +1341,7 @@ async def submitPlainTextInteract(client, message):
                             if utils.isValidAsName(msg_submit_content.content):
                                 JST = dateutil.tz.gettz("Asia/Tokyo")
                                 dt_now = datetime.datetime.now(JST)
-                                database.addSubmit(
+                                submit_id = database.addSubmit(
                                     msg.content,  # item_id
                                     dt_now,  # datetime
                                     None,  # filename, plain なので NULL
@@ -1356,6 +1365,8 @@ async def submitPlainTextInteract(client, message):
                                     + "\n"
                                     + "```\n"
                                 )
+                                
+                                await sendNotify(submit_id, client, message.guild)
                             else:
                                 channel.send(
                                     "⚠ 提出内容として正しくありません。\n" + "もう一度、最初から操作をやり直してください。"
@@ -1471,3 +1482,31 @@ async def checkSubmitInteract(client, message):
                                 "⚠ 提出先の指定方法が間違っています。提出状況を確認したい提出先 ID を番号で指定してください。"
                                 + "もう一度、最初から操作をやり直してください。"
                             )
+
+# sendNotify: 提出通知を送信する
+async def sendNotify(submit_id, client, guild):
+    submit = database.getSubmit(submit_id)
+    if submit is None:
+        print("[WARN] 提出通知の送信に失敗しました。")
+    else:
+        parent_role_id = database.getParentRole(submit.target)
+        if parent_role_id is None:
+            print(
+                  "[WARN] 通知用テキストチャンネルの取得に失敗したため、通知は行われませんでした。\n"
+                + "       デバッグ情報:\n"
+                + "       - submit_id: " + str(submit_id) + "\n"
+                + "       - target: " + str(submit.target)
+            )
+            return
+        notify_tc_id = database.getNotifyTc(parent_role_id)
+        notify_tc = guild.get_channel(int(notify_tc_id))
+        
+        await notify_tc.send(
+            "🔔 新しい提出物があります。\n\n"
+            + "🆔 提出 ID: " + str(submit.id) + "\n"
+            + ":mailbox_closed: 提出先: " + database.getItemName(submit.item_id) + "\n"
+            + ":alarm_clock: 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+            + ":pencil2: 提出元ロール: " + utils.roleIdToName(database.getItemTarget(submit.item_id), guild) + "\n"
+            + ":person_juggling: 提出者: " + utils.userIdToName(client, submit.author) + "\n"
+        )
+        
