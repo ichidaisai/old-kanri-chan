@@ -1502,7 +1502,7 @@ async def sendNotify(submit_id, client, guild):
         notify_tc = guild.get_channel(int(notify_tc_id))
         
         await notify_tc.send(
-            "🔔 新しい提出物があります。\n\n"
+            "🔔 新しい提出があります。\n\n"
             + "🆔 提出 ID: " + str(submit.id) + "\n"
             + ":mailbox_closed: 提出先: " + database.getItemName(submit.item_id) + "\n"
             + ":alarm_clock: 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
