@@ -65,7 +65,13 @@
     * Server Members Intent
     * Message Content Intent
 
-### 5. 開発用のボットを起動する
+### 5. 前提ライブラリをインストールする
+* 以下のコマンドを、開発用コンテナにアタッチした状態で実行して、必要な Python パッケージをインストールします。
+    ```shell
+    pip install -r requirements.txt
+    ```
+
+### 6. 開発用のボットを起動する
 * 以下のコマンドを、開発用コンテナにアタッチした状態で実行します。
     ```shell
     python main.py
