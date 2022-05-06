@@ -1,4 +1,4 @@
-discord.py
+-e git+https://github.com/Rapptz/discord.py
 pyyaml
 sqlalchemy
 parse
