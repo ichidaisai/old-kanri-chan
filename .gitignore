@@ -6,6 +6,7 @@ mysql/log
 *.pyc
 app/data
 app/logs
+app/src
 app/.env
 app/posts
 config.yml
