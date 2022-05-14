@@ -257,7 +257,7 @@ async def delItemInteract(client, message):
 
     if result is None:
         await message.channel.send(
-            ":mage: どのロールの提出先を確認しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
+            ":mage: どのロールの提出先を削除しますか？\n__Discord のメンション機能を使用して、__ロールを指定してください。"
         )
 
         def check(m):
