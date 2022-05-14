@@ -6,6 +6,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIGINT, CHAR
 import discord.utils
+import datetime
 
 # MySQL データベースの利用準備
 DATABASE = "mysql://%s:%s@%s/%s?charset=utf8mb4" % (
@@ -86,6 +87,22 @@ class Item(Base):
     format = Column("format", VARCHAR(300), default="file")
 
 
+class Reminder(Base):
+    __tablename__ = "reminder"
+    __table_args__ = {"mysql_charset": "utf8mb4"}
+    id = Column(
+        "id",
+        BIGINT(unsigned=True),
+        primary_key=True,
+        unique=True,
+        nullable=False,
+        autoincrement=True,
+    )
+    item_id = Column("item_id", BIGINT(unsigned=True))
+    target = Column("target", BIGINT(unsigned=True))
+    datetime = Column("datetime", DateTime)
+
+
 class Submission(Base):
     __tablename__ = "submission"
     __table_args__ = {"mysql_charset": "utf8mb4"}
@@ -131,6 +148,71 @@ def setChatCategory(id):
         # `chat_category` キーが存在するとき、UPDATE 文を発行する
         exists.value = id
         session.commit()
+
+
+# addReminder(target, datetime): リマインダーを追加
+def addReminder(item_id, target, datetime):
+    if isParentRole(target):
+        reminders = list()
+        for role in getChildRole(target):
+            reminder = Reminder()
+            reminder.item_id = item_id
+            reminder.target = role.id
+            reminder.datetime = datetime
+            reminders.append(reminder)
+        session.add_all(reminders)
+        session.commit()
+    else:
+        reminder = Reminder()
+        reminder.item_id = item_id
+        reminder.target = target
+        reminder.datetime = datetime
+        session.add(reminder)
+        session.commit()
+
+
+# delReminder(id): リマインダーを削除
+def delReminder(id):
+    reminder = session.query(Reminder).filter(Reminder.id == int(id)).first()
+    if reminder:
+        session.delete(reminder)
+        session.commit()
+        return True
+    else:
+        return False
+
+
+# getReminder(datetime): 指定した日時以前のリマインダーをすべて返す
+def getReminder(target=None, item_id=None):
+    reminder = []
+    if "target" not in vars() and "item_id" not in vars():
+        current_time = datetime.datetime.now()
+        reminder = (
+            session.query(Reminder).filter(Reminder.datetime <= current_time).all()
+        )
+    elif "target" in vars() and "item_id" in vars():
+        if isParentRole(target):
+            for role in getChildRole(target):
+                reminder += (
+                    session.query(Reminder)
+                    .filter(
+                        Reminder.item_id == item_id,
+                        Reminder.target == role,
+                    )
+                    .all()
+                )
+        else:
+            reminder = (
+                session.query(Reminder)
+                .filter(
+                    Reminder.item_id == item_id,
+                    Reminder.target == target,
+                )
+                .all()
+            )
+    elif "target" not in vars() and "item_id" in vars():
+        reminder = session.query(Reminder).filter(Reminder.item_id == item_id).all()
+    return reminder
 
 
 # setPostCategory: チャット用テキストチャンネルの親カテゴリーを設定する

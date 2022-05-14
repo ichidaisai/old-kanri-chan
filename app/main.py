@@ -4,15 +4,20 @@
 import discord
 import sys
 from parse import *
+import asyncio
 
 # 内部関数
 import config
 import response
 import channel
+import scheduler
 
 # ボットのクライアントを定義
 class MyClient(discord.Client):
     async def on_ready(self):
+        # 提出のリマインダーのスケジューラを起動する
+        scheduler.run.start(self)
+
         print(f"[INFO] {self.user} として Discord に接続しました。")
 
     # ユーザーのコマンド、メッセージ等を処理

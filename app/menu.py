@@ -6,6 +6,7 @@ import database
 import channel
 import utils
 import submission
+import reminder
 
 
 class initButton(discord.ui.View):
@@ -55,6 +56,10 @@ class doCommand(discord.ui.Button):
             elif label == "✅ 提出物の承認":
                 await interaction.response.send_message("提出物の承認をご案内します...")
                 await submission.verifySubmitInteract(client, message)
+            ## リマインダーの管理
+            elif label == "➕ リマインダーの追加":
+                await interaction.response.send_message("リマインダーの追加をご案内します...")
+                await reminder.addReminderInteract(client, message)
             ## ロールの管理
             elif label == "➕ ロールの作成":
                 await interaction.response.send_message("ロールの作成をご案内します...")
@@ -99,6 +104,9 @@ async def showMenu(client, message):
             await message.channel.send(
                 ":person_tipping_hand: ロールの管理について", view=initButton(args)
             )
+            ## リマインダーの管理
+            args = ["➕ リマインダーの追加"]
+            await message.channel.send("⏰ リマインダーについて", view=initButton(args))
         else:
             # 提出先への提出、提出履歴の閲覧など、一般ユーザー向けの項目
             args = [

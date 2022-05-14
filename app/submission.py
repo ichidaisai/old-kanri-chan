@@ -128,6 +128,63 @@ async def addItemInteract(client, message):
                                                 item_handler,
                                                 item_format,
                                             )
+
+                                            # リマインダーを作成する
+                                            ## 1日前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(days=1)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+                                            ## 12時間前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(hours=12)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+                                            ## 9時間前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(hours=9)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+                                            ## 6時間前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(hours=6)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+                                            ## 3時間前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(hours=3)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+                                            ## 1時間前
+                                            reminder_datetime = database.getItemLimit(
+                                                result
+                                            ) - datetime.timedelta(hours=1)
+                                            database.addReminder(
+                                                result,
+                                                database.getItemTarget(result),
+                                                reminder_datetime,
+                                            )
+
                                             await message.channel.send(
                                                 "✅ 以下の提出先を登録しました: "
                                                 + "\n📛 項目名: "
@@ -200,6 +257,50 @@ async def addItem(message):
                     else:
                         format_fmt = "📜 プレーンテキスト"
 
+                    # リマインダーを作成する
+                    ## 1日前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(days=1)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+                    ## 12時間前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(hours=12)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+                    ## 9時間前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(hours=9)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+                    ## 6時間前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(hours=6)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+                    ## 3時間前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(hours=3)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+                    ## 1時間前
+                    reminder_datetime = database.getItemLimit(
+                        result
+                    ) - datetime.timedelta(hours=1)
+                    database.addReminder(
+                        result, database.getItemTarget(result), reminder_datetime
+                    )
+
                     await message.channel.send(
                         "✅ 以下の提出先を登録しました: "
                         + "\n📛 項目名: "
@@ -246,6 +347,11 @@ async def delItem(message):
         if result is False:
             await message.channel.send("⚠ 提出先が見つかりません。ID をご確認ください。")
         else:
+            # リマインダーを削除
+            reminders = database.getReminder(item_id=int(response[0]))
+
+            for reminder in reminders:
+                database.delReminder(reminder.id)
             await message.channel.send("✅ 提出先 " + item_name + " を削除しました。")
     else:
         await message.channel.send("❌ コマンドが不正です。")
@@ -315,6 +421,14 @@ async def delItemInteract(client, message):
                                         "⚠ 提出先が見つかりません。ID をご確認ください。"
                                     )
                                 else:
+                                    # リマインダーを削除
+                                    reminders = database.getReminder(
+                                        item_id=int(item_id)
+                                    )
+
+                                    for reminder in reminders:
+                                        database.delReminder(reminder.id)
+
                                     await message.channel.send(
                                         "✅ 提出先 " + item_name + " を削除しました。"
                                     )
@@ -488,6 +602,17 @@ async def submitFileItem(client, message):
                                     "file",  # format
                                 )
 
+                            # リマインダーを削除
+                            reminders = database.getReminder(
+                                item_id=int(msg.content),
+                                target=int(database.getRole(message.channel.id)),
+                            )
+
+                            for reminder in reminders:
+                                print("AAAAAAAAAAAAAAAAAAAAAAAAA")
+                                print(str(reminder.id))
+                                database.delReminder(reminder.id)
+
                             await channel.send(
                                 "✅ 提出物 "
                                 + "**"
@@ -568,17 +693,18 @@ def returnItemByRoleId(role_id, format):
             items += "💾 提出形式: 📜 プレーンテキスト\n"
         else:
             items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
-    for item in database.showItem(database.getParentRole(role_id), format):
-        items += "\n"
-        items += "🆔 提出先 ID: " + str(item.id) + "\n"
-        items += "📛 項目名: " + item.name + "\n"
-        items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
-        if item.format == "file":
-            items += "💾 提出形式: 📄 ファイル\n"
-        elif item.format == "plain":
-            items += "💾 提出形式: 📜 プレーンテキスト\n"
-        else:
-            items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    if not database.isParentRole(role_id):
+        for item in database.showItem(database.getParentRole(role_id), format):
+            items += "\n"
+            items += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items += "📛 項目名: " + item.name + "\n"
+            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if items == "":
         items += "今のところ、提出を指示されている項目はありません。"
     return items
@@ -1373,6 +1499,15 @@ async def submitPlainTextInteract(client, message):
                                     database.getItemTarget(msg.content),  # target
                                     "plain",  # format
                                 )
+
+                                # リマインダーを削除
+                                reminders = database.getReminder(
+                                    item_id=int(msg.content),
+                                    target=database.getRole(message.channel.id),
+                                )
+
+                                for reminder in reminders:
+                                    database.delReminder(reminder.id)
 
                                 await channel.send(
                                     "✅ 提出物 "
