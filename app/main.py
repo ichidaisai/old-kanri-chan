@@ -35,7 +35,7 @@ def main():
         client = MyClient(intents=intents)
         client.run(config.getToken())
     else:
-        print(f"config.yml の内容が正しくありません。終了します。")
+        print("config.yml の内容が正しくありません。終了します。")
         sys.exit(1)
 
 
