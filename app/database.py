@@ -394,8 +394,8 @@ def setPostTc(id, tc):
 
 
 # isChatTc: チャット用チャンネルかどうかを確認し、チャット用チャンネルである場合そのチャンネルを使っているロールの ID を返す
-def isChatTc(id):
-    exists = session.query(Role).filter(Role.chat_tc).first()
+def isChatTc(tc):
+    exists = session.query(Role).filter(Role.chat_tc == tc).first()
     if exists:
         return exists.id
     else:
