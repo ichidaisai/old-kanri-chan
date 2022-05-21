@@ -103,10 +103,7 @@ async def initRoleInteract(client, message):
 
                             # テキストチャンネルを作る
                             chat_category = discord.utils.get(
-                                guild.categories,
-                                id=int(
-                                    database.getCategory("chat"),
-                                ),
+                                guild.categories, id=int(database.getCategory("chat"))
                             )
                             post_category = discord.utils.get(
                                 guild.categories, id=int(database.getCategory("post"))
