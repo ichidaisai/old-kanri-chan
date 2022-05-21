@@ -16,7 +16,14 @@ async def doResp(client, message):
     if message.content.startswith("!role add"):
         await channel.addRole(message)
     elif message.content.startswith("!menu") or message.content == "メニュー":
-        await menu.showMenu(client, message)
+        ch_check = database.isChatTc(message.channel.id)
+        if message.channel.id == database.getBotTc() or ch_check is False:
+            await menu.showMenu(client, message)
+        else:
+            message.channel.send("⚠ このチャンネルでボットを使用しないでください。\n実行結果は提出用チャンネルに転送されます。")
+            post_tc = client.get_channel(database.getTc(ch_check, "post"))
+            message.channel = post_tc
+            await menu.showMenu(client, message)
     elif message.content.startswith("!role delete"):
         await channel.delRole(message)
     elif message.content.startswith("!role parent add"):

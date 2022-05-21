@@ -393,6 +393,15 @@ def setPostTc(id, tc):
         return False
 
 
+# isChatTc: チャット用チャンネルかどうかを確認し、チャット用チャンネルである場合そのチャンネルを使っているロールの ID を返す
+def isChatTc(id):
+    exists = session.query(Role).filter(Role.chat_tc).first()
+    if exists:
+        return exists.id
+    else:
+        return False
+
+
 # addItem: ボットに提出先を登録する（データベースに登録する）
 def addItem(name, limit, target, handler, format):
     item = Item()
