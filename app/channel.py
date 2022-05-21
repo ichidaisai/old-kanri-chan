@@ -134,9 +134,6 @@ async def initRoleInteract(client, message):
                                 role, overwrite=ow_target
                             )
                             await post_channel.set_permissions(
-                                role_staff, overwrite=ow_target
-                            )
-                            await post_channel.set_permissions(
                                 guild.default_role, overwrite=ow_everyone
                             )
 
