@@ -20,7 +20,7 @@ async def doResp(client, message):
         if message.channel.id == database.getBotTc() or ch_check is False:
             await menu.showMenu(client, message)
         else:
-            message.channel.send("⚠ このチャンネルでボットを使用しないでください。\n実行結果は提出用チャンネルに転送されます。")
+            await message.channel.send("⚠ このチャンネルでボットを使用しないでください。\n提出用チャンネルに転送されます。")
             post_tc = client.get_channel(database.getTc(ch_check, "post"))
             message.channel = post_tc
             await menu.showMenu(client, message)
