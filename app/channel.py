@@ -692,10 +692,7 @@ async def addParentRoleInteract(client, message):
                                                 role_name,
                                                 category=notify_category,
                                                 topic="親ロール "
-                                                + utils.roleIdToName(
-                                                    parent_role_manager.name,
-                                                    message.guild,
-                                                )
+                                                + parent_role_manager.name
                                                 + " に帰属するロールの提出通知がここに届きます。",
                                             )
                                         )
