@@ -112,17 +112,21 @@ async def initRoleInteract(client, message):
                                 + " 向けの連絡用チャンネル",
                             )
                             post_category = discord.utils.get(
-                                guild.categories,
-                                id=int(database.getCategory("post")),
+                                guild.categories, id=int(database.getCategory("post"))
+                            )
+                            chat_channel = await guild.create_text_channel(
+                                role_name,
+                                category=chat_category,
+                                topic="ロール "
+                                + utils.roleIdToName(role.id, guild)
+                                + " 向けの連絡用チャンネル",
+                            )
+                            post_channel = await guild.create_text_channel(
+                                role_name,
+                                category=post_category,
                                 topic="ロール "
                                 + utils.roleIdToName(role.id, guild)
                                 + " 向けの提出用チャンネル",
-                            )
-                            chat_channel = await guild.create_text_channel(
-                                role_name, category=chat_category
-                            )
-                            post_channel = await guild.create_text_channel(
-                                role_name, category=post_category
                             )
 
                             # 委員会側の対応するロールを取得する
