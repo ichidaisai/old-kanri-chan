@@ -50,6 +50,9 @@ class ParentRole(Base):
         "id", BIGINT(unsigned=True), primary_key=True, unique=True, nullable=False
     )
     type = Column("type", VARCHAR(300))
+    staff_role = Column(
+        "staff_role", BIGINT(unsigned=True), nullable=True, default=None
+    )
     notify_tc = Column("notify_tc", BIGINT(unsigned=True), nullable=True, default=None)
 
 
@@ -367,6 +370,18 @@ def getStaffRole():
         return None
 
 
+# getMemberToStaffRole(id): 参加者側ロールに対応するスタッフ側ロールを取得する。
+def getMemberToStaffRole(id):
+    if str(id).isdigit():
+        exist = session.query(ParentRole).filter(ParentRole.id == id).first()
+        if exist:
+            return exist.staff_role
+        else:
+            return None
+    else:
+        return None
+
+
 # setChatTc: チャット用テキストチャンネルをボットに認識させる（データベースに登録する）
 def setChatTc(id, tc):
     exists = session.query(Role).filter(Role.id == id).first()
@@ -661,7 +676,7 @@ def getNotifyTc(role_id):
 
 
 # addParentRole(id, type): 親ロールをボットに登録する
-def addParentRole(id, type, notify_tc):
+def addParentRole(id, type, staff_role, notify_tc):
     exists = session.query(ParentRole).filter(ParentRole.id == id).first()
     if exists:
         return False
@@ -671,6 +686,7 @@ def addParentRole(id, type, notify_tc):
             if type == "staff":
                 parent_role.id = int(id)
                 parent_role.type = "staff"
+                parent_role.staff_role = None
                 parent_role.notify_tc = None
                 session.add(parent_role)
                 session.commit()
@@ -678,6 +694,7 @@ def addParentRole(id, type, notify_tc):
             elif type == "member":
                 parent_role.id = int(id)
                 parent_role.type = "member"
+                parent_role.staff_role = staff_role
                 parent_role.notify_tc = notify_tc
                 session.add(parent_role)
                 session.commit()

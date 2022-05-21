@@ -115,7 +115,15 @@ async def initRoleInteract(client, message):
                                 role_name, category=post_category
                             )
 
+                            # 委員会側の対応するロールを取得する
+                            role_staff = guild.get_role(
+                                database.getMemberToStaffRole(parent_role)
+                            )
+
                             # テキストチャンネルの権限を設定する
+                            await chat_channel.set_permissions(
+                                role_staff, overwrite=ow_target
+                            )
                             await chat_channel.set_permissions(
                                 role, overwrite=ow_target
                             )
@@ -124,6 +132,9 @@ async def initRoleInteract(client, message):
                             )
                             await post_channel.set_permissions(
                                 role, overwrite=ow_target
+                            )
+                            await post_channel.set_permissions(
+                                role_staff, overwrite=ow_target
                             )
                             await post_channel.set_permissions(
                                 guild.default_role, overwrite=ow_everyone
@@ -603,7 +614,7 @@ async def addParentRoleInteract(client, message):
 
                         if role_type == "staff":
                             result = database.addParentRole(
-                                role_id, msg_role_type.content, None
+                                role_id, msg_role_type.content, None, None
                             )
                             if result:
                                 await message.channel.send(
@@ -684,8 +695,14 @@ async def addParentRoleInteract(client, message):
                                             overwrite=ow_everyone,
                                         )
 
+                                        staff_role = utils.mentionToRoleId(
+                                            msg_parent_role_manager.content
+                                        )
                                         result = database.addParentRole(
-                                            role_id, msg_role_type.content, notify_tc.id
+                                            role_id,
+                                            msg_role_type.content,
+                                            staff_role,
+                                            notify_tc.id,
                                         )
                                         if result:
                                             await message.channel.send(
