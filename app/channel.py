@@ -103,10 +103,20 @@ async def initRoleInteract(client, message):
 
                             # テキストチャンネルを作る
                             chat_category = discord.utils.get(
-                                guild.categories, id=int(database.getCategory("chat"))
+                                guild.categories,
+                                id=int(
+                                    database.getCategory("chat"),
+                                ),
+                                topic="ロール "
+                                + utils.roleIdToName(role.id, guild)
+                                + " 向けの連絡用チャンネル",
                             )
                             post_category = discord.utils.get(
-                                guild.categories, id=int(database.getCategory("post"))
+                                guild.categories,
+                                id=int(database.getCategory("post")),
+                                topic="ロール "
+                                + utils.roleIdToName(role.id, guild)
+                                + " 向けの提出用チャンネル",
                             )
                             chat_channel = await guild.create_text_channel(
                                 role_name, category=chat_category
@@ -679,7 +689,14 @@ async def addParentRoleInteract(client, message):
                                         )
                                         notify_tc = (
                                             await message.guild.create_text_channel(
-                                                role_name, category=notify_category
+                                                role_name,
+                                                category=notify_category,
+                                                topic="親ロール "
+                                                + utils.roleIdToName(
+                                                    parent_role_manager.name,
+                                                    message.guild,
+                                                )
+                                                + " に帰属するロールの提出通知がここに届きます。",
                                             )
                                         )
 
