@@ -107,9 +107,6 @@ async def initRoleInteract(client, message):
                                 id=int(
                                     database.getCategory("chat"),
                                 ),
-                                topic="ロール "
-                                + utils.roleIdToName(role.id, guild)
-                                + " 向けの連絡用チャンネル",
                             )
                             post_category = discord.utils.get(
                                 guild.categories, id=int(database.getCategory("post"))
