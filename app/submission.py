@@ -85,144 +85,160 @@ async def addItemInteract(client, message):
                                         m_item_target.content
                                     )
                                     if role_id is not None:
-                                        item_target = role_id
-                                        await message.channel.send(
-                                            "✅ 提出先の対象者を **"
-                                            + utils.roleIdToName(role_id, message.guild)
-                                            + "** にしました。"
-                                        )
-
-                                        # 提出先の形式を読み込む
-                                        await message.channel.send(
-                                            "💾 提出形式はどちらにしますか？\n"
-                                            + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
-                                        )
-                                        try:
-                                            m_item_format = await client.wait_for(
-                                                "message", check=check, timeout=30
-                                            )
-                                        except asyncio.TimeoutError:
+                                        if utils.isStaffRole(role_id):
                                             await message.channel.send(
-                                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                                "⚠ 指定したロールは、提出を指示する先のロールとしては登録されていません。\n"
+                                                + "委員会サイドのロールを指定している場合は、そのようなことはできません。\n"
+                                                + "ここでは、出店者側のロールを指定するようにしてください。\n"
+                                                + "もう一度、最初から操作をやり直してください。"
                                             )
                                         else:
-                                            if (
-                                                m_item_format.content == "file"
-                                                or m_item_format.content == "plain"
-                                            ):
-                                                item_format = m_item_format.content
-                                                # 種類を日本語に変換し、可読性を良くする
-                                                format_fmt = ""
-                                                if item_format == "file":
-                                                    format_fmt = "📄 ファイル"
-                                                else:
-                                                    format_fmt = "📜 プレーンテキスト"
+                                            item_target = role_id
+                                            await message.channel.send(
+                                                "✅ 提出先の対象者を **"
+                                                + utils.roleIdToName(
+                                                    role_id, message.guild
+                                                )
+                                                + "** にしました。"
+                                            )
 
+                                            # 提出先の形式を読み込む
+                                            await message.channel.send(
+                                                "💾 提出形式はどちらにしますか？\n"
+                                                + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
+                                            )
+                                            try:
+                                                m_item_format = await client.wait_for(
+                                                    "message", check=check, timeout=30
+                                                )
+                                            except asyncio.TimeoutError:
                                                 await message.channel.send(
-                                                    "✅ 提出形式を **"
-                                                    + format_fmt
-                                                    + "** にしました。"
-                                                )
-
-                                                item_handler = (
-                                                    database.getUserParentRole(message)
-                                                )
-
-                                                # データベースにコミット
-                                                result = database.addItem(
-                                                    item_name,
-                                                    item_limit,
-                                                    item_target,
-                                                    item_handler,
-                                                    item_format,
-                                                )
-
-                                                # リマインダーを作成する
-                                                ## 1日前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(days=1)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-                                                ## 12時間前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(hours=12)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-                                                ## 9時間前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(hours=9)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-                                                ## 6時間前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(hours=6)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-                                                ## 3時間前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(hours=3)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-                                                ## 1時間前
-                                                reminder_datetime = (
-                                                    database.getItemLimit(result)
-                                                    - datetime.timedelta(hours=1)
-                                                )
-                                                database.addReminder(
-                                                    result,
-                                                    database.getItemTarget(result),
-                                                    reminder_datetime,
-                                                )
-
-                                                await message.channel.send(
-                                                    "✅ 以下の提出先を登録しました: "
-                                                    + "\n📛 項目名: "
-                                                    + database.getItemName(result)
-                                                    + "\n⏰ 期限: "
-                                                    + utils.dtToStr(
-                                                        database.getItemLimit(result)
-                                                    )
-                                                    + "\n👤 対象: "
-                                                    + utils.roleIdToName(
-                                                        database.getItemTarget(result),
-                                                        message.guild,
-                                                    )
-                                                    + "\n💾 種類: "
-                                                    + format_fmt
-                                                    + "\n"
-                                                    + "\n今までに登録した項目は、`!item list` で参照してください。"
+                                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
                                                 )
                                             else:
-                                                await message.channel.send(
-                                                    "⚠ 提出形式が正確に指定されていません。\n"
-                                                    + "`file` か `plain` のどちらかを返信してください。\n"
-                                                    + "もう一度、最初から操作をやり直してください。"
-                                                )
+                                                if (
+                                                    m_item_format.content == "file"
+                                                    or m_item_format.content == "plain"
+                                                ):
+                                                    item_format = m_item_format.content
+                                                    # 種類を日本語に変換し、可読性を良くする
+                                                    format_fmt = ""
+                                                    if item_format == "file":
+                                                        format_fmt = "📄 ファイル"
+                                                    else:
+                                                        format_fmt = "📜 プレーンテキスト"
+
+                                                    await message.channel.send(
+                                                        "✅ 提出形式を **"
+                                                        + format_fmt
+                                                        + "** にしました。"
+                                                    )
+
+                                                    item_handler = (
+                                                        database.getUserParentRole(
+                                                            message
+                                                        )
+                                                    )
+
+                                                    # データベースにコミット
+                                                    result = database.addItem(
+                                                        item_name,
+                                                        item_limit,
+                                                        item_target,
+                                                        item_handler,
+                                                        item_format,
+                                                    )
+
+                                                    # リマインダーを作成する
+                                                    ## 1日前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(days=1)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+                                                    ## 12時間前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(hours=12)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+                                                    ## 9時間前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(hours=9)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+                                                    ## 6時間前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(hours=6)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+                                                    ## 3時間前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(hours=3)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+                                                    ## 1時間前
+                                                    reminder_datetime = (
+                                                        database.getItemLimit(result)
+                                                        - datetime.timedelta(hours=1)
+                                                    )
+                                                    database.addReminder(
+                                                        result,
+                                                        database.getItemTarget(result),
+                                                        reminder_datetime,
+                                                    )
+
+                                                    await message.channel.send(
+                                                        "✅ 以下の提出先を登録しました: "
+                                                        + "\n📛 項目名: "
+                                                        + database.getItemName(result)
+                                                        + "\n⏰ 期限: "
+                                                        + utils.dtToStr(
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                        )
+                                                        + "\n👤 対象: "
+                                                        + utils.roleIdToName(
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            message.guild,
+                                                        )
+                                                        + "\n💾 種類: "
+                                                        + format_fmt
+                                                        + "\n"
+                                                        + "\n今までに登録した項目は、`!item list` で参照してください。"
+                                                    )
+                                                else:
+                                                    await message.channel.send(
+                                                        "⚠ 提出形式が正確に指定されていません。\n"
+                                                        + "`file` か `plain` のどちらかを返信してください。\n"
+                                                        + "もう一度、最初から操作をやり直してください。"
+                                                    )
 
                                     else:
                                         await message.channel.send(
