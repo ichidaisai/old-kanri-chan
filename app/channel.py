@@ -13,7 +13,7 @@ import utils
 # 新規ロールの初期化作業 (テキストチャンネルの作成, テキストチャンネルの登録, etc.)
 async def initRoleInteract(client, message):
     if utils.isStaff(message.author, message.guild):
-        await message.channel.send("📛 ロールの名前は何にしますか？")
+        await message.channel.send("📛 ロールの名前は何にしますか？", reference=message)
 
         def check(m):
             return m.channel == message.channel and m.author == message.author
@@ -21,7 +21,9 @@ async def initRoleInteract(client, message):
         try:
             m_role_name = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
-            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+            await message.channel.send(
+                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=message
+            )
         else:
             parent_role_list = ""
             for role in database.getParentRoleList():
@@ -166,8 +168,9 @@ async def initRoleInteract(client, message):
 # 特定のロールに関わる情報（提出物を除く）を削除する
 async def pruneRoleInteract(client, message):
     if utils.isStaff(message.author, message.guild):
-        await message.channel.send(
-            "📛 ロールの情報と、それに関係するテキストチャンネルを削除したいロールを Discord の機能を用いてメンションしてください。"
+        msg_ask_role = await message.channel.send(
+            "📛 ロールの情報と、それに関係するテキストチャンネルを削除したいロールを Discord の機能を用いてメンションしてください。",
+            reference=message,
         )
         guild = message.guild
 
@@ -177,12 +180,15 @@ async def pruneRoleInteract(client, message):
         try:
             msg = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
-            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+            await message.channel.send(
+                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_role
+            )
         else:
             if utils.mentionToRoleId(msg.content) is None:
                 await message.channel.send(
                     "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。\n"
-                    + "もう一度、最初から操作をやり直してください。"
+                    + "もう一度、最初から操作をやり直してください。",
+                    reference=msg,
                 )
             else:
                 target = guild.get_role(int(utils.mentionToRoleId(msg.content)))
@@ -190,14 +196,16 @@ async def pruneRoleInteract(client, message):
                 if target is None:
                     await message.channel.send(
                         "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。\n"
-                        + "もう一度、最初から操作をやり直してください。"
+                        + "もう一度、最初から操作をやり直してください。",
+                        reference=msg,
                     )
                 else:
-                    await message.channel.send(
+                    msg_ask_confirm = await message.channel.send(
                         ":cold_face: 本当にロール **"
                         + target.name
                         + "** を削除しますか？\n"
-                        + "続行する場合は `y` と、キャンセルする場合は `n` と発言してください。"
+                        + "続行する場合は `y` と、キャンセルする場合は `n` と発言してください。",
+                        reference=msg,
                     )
                     try:
                         msg_confirm = await client.wait_for(
@@ -205,12 +213,14 @@ async def pruneRoleInteract(client, message):
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
-                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                            reference=msg_ask_confirm,
                         )
                     else:
                         if msg_confirm.content == "y":
                             await message.channel.send(
-                                ":pick: ロール **" + target.name + "** の削除を処理しています..."
+                                ":pick: ロール **" + target.name + "** の削除を処理しています...",
+                                reference=msg_confirm,
                             )
 
                             # テキストチャンネルの削除
@@ -225,14 +235,16 @@ async def pruneRoleInteract(client, message):
                             ## 削除の実行
                             if chat_tc is None:
                                 await message.channel.send(
-                                    ":information_source: チャット用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。"
+                                    ":information_source: チャット用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。",
+                                    reference=msg_confirm,
                                 )
                             else:
                                 await chat_tc.delete()
 
                             if chat_tc is None:
                                 await message.channel.send(
-                                    ":information_source: 提出用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。"
+                                    ":information_source: 提出用テキストチャンネルは既に削除されています。このテキストチャンネルの削除はスキップされます。",
+                                    reference=msg_confirm,
                                 )
                             else:
                                 await post_tc.delete()
@@ -240,26 +252,30 @@ async def pruneRoleInteract(client, message):
                             # データベース上からのロールの削除
                             if database.delRole(target.id, guild) is False:
                                 await message.channel.send(
-                                    ":information_source: データベース上のロールは既に削除されています。この処理はスキップされます。"
+                                    ":information_source: データベース上のロールは既に削除されています。この処理はスキップされます。",
+                                    reference=msg_confirm,
                                 )
 
                             # Discord 上からのロールの削除
                             if target is None:
                                 await message.channel.send(
-                                    ":information_source: Discord 上のロールは既に削除されています。この処理はスキップされます。"
+                                    ":information_source: Discord 上のロールは既に削除されています。この処理はスキップされます。",
+                                    reference=msg_confirm,
                                 )
                             else:
                                 await target.delete()
 
                             await message.channel.send(
-                                "✅ ロール **" + target.name + "** の削除が完了しました。"
+                                "✅ ロール **" + target.name + "** の削除が完了しました。",
+                                reference=msg_confirm,
                             )
 
                         else:
                             await message.channel.send(
                                 ":congratulations: ロール **"
                                 + target.name
-                                + "** の削除をキャンセルしました。"
+                                + "** の削除をキャンセルしました。",
+                                reference=msg_confirm,
                             )
     else:
         await message.channel.send("⚠ このコマンドを実行する権限がありません。")
@@ -275,7 +291,8 @@ async def setStaffRole(message):
             if message.guild.get_role(int(response[0])) is None:
                 await message.channel.send(
                     "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いてロールを指定してください。\n"
-                    + "もう一度、最初から操作をやり直してください。"
+                    + "もう一度、最初から操作をやり直してください。",
+                    reference=message,
                 )
             else:
                 result = database.setStaffRole(response[0])
@@ -283,20 +300,24 @@ async def setStaffRole(message):
                     await message.channel.send(
                         "✅ スタッフ用ロールを **"
                         + message.guild.get_role(int(response[0])).name
-                        + "** に設定しました。"
+                        + "** に設定しました。",
+                        reference=message,
                     )
                 else:
-                    await message.channel.send("⚠ 処理中になんらかの問題が発生しました。")
+                    await message.channel.send(
+                        "⚠ 処理中になんらかの問題が発生しました。", reference=message
+                    )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setParentRole(client, message):
     if utils.isStaff(message.author, message.guild):
         await message.channel.send(
-            "📛 どのロールの親ロールを変更しますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。"
+            "📛 どのロールの親ロールを変更しますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。",
+            reference=message,
         )
 
         def check(m):
@@ -305,31 +326,38 @@ async def setParentRole(client, message):
         try:
             msg_role = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
-            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+            await message.channel.send(
+                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=message
+            )
         else:
             role_id = utils.mentionToRoleId(msg_role.content)
             if role_id is None:
                 await message.channel.send(
                     "⚠ ロールの指定方法が間違っています。\n"
                     + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
-                    + "もう一度、最初から操作をやり直してください。"
+                    + "もう一度、最初から操作をやり直してください。",
+                    reference=msg_role,
                 )
             else:
                 if not database.isParentRole(role_id):
                     role_name = utils.roleIdToName(role_id, message.guild)
                     if role_name is None:
                         await message.channel.send(
-                            "⚠ 指定したロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                            "⚠ 指定したロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。",
+                            reference=msg_role,
                         )
                     else:
-                        await message.channel.send(":detective: 親ロールの変更先はどちらにしますか？\n")
+                        msg_ask_dest = await message.channel.send(
+                            ":detective: 親ロールの変更先はどちらにしますか？\n", reference=msg_role
+                        )
                         try:
                             msg_parent_role = await client.wait_for(
                                 "message", check=check, timeout=60
                             )
                         except asyncio.TimeoutError:
                             await message.channel.send(
-                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                reference=msg_ask_dest,
                             )
                         else:
                             # 目的のユーザーが持つ親ロールを一旦全部剥がす
@@ -347,20 +375,22 @@ async def setParentRole(client, message):
                                     + role_name
                                     + "** の親ロールを **"
                                     + parent_role_name
-                                    + "** に変更しました。"
+                                    + "** に変更しました。",
+                                    reference=msg_parent_role,
                                 )
                             else:
                                 await message.channel.send(
                                     "⚠ 指定した親ロールは未登録か、ロールの指定方法が間違っています。\n"
-                                    + "もう一度、最初から操作をやり直してください。"
+                                    + "もう一度、最初から操作をやり直してください。",
+                                    reference=msg_parent_role,
                                 )
                 else:
                     await message.channel.send(
-                        "⚠ 指定したロールは親ロールです。親ロールに親ロールを指定することはできません。"
+                        "⚠ 指定したロールは親ロールです。親ロールに親ロールを指定することはできません。", reference=msg_role
                     )
 
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setChat(message):
@@ -372,18 +402,20 @@ async def setChat(message):
                 await message.channel.send(
                     "✅ ロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** のチャット用チャンネルを設定しました。"
+                    + "** のチャット用チャンネルを設定しました。",
+                    reference=message,
                 )
             else:
                 await message.channel.send(
                     "⚠ ロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
+                    + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setChatCategory(message):
@@ -397,20 +429,23 @@ async def setChatCategory(message):
                 if category is not None:
                     database.setChatCategory(category.id)
                     await message.channel.send(
-                        "✅ チャット用のチャンネル カテゴリーを **" + category.name + "** に設定しました。"
+                        "✅ チャット用のチャンネル カテゴリーを **" + category.name + "** に設定しました。",
+                        reference=message,
                     )
                 else:
                     await message.channel.send(
-                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=message,
                     )
             else:
                 await message.channel.send(
-                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setBotTc(message):
@@ -419,12 +454,15 @@ async def setBotTc(message):
         if channel is not None:
             database.setBotTc(channel.id)
             await message.channel.send(
-                "✅ 管理用コマンドを実行するためのテキストチャンネルを **" + channel.name + "** に設定しました。"
+                "✅ 管理用コマンドを実行するためのテキストチャンネルを **" + channel.name + "** に設定しました。",
+                reference=message,
             )
         else:
-            await message.channel.send("⚠ 処理中に問題が発生しました。\n" + "もう一度、最初から操作をやり直してください。")
+            await message.channel.send(
+                "⚠ 処理中に問題が発生しました。\n" + "もう一度、最初から操作をやり直してください。", reference=message
+            )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setPost(message):
@@ -436,18 +474,22 @@ async def setPost(message):
                 await message.channel.send(
                     "✅ ロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** の提出用チャンネルを設定しました。"
+                    + "** の提出用チャンネルを設定しました。",
+                    reference=message,
                 )
             else:
                 await message.channel.send(
                     "⚠ ロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。"
+                    + "** はまだボットに登録されていません。先に `!add role` コマンドを用いてボットにロールを登録してください。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。\n" + "もう一度、最初から操作をやり直してください。")
+            await message.channel.send(
+                "❌ コマンドが不正です。\n" + "もう一度、最初から操作をやり直してください。", reference=message
+            )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setPostCategory(message):
@@ -461,20 +503,23 @@ async def setPostCategory(message):
                 if category is not None:
                     database.setPostCategory(category.id)
                     await message.channel.send(
-                        "✅ 提出用のチャンネル カテゴリーを **" + category.name + "** に設定しました。"
+                        "✅ 提出用のチャンネル カテゴリーを **" + category.name + "** に設定しました。",
+                        reference=message,
                     )
                 else:
                     await message.channel.send(
-                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=message,
                     )
             else:
                 await message.channel.send(
-                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def setNotifyCategory(message):
@@ -488,20 +533,23 @@ async def setNotifyCategory(message):
                 if category is not None:
                     database.setNotifyCategory(category.id)
                     await message.channel.send(
-                        "✅ 通知用のチャンネル カテゴリーを **" + category.name + "** に設定しました。"
+                        "✅ 通知用のチャンネル カテゴリーを **" + category.name + "** に設定しました。",
+                        reference=message,
                     )
                 else:
                     await message.channel.send(
-                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=message,
                     )
             else:
                 await message.channel.send(
-                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。"
+                    "⚠ チャンネル カテゴリーの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("❌ コマンドが不正です。")
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def addRole(message):
@@ -513,20 +561,23 @@ async def addRole(message):
                 await message.channel.send(
                     "✅ ロール "
                     + message.guild.get_role(int(response[0])).name
-                    + " をボットに登録しました。"
+                    + " をボットに登録しました。",
+                    reference=message,
                 )
             else:
                 await message.channel.send(
                     "⚠ 指定されたロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** は既にボットに登録されています。"
+                    + "** は既にボットに登録されています。",
+                    reference=message,
                 )
         else:
             await message.channel.send(
-                "ボットにロールを追加できませんでした。コマンドを確認してください。\n" + "もう一度、最初から操作をやり直してください。"
+                "ボットにロールを追加できませんでした。コマンドを確認してください。\n" + "もう一度、最初から操作をやり直してください。",
+                reference=message,
             )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def delRole(message):
@@ -538,18 +589,22 @@ async def delRole(message):
                 await message.channel.send(
                     "✅ ロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** をボットから削除しました。"
+                    + "** をボットから削除しました。",
+                    reference=message,
                 )
             else:
                 await message.channel.send(
                     "⚠ 指定されたロール **"
                     + message.guild.get_role(int(response[0])).name
-                    + "** はボットに登録されていません。"
+                    + "** はボットに登録されていません。",
+                    reference=message,
                 )
         else:
-            await message.channel.send("ボットからロールを削除できませんでした。コマンドを確認してください。")
+            await message.channel.send(
+                "ボットからロールを削除できませんでした。コマンドを確認してください。", reference=message
+            )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def showRole(message):
@@ -560,7 +615,8 @@ async def showRole(message):
                 "<#"
                 + str(message.channel.id)
                 + "> に紐付けられているロールはありません。\n"
-                + "手動で紐付けるには、`!role add` コマンドを実行します。"
+                + "手動で紐付けるには、`!role add` コマンドを実行します。",
+                reference=message,
             )
         else:
             await message.channel.send(
@@ -568,17 +624,19 @@ async def showRole(message):
                 + str(message.channel.id)
                 + "> に紐付けられているロールは **"
                 + utils.roleIdToName(role_id, message.guild)
-                + "** です。"
+                + "** です。",
+                reference=message,
             )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 async def addParentRoleInteract(client, message):
-    await message.channel.send(
+    msg_ask_role = await message.channel.send(
         "📛 どのロールを親ロールとして登録しますか？\n"
         + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
-        + "**親ロールの登録については、出店者側よりも先に委員会側の親ロールをボットに登録してください！**"
+        + "**親ロールの登録については、出店者側よりも先に委員会側の親ロールをボットに登録してください！**",
+        reference=message,
     )
 
     def check(m):
@@ -587,30 +645,37 @@ async def addParentRoleInteract(client, message):
     try:
         msg_role = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
-        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        await message.channel.send(
+            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_role
+        )
     else:
         role_id = utils.mentionToRoleId(msg_role.content)
         if role_id is None:
             await message.channel.send(
                 "⚠ ロールの指定方法が間違っています。\n"
                 + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
-                + "もう一度、最初から操作をやり直してください。"
+                + "もう一度、最初から操作をやり直してください。",
+                reference=msg_role,
             )
         else:
             if database.isParentRole(role_id):
-                await message.channel.send("⚠ 指定されたロールは既に親ロールとして登録されています。")
+                await message.channel.send(
+                    "⚠ 指定されたロールは既に親ロールとして登録されています。", reference=msg_role
+                )
             else:
                 role_name = utils.roleIdToName(role_id, message.guild)
                 if role_name is None:
                     await message.channel.send(
-                        "⚠ 指定されたロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ 指定されたロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=msg_role,
                     )
                 else:
-                    await message.channel.send(
+                    msg_ask_type = await message.channel.send(
                         "親ロール **"
                         + role_name
                         + "** を、委員会 または 出店者のどちらとして登録しますか？\n"
-                        + "委員会の場合は `staff`、出店者の場合は `member` と返信してください。"
+                        + "委員会の場合は `staff`、出店者の場合は `member` と返信してください。",
+                        reference=msg_role,
                     )
                     try:
                         msg_role_type = await client.wait_for(
@@ -618,7 +683,8 @@ async def addParentRoleInteract(client, message):
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
-                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                            reference=msg_ask_type,
                         )
                     else:
                         role_type = msg_role_type.content
@@ -631,18 +697,20 @@ async def addParentRoleInteract(client, message):
                                 await message.channel.send(
                                     "✅ 親ロール **"
                                     + role_name
-                                    + "** を 区別 **委員会** としてボットに登録しました。"
+                                    + "** を 区別 **委員会** としてボットに登録しました。",
+                                    reference=msg_role_type,
                                 )
                             else:
                                 await message.channel.send(
                                     "⚠ 処理中に問題が発生しました。\n" + "もう一度、最初から操作をやり直してください。"
                                 )
                         elif role_type == "member":
-                            await message.channel.send(
+                            msg_ask_staff_role = await message.channel.send(
                                 "親ロール **"
                                 + role_name
                                 + "** を管理するのはどの委員会側の親ロールですか？\n"
-                                + "Discord のメンション機能を使用して、親ロールを指定してください。"
+                                + "Discord のメンション機能を使用して、親ロールを指定してください。",
+                                reference=msg_role_type,
                             )
                             try:
                                 msg_parent_role_manager = await client.wait_for(
@@ -650,7 +718,8 @@ async def addParentRoleInteract(client, message):
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
-                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                    reference=msg_ask_staff_role,
                                 )
                             else:
 
@@ -723,7 +792,8 @@ async def addParentRoleInteract(client, message):
                                             await message.channel.send(
                                                 "✅ 親ロール **"
                                                 + role_name
-                                                + "** を 区別 **出店者** としてボットに登録しました。"
+                                                + "** を 区別 **出店者** としてボットに登録しました。",
+                                                reference=msg_parent_role_manager,
                                             )
                                         else:
                                             await message.channel.send(
@@ -733,19 +803,22 @@ async def addParentRoleInteract(client, message):
                                 else:
                                     await message.channel.send(
                                         "⚠ 指定されたロールは、委員会側の親ロールではありません。\n"
-                                        + "もう一度、最初から操作をやり直してください。"
+                                        + "もう一度、最初から操作をやり直してください。",
+                                        reference=msg_parent_role_manager,
                                     )
                         else:
                             await message.channel.send(
                                 "⚠ ロールの区別の指定方法が間違っています。\n"
                                 + "委員会の場合は `staff`、出店者の場合は `member` と返信してください。\n"
-                                + "もう一度、最初から操作をやり直してください。"
+                                + "もう一度、最初から操作をやり直してください。",
+                                reference=msg_role_type,
                             )
 
 
 async def deleteParentRoleInteract(client, message):
-    await message.channel.send(
-        "📛 どのロールを親ロールの登録から削除しますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
+    msg_ask_role = await message.channel.send(
+        "📛 どのロールを親ロールの登録から削除しますか？\n" + "__Discord のメンション機能を使用して、__ロールを指定してください。\n",
+        reference=message,
     )
 
     def check(m):
@@ -754,53 +827,67 @@ async def deleteParentRoleInteract(client, message):
     try:
         msg_role = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
-        await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+        await message.channel.send(
+            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_role
+        )
     else:
         role_id = utils.mentionToRoleId(msg_role.content)
         if role_id is None:
             await message.channel.send(
                 "⚠ ロールの指定方法が間違っています。\n"
                 + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
-                + "もう一度、最初から操作をやり直してください。"
+                + "もう一度、最初から操作をやり直してください。",
+                reference=msg_role,
             )
         else:
             role_name = utils.roleIdToName(role_id, message.guild)
             if role_name is None:
                 await message.channel.send(
-                    "⚠ 指定されたロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。"
+                    "⚠ 指定されたロールは Discord 上に存在しません。\n" + "もう一度、最初から操作をやり直してください。",
+                    reference=msg_role,
                 )
             else:
                 if database.isParentRole(role_id):
                     database.delParentRole(role_id)
                     await message.channel.send(
-                        "✅ ロール **" + role_name + "** を親ロールの登録から削除しました。"
+                        "✅ ロール **" + role_name + "** を親ロールの登録から削除しました。",
+                        reference=msg_role,
                     )
                 else:
-                    await message.channel.send("⚠ 指定されたロールは親ロールとしてボットに登録されていません。")
+                    await message.channel.send(
+                        "⚠ 指定されたロールは親ロールとしてボットに登録されていません。", reference=msg_role
+                    )
 
 
 # setGuild(message):
 async def setGuild(client, message):
     if utils.isStaff(message.author, message.guild):
-        await message.channel.send(
+        msg_ask_confirm = await message.channel.send(
             "❓ 本当にサーバー **"
             + str(message.guild)
             + "** をボットを使用するサーバーとして設定しますか？\n"
-            + "続行する場合は `y`、キャンセルする場合は `n` と返信してください。"
+            + "続行する場合は `y`、キャンセルする場合は `n` と返信してください。",
+            reference=message,
         )
 
         def check(m):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg_role = await client.wait_for("message", check=check, timeout=60)
+            msg_confirm = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
-            await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
-        else:
-            database.setGuild(message.guild.id)
             await message.channel.send(
-                "✅ サーバー **" + str(message.guild) + "** をボットを使用するサーバーとして設定しました。"
+                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_confirm
             )
+        else:
+            if msg_confirm.content == "y":
+                database.setGuild(message.guild.id)
+                await message.channel.send(
+                    "✅ サーバー **" + str(message.guild) + "** をボットを使用するサーバーとして設定しました。",
+                    reference=msg_role,
+                )
+            else:
+                await message.channel.send("キャンセルしました。", reference=msg_role)
     else:
         await message.channel.send(
             "⚠ あなたはサーバー **"
