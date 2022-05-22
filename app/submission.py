@@ -151,65 +151,129 @@ async def addItemInteract(client, message):
 
                                                     # リマインダーを作成する
                                                     ## 1日前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(days=1)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(days=1)
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
                                                     ## 12時間前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(hours=12)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(
+                                                                hours=12
+                                                            )
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
                                                     ## 9時間前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(hours=9)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(
+                                                                hours=9
+                                                            )
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
                                                     ## 6時間前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(hours=6)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(
+                                                                hours=6
+                                                            )
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
                                                     ## 3時間前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(hours=3)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(
+                                                                hours=3
+                                                            )
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
                                                     ## 1時間前
-                                                    reminder_datetime = (
+                                                    if (
                                                         database.getItemLimit(result)
                                                         - datetime.timedelta(hours=1)
-                                                    )
-                                                    database.addReminder(
-                                                        result,
-                                                        database.getItemTarget(result),
-                                                        reminder_datetime,
-                                                    )
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(
+                                                                hours=1
+                                                            )
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
 
                                                     await message.channel.send(
                                                         "✅ 以下の提出先を登録しました: "
