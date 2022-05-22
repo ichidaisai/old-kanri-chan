@@ -19,7 +19,7 @@ async def initRoleInteract(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            m_role_name = await client.wait_for("message", check=check, timeout=30)
+            m_role_name = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -35,7 +35,7 @@ async def initRoleInteract(client, message):
             )
             try:
                 m_parent_role = await client.wait_for(
-                    "message", check=check, timeout=30
+                    "message", check=check, timeout=60
                 )
             except asyncio.TimeoutError:
                 await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
@@ -169,7 +169,7 @@ async def pruneRoleInteract(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg = await client.wait_for("message", check=check, timeout=30)
+            msg = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -195,7 +195,7 @@ async def pruneRoleInteract(client, message):
                     )
                     try:
                         msg_confirm = await client.wait_for(
-                            "message", check=check, timeout=30
+                            "message", check=check, timeout=60
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
@@ -297,7 +297,7 @@ async def setParentRole(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg_role = await client.wait_for("message", check=check, timeout=30)
+            msg_role = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -319,7 +319,7 @@ async def setParentRole(client, message):
                         await message.channel.send(":detective: 親ロールの変更先はどちらにしますか？\n")
                         try:
                             msg_parent_role = await client.wait_for(
-                                "message", check=check, timeout=30
+                                "message", check=check, timeout=60
                             )
                         except asyncio.TimeoutError:
                             await message.channel.send(
@@ -579,7 +579,7 @@ async def addParentRoleInteract(client, message):
         return m.channel == message.channel and m.author == message.author
 
     try:
-        msg_role = await client.wait_for("message", check=check, timeout=30)
+        msg_role = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
@@ -608,7 +608,7 @@ async def addParentRoleInteract(client, message):
                     )
                     try:
                         msg_role_type = await client.wait_for(
-                            "message", check=check, timeout=30
+                            "message", check=check, timeout=60
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
@@ -640,7 +640,7 @@ async def addParentRoleInteract(client, message):
                             )
                             try:
                                 msg_parent_role_manager = await client.wait_for(
-                                    "message", check=check, timeout=30
+                                    "message", check=check, timeout=60
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
@@ -746,7 +746,7 @@ async def deleteParentRoleInteract(client, message):
         return m.channel == message.channel and m.author == message.author
 
     try:
-        msg_role = await client.wait_for("message", check=check, timeout=30)
+        msg_role = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
@@ -787,7 +787,7 @@ async def setGuild(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg_role = await client.wait_for("message", check=check, timeout=30)
+            msg_role = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:

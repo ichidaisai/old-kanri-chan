@@ -29,7 +29,7 @@ async def addItemInteract(client, message):
                 return m.channel == message.channel and m.author == message.author
 
             try:
-                m_item_name = await client.wait_for("message", check=check, timeout=30)
+                m_item_name = await client.wait_for("message", check=check, timeout=60)
             except asyncio.TimeoutError:
                 await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
             else:
@@ -49,7 +49,7 @@ async def addItemInteract(client, message):
 
                     try:
                         m_item_limit = await client.wait_for(
-                            "message", check=check, timeout=30
+                            "message", check=check, timeout=60
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
@@ -74,7 +74,7 @@ async def addItemInteract(client, message):
                                 )
                                 try:
                                     m_item_target = await client.wait_for(
-                                        "message", check=check, timeout=30
+                                        "message", check=check, timeout=60
                                     )
                                 except asyncio.TimeoutError:
                                     await message.channel.send(
@@ -109,7 +109,7 @@ async def addItemInteract(client, message):
                                             )
                                             try:
                                                 m_item_format = await client.wait_for(
-                                                    "message", check=check, timeout=30
+                                                    "message", check=check, timeout=60
                                                 )
                                             except asyncio.TimeoutError:
                                                 await message.channel.send(
@@ -402,7 +402,7 @@ async def delItemInteract(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg = await client.wait_for("message", check=check, timeout=30)
+            msg = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -437,7 +437,7 @@ async def delItemInteract(client, message):
                         )
                         try:
                             msg_item_id = await client.wait_for(
-                                "message", check=check, timeout=30
+                                "message", check=check, timeout=60
                             )
                         except asyncio.TimeoutError:
                             await message.channel.send(
@@ -479,7 +479,7 @@ async def delItemInteract(client, message):
             + "\nどの提出先を削除しますか？"
         )
         try:
-            msg_item_id = await client.wait_for("message", check=check, timeout=30)
+            msg_item_id = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -510,7 +510,7 @@ async def listItem(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg = await client.wait_for("message", check=check, timeout=30)
+            msg = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -579,7 +579,7 @@ async def submitFileItem(client, message):
                 return m.channel == channel and m.author == message.author
 
             try:
-                msg = await client.wait_for("message", check=check, timeout=30)
+                msg = await client.wait_for("message", check=check, timeout=60)
 
             except asyncio.TimeoutError:
                 await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
@@ -761,7 +761,7 @@ async def listSubmitInteract(client, message):
         )
 
         try:
-            msg_role = await client.wait_for("message", check=check, timeout=30)
+            msg_role = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -806,7 +806,7 @@ async def listSubmitInteract(client, message):
                             )
                             try:
                                 msg_item_id = await client.wait_for(
-                                    "message", check=check, timeout=30
+                                    "message", check=check, timeout=60
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
@@ -874,7 +874,7 @@ async def listSubmitInteract(client, message):
                 + returnItem(message, "all")
             )
             try:
-                msg_item_id = await client.wait_for("message", check=check, timeout=30)
+                msg_item_id = await client.wait_for("message", check=check, timeout=60)
             except asyncio.TimeoutError:
                 await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
             else:
@@ -928,7 +928,7 @@ async def getSubmitInteract(client, message):
         )
 
         try:
-            msg_role = await client.wait_for("message", check=check, timeout=30)
+            msg_role = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -973,7 +973,7 @@ async def getSubmitInteract(client, message):
                             )
                             try:
                                 msg_item_id = await client.wait_for(
-                                    "message", check=check, timeout=30
+                                    "message", check=check, timeout=60
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
@@ -1015,7 +1015,7 @@ async def getSubmitInteract(client, message):
 
                                             try:
                                                 msg_submit_id = await client.wait_for(
-                                                    "message", check=check, timeout=30
+                                                    "message", check=check, timeout=60
                                                 )
                                             except asyncio.TimeoutError:
                                                 await message.channel.send(
@@ -1177,7 +1177,7 @@ async def getSubmitInteract(client, message):
                 + returnItem(message, "all")
             )
             try:
-                msg_item_id = await client.wait_for("message", check=check, timeout=30)
+                msg_item_id = await client.wait_for("message", check=check, timeout=60)
             except asyncio.TimeoutError:
                 await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
             else:
@@ -1212,7 +1212,7 @@ async def getSubmitInteract(client, message):
                             )
                             try:
                                 msg_submit_id = await client.wait_for(
-                                    "message", check=check, timeout=30
+                                    "message", check=check, timeout=60
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
@@ -1411,7 +1411,7 @@ async def verifySubmitInteract(client, message):
         return m.channel == message.channel and m.author == message.author
 
     try:
-        m_role_name = await client.wait_for("message", check=check, timeout=30)
+        m_role_name = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
@@ -1453,7 +1453,7 @@ async def verifySubmitInteract(client, message):
 
                     try:
                         m_item_id = await client.wait_for(
-                            "message", check=check, timeout=30
+                            "message", check=check, timeout=60
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
@@ -1488,7 +1488,7 @@ async def verifySubmitInteract(client, message):
                             await message.channel.send("承認したい提出の ID を返信してください。")
                             try:
                                 m_submit_id = await client.wait_for(
-                                    "message", check=check, timeout=30
+                                    "message", check=check, timeout=60
                                 )
                             except asyncio.TimeoutError:
                                 await message.channel.send(
@@ -1544,7 +1544,7 @@ async def submitPlainTextInteract(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            msg = await client.wait_for("message", check=check, timeout=30)
+            msg = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await channel.send("⚠ タイムアウトしました。もう一度、ファイルのアップロードからやり直してください。")
         else:
@@ -1568,7 +1568,7 @@ async def submitPlainTextInteract(client, message):
                         )
                         try:
                             msg_submit_content = await client.wait_for(
-                                "message", check=check, timeout=30
+                                "message", check=check, timeout=60
                             )
                         except asyncio.TimeoutError:
                             await channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
@@ -1641,7 +1641,7 @@ async def checkSubmitInteract(client, message):
         return m.channel == message.channel and m.author == message.author
 
     try:
-        m_target = await client.wait_for("message", check=check, timeout=30)
+        m_target = await client.wait_for("message", check=check, timeout=60)
     except asyncio.TimeoutError:
         await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
     else:
@@ -1682,7 +1682,7 @@ async def checkSubmitInteract(client, message):
                     )
                     try:
                         m_item_id = await client.wait_for(
-                            "message", check=check, timeout=30
+                            "message", check=check, timeout=60
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(

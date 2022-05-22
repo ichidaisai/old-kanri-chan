@@ -18,7 +18,7 @@ async def addReminderInteract(client, message):
             return m.channel == message.channel and m.author == message.author
 
         try:
-            m_role_name = await client.wait_for("message", check=check, timeout=30)
+            m_role_name = await client.wait_for("message", check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
         else:
@@ -61,7 +61,7 @@ async def addReminderInteract(client, message):
 
                         try:
                             m_item_id = await client.wait_for(
-                                "message", check=check, timeout=30
+                                "message", check=check, timeout=60
                             )
                         except asyncio.TimeoutError:
                             await message.channel.send(
@@ -80,7 +80,7 @@ async def addReminderInteract(client, message):
                                 )
                                 try:
                                     m_datetime = await client.wait_for(
-                                        "message", check=check, timeout=30
+                                        "message", check=check, timeout=60
                                     )
                                 except asyncio.TimeoutError:
                                     await message.channel.send(
