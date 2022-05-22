@@ -756,7 +756,8 @@ async def listSubmitInteract(client, message):
 
     if result is None:
         await message.channel.send(
-            ":man_mage: どのロールが提出した提出先を見ますか？\n" + "Discord のメンション機能を用いて、ロールを指定してください。"
+            ":man_mage: どのロールに指示された提出物の履歴を確認しますか？\n"
+            + "Discord のメンション機能を用いて、ロールを指定してください。"
         )
 
         try:
