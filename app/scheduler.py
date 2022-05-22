@@ -24,4 +24,4 @@ async def run(client):
             + "` ですが、まだ提出されていないようです。\n"
             + "可能な限りの早めの提出をお願いします！"
         )
-        # database.delReminder(reminder.id)
+        database.delReminder(reminder.id)

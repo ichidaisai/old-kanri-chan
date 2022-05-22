@@ -188,12 +188,12 @@ def delReminder(id):
 # getReminder(datetime): 指定した日時以前のリマインダーをすべて返す
 def getReminder(target=None, item_id=None):
     reminder = []
-    if "target" not in vars() and "item_id" not in vars():
+    if target is None and item_id is None:
         current_time = datetime.datetime.now()
         reminder = (
             session.query(Reminder).filter(Reminder.datetime <= current_time).all()
         )
-    elif "target" in vars() and "item_id" in vars():
+    elif target is not None and item_id is not None:
         if isParentRole(target):
             for role in getChildRole(target):
                 reminder += (
@@ -213,7 +213,7 @@ def getReminder(target=None, item_id=None):
                 )
                 .all()
             )
-    elif "target" not in vars() and "item_id" in vars():
+    elif target is None and item_id is not None:
         reminder = session.query(Reminder).filter(Reminder.item_id == item_id).all()
     return reminder
 
