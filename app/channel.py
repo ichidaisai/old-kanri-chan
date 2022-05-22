@@ -31,7 +31,8 @@ async def initRoleInteract(client, message):
                 ":detective: このロールを、どの親ロールに帰属させますか？\n"
                 + "現在、ボットには以下の親ロールが登録されています:\n**"
                 + parent_role_list[:-2]
-                + "**\n____Discord のメンション機能を使用して、____親ロールを指定してください。"
+                + "**\n____Discord のメンション機能を使用して、____親ロールを指定してください。",
+                reference=m_role_name,
             )
             try:
                 m_parent_role = await client.wait_for(
@@ -43,7 +44,8 @@ async def initRoleInteract(client, message):
                 parent_role = utils.mentionToRoleId(m_parent_role.content)
                 if not database.isParentRole(parent_role):
                     await message.channel.send(
-                        "⚠ 指定したロールは親ロールとして登録されていません。\n" + "もう一度、最初から操作をやり直してください。"
+                        "⚠ 指定したロールは親ロールとして登録されていません。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=m_parent_role,
                     )
                 else:
                     if (
@@ -69,12 +71,14 @@ async def initRoleInteract(client, message):
                     else:
                         if utils.isValidAsName(m_role_name.content) is False:
                             await message.channel.send(
-                                "⚠ ロールの名前の指定方法が間違っています。もう一度、最初から操作をやり直してください。"
+                                "⚠ ロールの名前の指定方法が間違っています。もう一度、最初から操作をやり直してください。",
+                                reference=m_role_name,
                             )
                         else:
                             role_name = m_role_name.content
                             await message.channel.send(
-                                ":pick: ロール名 **" + role_name + "** で初期化処理を実行します..."
+                                ":pick: ロール名 **" + role_name + "** で初期化処理を実行します...",
+                                reference=m_parent_role,
                             )
 
                             # ロールを作る
@@ -152,9 +156,11 @@ async def initRoleInteract(client, message):
                             # 親ロールを設定する
                             database.setParentRole(role.id, parent_role)
 
-                            await message.channel.send("✅ 処理が完了しました!")
+                            await message.channel.send(
+                                "✅ 処理が完了しました!", reference=m_parent_role
+                            )
     else:
-        await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 # 特定のロールに関わる情報（提出物を除く）を削除する
