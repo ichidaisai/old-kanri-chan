@@ -18,12 +18,15 @@ import utils
 async def addItemInteract(client, message):
     if database.getUserParentRole(message) is None:
         await message.channel.send(
-            "⚠ あなたが持つ親ロールがまだボットに認識されていないか、または親ロールを何も持っていないため操作を続行できません。"
+            "⚠ あなたが持つ親ロールがまだボットに認識されていないか、または親ロールを何も持っていないため操作を続行できません。",
+            reference=message,
         )
     else:
         if utils.isStaff(message.author, message.guild):
             # 提出先の名前を読み込む
-            await message.channel.send("📛 提出先の名前は何にしますか？")
+            msg_ask_item_name = await message.channel.send(
+                "📛 提出先の名前は何にしますか？", reference=message
+            )
 
             def check(m):
                 return m.channel == message.channel and m.author == message.author
@@ -31,20 +34,26 @@ async def addItemInteract(client, message):
             try:
                 m_item_name = await client.wait_for("message", check=check, timeout=60)
             except asyncio.TimeoutError:
-                await message.channel.send("⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。")
+                await message.channel.send(
+                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_item_name
+                )
             else:
                 item_name = m_item_name.content
                 if utils.isValidAsName(item_name) is False:
                     await message.channel.send(
-                        "⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。"
+                        "⚠ 提出先の名前として正しくありません。もう一度、最初から操作をやり直してください。",
+                        reference=m_item_name,
                     )
                 else:
-                    await message.channel.send("✅ 提出先の名前を **" + item_name + "** にしました。")
+                    msg_done_item_name = await message.channel.send(
+                        "✅ 提出先の名前を **" + item_name + "** にしました。", reference=m_item_name
+                    )
 
                     # 提出先の期限を読み込む
-                    await message.channel.send(
+                    msg_ask_limit = await message.channel.send(
                         "⏰ 提出期限はいつにしますか？\n"
-                        + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
+                        + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n",
+                        reference=msg_done_item_name,
                     )
 
                     try:
@@ -53,24 +62,27 @@ async def addItemInteract(client, message):
                         )
                     except asyncio.TimeoutError:
                         await message.channel.send(
-                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                            "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                            reference=msg_ask_limit,
                         )
                     else:
                         if utils.isDateTime(m_item_limit.content):
                             item_limit = dateutil.parser.parse(m_item_limit.content)
                             if item_limit < datetime.datetime.now():
                                 await message.channel.send(
-                                    "⚠ 提出期限が過去に設定されています。\n" "もう一度、最初からやり直してください。"
+                                    "⚠ 提出期限が過去に設定されています。\n" "もう一度、最初からやり直してください。",
+                                    reference=m_item_limit,
                                 )
                             else:
-                                await message.channel.send(
+                                msg_done_limit = await message.channel.send(
                                     "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
                                 )
 
                                 # 提出先の対象を読み込む
-                                await message.channel.send(
+                                msg_ask_role = await message.channel.send(
                                     "👤 対象者はどのロールにしますか？\n"
-                                    + "__Discord のメンション機能を使用して、__ロールを指定してください。"
+                                    + "__Discord のメンション機能を使用して、__ロールを指定してください。",
+                                    reference=msg_done_limit,
                                 )
                                 try:
                                     m_item_target = await client.wait_for(
@@ -78,7 +90,8 @@ async def addItemInteract(client, message):
                                     )
                                 except asyncio.TimeoutError:
                                     await message.channel.send(
-                                        "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                        "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                        reference=msg_ask_role,
                                     )
                                 else:
                                     role_id = utils.mentionToRoleId(
@@ -90,22 +103,27 @@ async def addItemInteract(client, message):
                                                 "⚠ 指定したロールは、提出を指示する先のロールとしては登録されていません。\n"
                                                 + "委員会サイドのロールを指定している場合は、そのようなことはできません。\n"
                                                 + "ここでは、出店者側のロールを指定するようにしてください。\n"
-                                                + "もう一度、最初から操作をやり直してください。"
+                                                + "もう一度、最初から操作をやり直してください。",
+                                                reference=m_item_target,
                                             )
                                         else:
                                             item_target = role_id
-                                            await message.channel.send(
-                                                "✅ 提出先の対象者を **"
-                                                + utils.roleIdToName(
-                                                    role_id, message.guild
+                                            msg_done_target = (
+                                                await message.channel.send(
+                                                    "✅ 提出先の対象者を **"
+                                                    + utils.roleIdToName(
+                                                        role_id, message.guild
+                                                    )
+                                                    + "** にしました。",
+                                                    reference=m_item_target,
                                                 )
-                                                + "** にしました。"
                                             )
 
                                             # 提出先の形式を読み込む
-                                            await message.channel.send(
+                                            msg_ask_format = await message.channel.send(
                                                 "💾 提出形式はどちらにしますか？\n"
-                                                + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。"
+                                                + "ファイル形式の場合は `file`、プレーンテキスト形式の場合は `plain` と返信してください。",
+                                                reference=msg_done_target,
                                             )
                                             try:
                                                 m_item_format = await client.wait_for(
@@ -113,7 +131,8 @@ async def addItemInteract(client, message):
                                                 )
                                             except asyncio.TimeoutError:
                                                 await message.channel.send(
-                                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。"
+                                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                                    reference=msg_ask_format,
                                                 )
                                             else:
                                                 if (
@@ -128,10 +147,13 @@ async def addItemInteract(client, message):
                                                     else:
                                                         format_fmt = "📜 プレーンテキスト"
 
-                                                    await message.channel.send(
-                                                        "✅ 提出形式を **"
-                                                        + format_fmt
-                                                        + "** にしました。"
+                                                    msg_done_format = (
+                                                        await message.channel.send(
+                                                            "✅ 提出形式を **"
+                                                            + format_fmt
+                                                            + "** にしました。",
+                                                            reference=m_item_format,
+                                                        )
                                                     )
 
                                                     item_handler = (
@@ -295,30 +317,34 @@ async def addItemInteract(client, message):
                                                         + "\n💾 種類: "
                                                         + format_fmt
                                                         + "\n"
-                                                        + "\n今までに登録した項目は、`!item list` で参照してください。"
+                                                        + "\n今までに登録した項目は、`!item list` で参照してください。",
+                                                        reference=msg_done_format,
                                                     )
                                                 else:
                                                     await message.channel.send(
                                                         "⚠ 提出形式が正確に指定されていません。\n"
                                                         + "`file` か `plain` のどちらかを返信してください。\n"
-                                                        + "もう一度、最初から操作をやり直してください。"
+                                                        + "もう一度、最初から操作をやり直してください。",
+                                                        reference=m_item_format,
                                                     )
 
                                     else:
                                         await message.channel.send(
                                             "⚠ 対象者が正確に指定されていません。\n"
                                             + "__Discord のメンション機能を使用して、__ロールを指定してください。\n"
-                                            + "もう一度、最初から操作をやり直してください。"
+                                            + "もう一度、最初から操作をやり直してください。",
+                                            reference=m_item_target,
                                         )
 
                         else:
                             await message.channel.send(
                                 "⚠ 指定された期限をうまく解釈できませんでした。\n"
                                 + "入力例: 2022年4月1日 21時30分 としたい場合は、`2022/4/1 21:30` と入力します。\n"
-                                + "もう一度、最初から操作をやり直してください。"
+                                + "もう一度、最初から操作をやり直してください。",
+                                reference=m_item_limit,
                             )
         else:
-            await message.channel.send("⚠ このコマンドを実行する権限がありません。")
+            await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
 # 提出先の登録
