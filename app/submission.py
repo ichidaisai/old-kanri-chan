@@ -962,7 +962,7 @@ async def listSubmitInteract(client, message):
                                             item_id, None
                                         )
                                         list_fmt = formatSubmitList(
-                                            client, submit_list, "all"
+                                            client, message.guild, submit_list, "all"
                                         )
 
                                         await message.channel.send(
@@ -1032,7 +1032,7 @@ async def listSubmitInteract(client, message):
                         submit_list = database.getSubmitList(
                             item_id, database.getRole(message.channel.id)
                         )
-                        list_fmt = formatSubmitList(client, submit_list, "all")
+                        list_fmt = formatSubmitList(client, message.guild, submit_list, "all")
 
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
@@ -1148,7 +1148,7 @@ async def getSubmitInteract(client, message):
                                                 item_id, None
                                             )
                                             list_fmt = formatSubmitList(
-                                                client, submit_list, "file"
+                                                client, message.guild, submit_list, "file"
                                             )
 
                                             msg_ask_file = await message.channel.send(
@@ -1357,7 +1357,7 @@ async def getSubmitInteract(client, message):
                         )
                         # ファイルの場合
                         if database.getItemFormat(item_id) == "file":
-                            list_fmt = formatSubmitList(client, submit_list, "file")
+                            list_fmt = formatSubmitList(client, message.guild, submit_list, "file")
 
                             msg_ask_file = await message.channel.send(
                                 ":information_source: 以下が提出先 **"
@@ -1436,7 +1436,7 @@ async def getSubmitInteract(client, message):
                                     utils.dtToStr(submit.datetime)
                                 )
                                 submit_author_list.append(
-                                    utils.userIdToName(client, submit.author)
+                                    utils.userIdToName(message.guild, submit.author)
                                 )
                                 submit_author_role_list.append(
                                     utils.roleIdToName(
@@ -1501,7 +1501,7 @@ def formatSubmit(client, submit):
         fmt += "📝 内容: " + submit.plain + "\n"
     fmt += (
         ":man_construction_worker: 提出者: "
-        + utils.userIdToName(client, submit.author)
+        + utils.userIdToName(, submit.author)
         + "\n"
     )
     if submit.verified:
@@ -1513,7 +1513,7 @@ def formatSubmit(client, submit):
     return fmt
 
 
-def formatSubmitList(client, submit_list, format):
+def formatSubmitList(client, guild, submit_list, format):
     list_fmt = ""
 
     if len(submit_list) == 0:
@@ -1529,7 +1529,7 @@ def formatSubmitList(client, submit_list, format):
                     list_fmt += "📝 内容: " + submit.plain + "\n"
                 list_fmt += (
                     ":man_construction_worker: 提出者: "
-                    + utils.userIdToName(client, submit.author)
+                    + utils.userIdToName(guild, submit.author)
                     + "\n"
                 )
                 if submit.verified:
@@ -1544,7 +1544,7 @@ def formatSubmitList(client, submit_list, format):
                     list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
                     list_fmt += (
                         ":man_construction_worker: 提出者: "
-                        + utils.userIdToName(client, submit.author)
+                        + utils.userIdToName(guild, submit.author)
                         + "\n"
                     )
                     if submit.verified:
@@ -1558,7 +1558,7 @@ def formatSubmitList(client, submit_list, format):
                 list_fmt += "📝 内容: " + submit.plain + "\n"
                 list_fmt += (
                     ":man_construction_worker: 提出者: "
-                    + utils.userIdToName(client, submit.author)
+                    + utils.userIdToName(message.guild, submit.author)
                     + "\n"
                 )
                 if submit.verified:
@@ -1641,7 +1641,7 @@ async def verifySubmitInteract(client, message):
                         item_id = m_item_id.content
 
                         submit_list = database.getSubmitList(item_id, None)
-                        list_fmt = formatSubmitList(client, submit_list, "all")
+                        list_fmt = formatSubmitList(client, message.guild, submit_list, "all")
 
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
@@ -1978,6 +1978,6 @@ async def sendNotify(submit_id, client, guild):
             + utils.roleIdToName(submit.author_role, guild)
             + "\n"
             + ":person_juggling: 提出者: "
-            + utils.userIdToName(client, submit.author)
+            + utils.userIdToName(guild, submit.author)
             + "\n"
         )

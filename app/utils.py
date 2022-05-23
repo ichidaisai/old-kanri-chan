@@ -42,12 +42,12 @@ def roleIdToName(role_id, guild):
 
 
 # userIdToName: Discord のユーザー ID から名前に変換する
-def userIdToName(client, user_id):
-    user = client.get_user(int(user_id))
+def userIdToName(guild, user_id):
+    user = guild.get_member(int(user_id))
     if user is None:
         return None
     else:
-        return user.name
+        return user.nick
 
 
 # is_datetime: 与えられた str が日時として認識できるかを確認する。
