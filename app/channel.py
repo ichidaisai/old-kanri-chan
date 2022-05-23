@@ -104,7 +104,7 @@ async def initRoleInteract(client, message):
                             ow_target.send_messages = True
                             ow_target.add_reactions = True
                             ow_target.attach_files = True
-                            ow_target.mention_everyone = False
+                            ow_target.mention_everyone = True
                             ow_target.send_tts_messages = False
 
                             # テキストチャンネルを作る
