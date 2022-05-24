@@ -1193,6 +1193,7 @@ async def getSubmitInteract(client, message):
                                                         "✅ 以下の提出を送信します: \n\n"
                                                         + formatSubmit(
                                                             client,
+                                                            message.guild,
                                                             database.getSubmit(
                                                                 submit_id
                                                             ),
@@ -1397,7 +1398,7 @@ async def getSubmitInteract(client, message):
                                     await message.channel.send(
                                         "✅ 以下の提出を送信します: \n\n"
                                         + formatSubmit(
-                                            client, database.getSubmit(submit_id)
+                                            client, message.guild, database.getSubmit(submit_id)
                                         ),
                                         file=discord.File(
                                             database.getSubmit(submit_id).path,
@@ -1491,7 +1492,7 @@ async def getSubmitInteract(client, message):
                     )
 
 
-def formatSubmit(client, submit):
+def formatSubmit(client, guild, submit):
     fmt = ""
     fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
     fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
@@ -1501,7 +1502,7 @@ def formatSubmit(client, submit):
         fmt += "📝 内容: " + submit.plain + "\n"
     fmt += (
         ":man_construction_worker: 提出者: "
-        + utils.userIdToName(, submit.author)
+        + utils.userIdToName(guild, submit.author)
         + "\n"
     )
     if submit.verified:
