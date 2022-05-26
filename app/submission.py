@@ -75,7 +75,10 @@ async def addItemInteract(client, message):
                                 )
                             else:
                                 msg_done_limit = await message.channel.send(
-                                    "✅ 提出期限を `" + utils.dtToStr(item_limit) + "` にしました。"
+                                    "✅ 提出期限を `"
+                                    + utils.dtToStr(item_limit)
+                                    + "` にしました。",
+                                    reference=m_item_limit,
                                 )
 
                                 # 提出先の対象を読み込む
@@ -1032,7 +1035,9 @@ async def listSubmitInteract(client, message):
                         submit_list = database.getSubmitList(
                             item_id, database.getRole(message.channel.id)
                         )
-                        list_fmt = formatSubmitList(client, message.guild, submit_list, "all")
+                        list_fmt = formatSubmitList(
+                            client, message.guild, submit_list, "all"
+                        )
 
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
@@ -1148,7 +1153,10 @@ async def getSubmitInteract(client, message):
                                                 item_id, None
                                             )
                                             list_fmt = formatSubmitList(
-                                                client, message.guild, submit_list, "file"
+                                                client,
+                                                message.guild,
+                                                submit_list,
+                                                "file",
                                             )
 
                                             msg_ask_file = await message.channel.send(
@@ -1358,7 +1366,9 @@ async def getSubmitInteract(client, message):
                         )
                         # ファイルの場合
                         if database.getItemFormat(item_id) == "file":
-                            list_fmt = formatSubmitList(client, message.guild, submit_list, "file")
+                            list_fmt = formatSubmitList(
+                                client, message.guild, submit_list, "file"
+                            )
 
                             msg_ask_file = await message.channel.send(
                                 ":information_source: 以下が提出先 **"
@@ -1398,7 +1408,9 @@ async def getSubmitInteract(client, message):
                                     await message.channel.send(
                                         "✅ 以下の提出を送信します: \n\n"
                                         + formatSubmit(
-                                            client, message.guild, database.getSubmit(submit_id)
+                                            client,
+                                            message.guild,
+                                            database.getSubmit(submit_id),
                                         ),
                                         file=discord.File(
                                             database.getSubmit(submit_id).path,
@@ -1642,7 +1654,9 @@ async def verifySubmitInteract(client, message):
                         item_id = m_item_id.content
 
                         submit_list = database.getSubmitList(item_id, None)
-                        list_fmt = formatSubmitList(client, message.guild, submit_list, "all")
+                        list_fmt = formatSubmitList(
+                            client, message.guild, submit_list, "all"
+                        )
 
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
