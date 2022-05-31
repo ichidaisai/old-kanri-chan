@@ -884,7 +884,7 @@ async def setGuild(client, message):
                 database.setGuild(message.guild.id)
                 await message.channel.send(
                     "✅ サーバー **" + str(message.guild) + "** をボットを使用するサーバーとして設定しました。",
-                    reference=msg_role,
+                    reference=msg_confirm,
                 )
             else:
                 await message.channel.send("キャンセルしました。", reference=msg_role)
