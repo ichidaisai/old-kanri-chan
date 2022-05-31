@@ -1668,7 +1668,9 @@ async def verifySubmitInteract(client, message):
                             )
                             + ", "
                             + "提出者: "
-                            + utils.roleIdToName(database.getSubmitAuthorRole(item_id))
+                            + utils.roleIdToName(
+                                database.getSubmitAuthorRole(item_id), message.guild
+                            )
                             + ") の提出履歴です。\n"
                             + list_fmt,
                             reference=m_item_id,
