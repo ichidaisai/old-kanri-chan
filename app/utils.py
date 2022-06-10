@@ -34,15 +34,15 @@ def mentionToRoleId(mention):
 
 # roleIdToName: Discord のロール ID からロール名に変換する
 def roleIdToName(role_id, guild):
-    if isinstance(role_id, int):
-        role = guild.get_role(role_id)
+    if str(role_id).isdigit():
+        role = guild.get_role(int(role_id))
         if role is None:
-            return None
+            return "N/A"
         else:
             return role.name
     else:
         print("type: " + str(type(role_id)))
-        return "aaa"
+        return "err"
 
 
 # userIdToName: Discord のユーザー ID から名前に変換する
