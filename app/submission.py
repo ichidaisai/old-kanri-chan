@@ -1543,6 +1543,9 @@ def formatSubmitList(client, guild, submit_list, format):
                 list_fmt += (
                     ":man_construction_worker: 提出者: "
                     + utils.userIdToName(guild, submit.author)
+                    + " ("
+                    + utils.getUserRolesNameFmt(guild, submit.author)
+                    + ")"
                     + "\n"
                 )
                 if submit.verified:
@@ -1558,6 +1561,9 @@ def formatSubmitList(client, guild, submit_list, format):
                     list_fmt += (
                         ":man_construction_worker: 提出者: "
                         + utils.userIdToName(guild, submit.author)
+                        + " ("
+                        + utils.getUserRolesNameFmt(guild, submit.author)
+                        + ")"
                         + "\n"
                     )
                     if submit.verified:
@@ -1571,7 +1577,10 @@ def formatSubmitList(client, guild, submit_list, format):
                 list_fmt += "📝 内容: " + submit.plain + "\n"
                 list_fmt += (
                     ":man_construction_worker: 提出者: "
-                    + utils.userIdToName(message.guild, submit.author)
+                    + utils.userIdToName(guild, submit.author)
+                    + " ("
+                    + utils.getUserRolesNameFmt(guild, submit.author)
+                    + ")"
                     + "\n"
                 )
                 if submit.verified:
@@ -1673,11 +1682,6 @@ async def verifySubmitInteract(client, message):
                                 + utils.roleIdToName(
                                     database.getItemTarget(item_id),
                                     message.guild,
-                                )
-                                + ", "
-                                + "提出者: "
-                                + utils.roleIdToName(
-                                    database.getSubmitAuthorRole(item_id), message.guild
                                 )
                                 + ") の提出履歴です。\n"
                                 + list_fmt,

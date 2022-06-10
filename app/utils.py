@@ -41,7 +41,6 @@ def roleIdToName(role_id, guild):
         else:
             return role.name
     else:
-        print("type: " + str(type(role_id)))
         return "err"
 
 
@@ -108,3 +107,34 @@ def convFileName(name):
     for item in converted:
         result += item["hepburn"]
     return result
+
+
+def getUserRoles(guild, user_id):
+    member = guild.get_member(user_id)
+    roles = []
+    for role in member.roles:
+        if role != guild.default_role:
+            roles.append(role)
+
+    return roles
+
+
+def getUserRolesName(guild, user_id):
+    roles = getUserRoles(guild, user_id)
+    role_name = []
+    for role in roles:
+        role_name.append(role.name)
+
+    return role_name
+
+
+def getUserRolesNameFmt(guild, user_id):
+    role_name = getUserRolesName(guild, user_id)
+    role_name_fmt = ""
+
+    for index, role in enumerate(role_name):
+        role_name_fmt += role
+        if index + 1 < len(role_name):
+            role_name_fmt += ", "
+
+    return role_name_fmt
