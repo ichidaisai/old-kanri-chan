@@ -50,7 +50,7 @@ async def addReminderInteract(client, message):
                             + utils.roleIdToName(target.id, message.guild)
                             + "** に提出が指示された提出物は以下の通りです: \n"
                             + submission.returnItemByRoleId(target.id, "all")
-                            + "\n目的の提出先 ID を返信してください。"
+                            + "\n目的の提出先 ID の提出先 ID をこのチャンネルで発言してください。"
                         )
 
                         def check(m):

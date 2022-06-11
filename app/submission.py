@@ -933,7 +933,7 @@ async def listSubmitInteract(client, message):
                                 "**"
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
-                                + "履歴を閲覧したい項目を選んでください。"
+                                + "履歴を閲覧したい項目の提出先 ID をこのチャンネルで発言してください。"
                                 + returnItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
@@ -1121,7 +1121,7 @@ async def getSubmitInteract(client, message):
                                 "**"
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
-                                + "ダウンロードしたい項目を選んでください。"
+                                + "ダウンロードしたい項目の提出先 ID をこのチャンネルで発言してください。"
                                 + returnItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
@@ -1641,7 +1641,7 @@ async def verifySubmitInteract(client, message):
                         + utils.roleIdToName(target.id, message.guild)
                         + "** に提出が指示された提出物は以下の通りです: \n"
                         + returnItemByRoleId(target.id, "all")
-                        + "\n目的の提出先 ID を返信してください。",
+                        + "\n目的の提出先 ID をの提出先 ID をこのチャンネルで発言してください。",
                         reference=m_role_name,
                     )
 
@@ -1914,7 +1914,7 @@ async def checkSubmitInteract(client, message):
                         + "** に提出が指示された提出物は以下の通りです: \n"
                         + returnItemByRoleId(target.id, "all")
                         + "\n"
-                        + "提出状況を確認したい提出先 ID を指定してください。",
+                        + "提出状況を確認したい提出先 ID の提出先 ID をこのチャンネルで発言してください。",
                         reference=m_target,
                     )
                     try:
