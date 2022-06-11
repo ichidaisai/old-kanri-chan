@@ -976,12 +976,6 @@ async def listSubmitInteract(client, message):
                                                 database.getItemTarget(item_id),
                                                 message.guild,
                                             )
-                                            + ", "
-                                            + "提出者: "
-                                            + utils.roleIdToName(
-                                                database.getSubmitAuthorRole(item_id),
-                                                message.guild,
-                                            )
                                             + ") の提出履歴です。\n"
                                             + list_fmt,
                                             reference=msg_item_id,
