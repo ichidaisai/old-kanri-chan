@@ -721,7 +721,11 @@ async def submitFileItem(client, message):
                     )
 
                     # 特定の子ロールだけに指示された提出物
-                    if target == role_id or target == str(parent_role_id):
+                    if (
+                        target == role_id
+                        or target == str(parent_role_id)
+                        or target == database.getMemberRole()
+                    ):
                         if database.getItemFormat(msg.content) == "file":
                             item_count = 0
                             for attachment in message.attachments:
@@ -1804,7 +1808,11 @@ async def submitPlainTextInteract(client, message):
                     database.getRole(message.channel.id)
                 )
                 # 特定の子ロールだけに指示された提出先
-                if target == role_id or target == str(parent_role_id):
+                if (
+                    target == role_id
+                    or target == str(parent_role_id)
+                    or target == database.getMemberRole()
+                ):
                     if database.getItemFormat(msg.content) == "plain":
                         msg_ask_content = await message.channel.send(
                             ":mage: 提出内容はどのようにしますか？\n"
