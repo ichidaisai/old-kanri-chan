@@ -2009,36 +2009,61 @@ async def sendNotify(submit_id, client, guild):
     if submit is None:
         print("[WARN] 提出通知の送信に失敗しました。")
     else:
-        parent_role_id = database.getParentRole(submit.target)
-        if parent_role_id is None:
-            print(
-                "[WARN] 通知用テキストチャンネルの取得に失敗したため、通知は行われませんでした。\n"
-                + "       デバッグ情報:\n"
-                + "       - submit_id: "
-                + str(submit_id)
-                + "\n"
-                + "       - target: "
-                + str(submit.target)
-            )
-            return
-        notify_tc_id = database.getNotifyTc(parent_role_id)
-        notify_tc = guild.get_channel(int(notify_tc_id))
+        if submit.target == int(database.getMemberRole()):
+            roles = database.getParentRoleList()
+            for role in roles:
+                if role.type == "member":
+                    notify_tc_id = database.getNotifyTc(role.id)
+                    notify_tc = guild.get_channel(int(notify_tc_id))
+                    await notify_tc.send(
+                        "🔔 新しい提出があります。\n\n"
+                        + "🆔 提出 ID: "
+                        + str(submit.id)
+                        + "\n"
+                        + ":mailbox_closed: 提出先: "
+                        + database.getItemName(submit.item_id)
+                        + "\n"
+                        + ":alarm_clock: 提出日時: `"
+                        + utils.dtToStr(submit.datetime)
+                        + "`\n"
+                        + ":pencil2: 提出元ロール: "
+                        + utils.roleIdToName(submit.author_role, guild)
+                        + "\n"
+                        + ":person_juggling: 提出者: "
+                        + utils.userIdToName(guild, submit.author)
+                        + "\n"
+                    )
+        else:
+            parent_role_id = database.getParentRole(submit.target)
+            if parent_role_id is None:
+                print(
+                    "[WARN] 通知用テキストチャンネルの取得に失敗したため、通知は行われませんでした。\n"
+                    + "       デバッグ情報:\n"
+                    + "       - submit_id: "
+                    + str(submit_id)
+                    + "\n"
+                    + "       - target: "
+                    + str(submit.target)
+                )
+                return
+            notify_tc_id = database.getNotifyTc(parent_role_id)
+            notify_tc = guild.get_channel(int(notify_tc_id))
 
-        await notify_tc.send(
-            "🔔 新しい提出があります。\n\n"
-            + "🆔 提出 ID: "
-            + str(submit.id)
-            + "\n"
-            + ":mailbox_closed: 提出先: "
-            + database.getItemName(submit.item_id)
-            + "\n"
-            + ":alarm_clock: 提出日時: `"
-            + utils.dtToStr(submit.datetime)
-            + "`\n"
-            + ":pencil2: 提出元ロール: "
-            + utils.roleIdToName(submit.author_role, guild)
-            + "\n"
-            + ":person_juggling: 提出者: "
-            + utils.userIdToName(guild, submit.author)
-            + "\n"
-        )
+            await notify_tc.send(
+                "🔔 新しい提出があります。\n\n"
+                + "🆔 提出 ID: "
+                + str(submit.id)
+                + "\n"
+                + ":mailbox_closed: 提出先: "
+                + database.getItemName(submit.item_id)
+                + "\n"
+                + ":alarm_clock: 提出日時: `"
+                + utils.dtToStr(submit.datetime)
+                + "`\n"
+                + ":pencil2: 提出元ロール: "
+                + utils.roleIdToName(submit.author_role, guild)
+                + "\n"
+                + ":person_juggling: 提出者: "
+                + utils.userIdToName(guild, submit.author)
+                + "\n"
+            )
