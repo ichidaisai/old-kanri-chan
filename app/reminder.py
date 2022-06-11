@@ -101,6 +101,14 @@ async def addReminderInteract(client, message):
                                                     role.id,
                                                     reminder_datetime,
                                                 )
+                                        elif int(database.getMemberRole()) == target.id:
+                                            roles = database.getMemberRoles()
+                                            for role in roles:
+                                                database.addReminder(
+                                                    int(m_item_id.content),
+                                                    role.id,
+                                                    reminder_datetime,
+                                                )
                                         else:
                                             database.addReminder(
                                                 int(m_item_id.content),

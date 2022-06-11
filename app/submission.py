@@ -831,6 +831,19 @@ def returnItem(message, format):
                 items += "💾 提出形式: 📜 プレーンテキスト\n"
             else:
                 items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    # すべての一般参加者に指示された提出先
+    for item in database.showItem(int(database.getMemberRole()), format):
+        if item.limit > datetime.datetime.now():
+            items += "\n"
+            items += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items += "📛 項目名: " + item.name + "\n"
+            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if items == "":
         items += "今のところ、提出を指示されている項目はありません。"
     return items
@@ -844,6 +857,18 @@ def returnItem(message, format):
 def returnItemByRoleId(role_id, format):
     items = ""
     for item in database.showItem(role_id, format):
+        if item.limit > datetime.datetime.now():
+            items += "\n"
+            items += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items += "📛 項目名: " + item.name + "\n"
+            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    for item in database.showItem(int(database.getMemberRole()), format):
         if item.limit > datetime.datetime.now():
             items += "\n"
             items += "🆔 提出先 ID: " + str(item.id) + "\n"

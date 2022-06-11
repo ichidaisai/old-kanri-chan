@@ -623,6 +623,12 @@ def getChildRole(id):
     return role
 
 
+# getMemberRoles: すべての一般参加者のロールを返す
+def getMemberRoles():
+    role = session.query(Role).all()
+    return role
+
+
 # getItemFormat: 提出先の ID から、指示された提出先の形式を返す
 def getItemFormat(id):
     item = session.query(Item).filter(Item.id == id).first()
