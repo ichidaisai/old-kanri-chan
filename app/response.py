@@ -28,6 +28,8 @@ async def doResp(client, message):
         await channel.delRole(message)
     elif message.content.startswith("!role parent add"):
         await channel.addParentRoleInteract(client, message)
+    elif message.content.startswith("!role member set"):
+        await channel.setMemberRole(message)
     elif message.content.startswith("!role parent delete"):
         await channel.deleteParentRoleInteract(client, message)
     elif message.content.startswith("!role parent set"):

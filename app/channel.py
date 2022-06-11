@@ -552,6 +552,34 @@ async def setNotifyCategory(message):
         await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
 
 
+async def setMemberRole(message):
+    if utils.isStaff(message.author, message.guild):
+        response = parse("!role member set {}", message.content)
+        if response:
+            if response[0].isdigit():
+                role = discord.utils.get(message.guild.roles, id=int(response[0]))
+                if role is not None:
+                    database.setMemberRole(role.id)
+                    await message.channel.send(
+                        "✅ 一般参加者用のロールを **" + role.name + "** に設定しました。",
+                        reference=message,
+                    )
+                else:
+                    await message.channel.send(
+                        "⚠ ロールの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                        reference=message,
+                    )
+            else:
+                await message.channel.send(
+                    "⚠ ロールの ID を正確に指定してください。\n" + "もう一度、最初から操作をやり直してください。",
+                    reference=message,
+                )
+        else:
+            await message.channel.send("❌ コマンドが不正です。", reference=message)
+    else:
+        await message.channel.send("⚠ このコマンドを実行する権限がありません。", reference=message)
+
+
 async def addRole(message):
     if utils.isStaff(message.author, message.guild):
         response = parse("!role add <@&{}>", message.content)
@@ -915,12 +943,17 @@ async def autoRole(client, before, after):
                         if role.id == tmp_roles[0].id:
                             isChildRole = True
                     if isChildRole:
+                        member_role = guild.get_role(int(database.getMemberRole()))
                         parent_role = guild.get_role(
                             database.getParentRole(tmp_roles[0].id)
                         )
                         if parent_role is None:
                             pass
                         else:
+                            if member_role is None:
+                                print("[WARN] 一般参加者用のロールを設定してください！")
+                            else:
+                                await after.add_roles(member_role)
                             await after.add_roles(parent_role)
     else:
         print("[WARN] ボットを使用するサーバーを設定してください！")

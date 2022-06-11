@@ -301,6 +301,35 @@ def setStaffRole(id):
         return True
 
 
+# setMemberRole: メンバー用ロールを設定する
+def setMemberRole(id):
+    exists = session.query(Config).filter(Config.key == "member_role").first()
+
+    if exists:
+        # `post_category` キーが存在するとき、UPDATE 文を発行する
+        exists.value = id
+        session.commit()
+        return True
+    else:
+        # `post_category` キーが存在しないとき、INSERT 文を発行する
+        config = Config()
+        config.key = "member_role"
+        config.value = id
+
+        session.add(config)
+        session.commit()
+        return True
+
+
+# getGuild: メンバー用ロールを返す
+def getMemberRole():
+    exists = session.query(Config).filter(Config.key == "member_role").first()
+    if exists:
+        return exists.value
+    else:
+        return None
+
+
 # setGuild: ボットを使用する対象サーバーを設定する
 def setGuild(guild_id):
     exists = session.query(Config).filter(Config.key == "guild").first()
