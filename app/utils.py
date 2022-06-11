@@ -111,10 +111,12 @@ def convFileName(name):
 
 def getUserRoles(guild, user_id):
     member = guild.get_member(user_id)
+    member_role = guild.get_role(int(database.getMemberRole()))
     roles = []
     for role in member.roles:
         if role != guild.default_role:
-            roles.append(role)
+            if role != member_role:
+                roles.append(role)
 
     return roles
 
