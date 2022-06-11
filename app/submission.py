@@ -1969,6 +1969,9 @@ async def checkSubmitInteract(client, message):
                             if database.isParentRole(target.id):
                                 for role in database.getChildRole(target.id):
                                     target_list.append(str(role.id))
+                            elif target.id == int(database.getMemberRole()):
+                                for role in database.getMemberRoles():
+                                    target_list.append(str(role.id))
                             else:
                                 target_list.append(database.getItemTarget(item_id))
 
