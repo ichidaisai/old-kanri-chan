@@ -37,10 +37,11 @@ async def addReminderInteract(client, message):
                         + "もう一度、最初から操作をやり直してください。"
                     )
                 else:
-                    if (
-                        database.getTc(target.id, "post") is None
-                        and database.isParentRole(target.id) is False
-                    ):
+                    # if (
+                    #     database.getTc(target.id, "post") is None
+                    #     and database.isParentRole(target.id) is False
+                    # ):
+                    if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。"
                         )

@@ -517,10 +517,11 @@ async def delItemInteract(client, message):
                         reference=msg,
                     )
                 else:
-                    if (
-                        database.getTc(target.id, "post") is None
-                        and database.isParentRole(target.id) is False
-                    ):
+                    # if (
+                    #     database.getTc(target.id, "post") is None
+                    #     and database.isParentRole(target.id) is False
+                    # ):
+                    if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
                             + target.name
@@ -637,10 +638,11 @@ async def listItem(client, message):
                         reference=msg,
                     )
                 else:
-                    if (
-                        database.getTc(target.id, "post") is None
-                        and database.isParentRole(target.id) is False
-                    ):
+                    # if (
+                    #     database.getTc(target.id, "post") is None
+                    #     and database.isParentRole(target.id) is False
+                    # ):
+                    if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
                             + target.name
@@ -907,10 +909,11 @@ async def listSubmitInteract(client, message):
                         reference=msg_role,
                     )
                 else:
-                    if (
-                        database.getTc(target.id, "post") is None
-                        and database.isParentRole(target.id) is False
-                    ):
+                    # if (
+                    #     database.getTc(target.id, "post") is None
+                    #     and database.isParentRole(target.id) is False
+                    # ):
+                    if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
                             + target.name
@@ -1089,10 +1092,11 @@ async def getSubmitInteract(client, message):
                         reference=msg_role,
                     )
                 else:
-                    if (
-                        database.getTc(target.id, "post") is None
-                        and database.isParentRole(target.id) is False
-                    ):
+                    # if (
+                    #     database.getTc(target.id, "post") is None
+                    #     and database.isParentRole(target.id) is False
+                    # ):
+                    if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
                             + target.name
@@ -1621,10 +1625,11 @@ async def verifySubmitInteract(client, message):
                     reference=m_role_name,
                 )
             else:
-                if (
-                    database.getTc(target.id, "post") is None
-                    and database.isParentRole(target.id) is False
-                ):
+                # if (
+                #     database.getTc(target.id, "post") is None
+                #     and database.isParentRole(target.id) is False
+                # ):
+                if utils.isStaffRole(target.id):
                     await message.channel.send(
                         "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。",
                         reference=m_role_name,
@@ -1890,10 +1895,11 @@ async def checkSubmitInteract(client, message):
                     reference=m_target,
                 )
             else:
-                if (
-                    database.getTc(target.id, "post") is None
-                    and database.isParentRole(target.id) is False
-                ):
+                # if (
+                #     database.getTc(target.id, "post") is None
+                #     and database.isParentRole(target.id) is False
+                # ):
+                if utils.isStaffRole(target.id):
                     await message.channel.send(
                         "⚠ ロール **"
                         + target.name
