@@ -2013,7 +2013,7 @@ async def sendNotify(submit_id, client, guild):
             roles = database.getParentRoleList()
             for role in roles:
                 if role.type == "member":
-                    notify_tc_id = database.getNotifyTc(role.id)
+                    notify_tc_id = database.getNotifyTc(submit.author_role)
                     notify_tc = guild.get_channel(int(notify_tc_id))
                     await notify_tc.send(
                         "🔔 新しい提出があります。\n\n"
