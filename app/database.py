@@ -465,7 +465,7 @@ def addItem(name, limit, target, handler, format):
 # delItem: ボットから提出先を削除する（データベースから削除する）
 ## id: 提出先の ID
 def delItem(id):
-    query = session.query(Item).filter(Item.id == id, Item.deleted == False)
+    query = session.query(Item).filter(Item.id == id, Item.deleted == false())
     result = session.query(query.exists()).scalar()
 
     if result:
@@ -486,7 +486,7 @@ def showItem(role_id, format):
     if format == "all":
         items = (
             session.query(Item)
-            .filter(Item.target == role_id, Item.deleted == False)
+            .filter(Item.target == role_id, Item.deleted == false())
             .all()
         )
         return items
@@ -494,7 +494,7 @@ def showItem(role_id, format):
         items = (
             session.query(Item)
             .filter(
-                Item.target == role_id, Item.format == "file", Item.deleted == False
+                Item.target == role_id, Item.format == "file", Item.deleted == false()
             )
             .all()
         )
@@ -503,7 +503,7 @@ def showItem(role_id, format):
         items = (
             session.query(Item)
             .filter(
-                Item.target == role_id, Item.format == "plain", Item.deleted == False
+                Item.target == role_id, Item.format == "plain", Item.deleted == false()
             )
             .all()
         )
@@ -592,7 +592,7 @@ def getCategory(type):
 
 # getItemName: 提出先の ID から、提出先の名前を返す
 def getItemName(id):
-    item = session.query(Item).filter(Item.id == id, Item.deleted == False).first()
+    item = session.query(Item).filter(Item.id == id, Item.deleted == false()).first()
     if item:
         return str(item.name)
     else:
@@ -619,7 +619,7 @@ def getSubmit(id):
 
 # getItemTarget: 提出先の ID から、提出先の対象者の Discord 上のロール ID を返す
 def getItemTarget(id):
-    item = session.query(Item).filter(Item.id == id, Item.deleted == False).first()
+    item = session.query(Item).filter(Item.id == id, Item.deleted == false()).first()
     if item:
         return str(item.target)
     else:
@@ -640,7 +640,7 @@ def getMemberRoles():
 
 # getItemFormat: 提出先の ID から、指示された提出先の形式を返す
 def getItemFormat(id):
-    item = session.query(Item).filter(Item.id == id, Item.deleted == False).first()
+    item = session.query(Item).filter(Item.id == id, Item.deleted == false()).first()
     if item:
         if item.format == "file" or item.format == "plain":
             return item.format
@@ -652,7 +652,7 @@ def getItemFormat(id):
 
 # getItemLimit: 提出先の ID から、提出先の期限を datetime 型で返す
 def getItemLimit(id):
-    item = session.query(Item).filter(Item.id == id, Item.deleted == False).first()
+    item = session.query(Item).filter(Item.id == id, Item.deleted == false()).first()
     if item:
         return item.limit
     else:
