@@ -465,11 +465,10 @@ def addItem(name, limit, target, handler, format):
 # delItem: ボットから提出先を削除する（データベースから削除する）
 ## id: 提出先の ID
 def delItem(id):
-    query = session.query(Item).filter(Item.id == id, Item.deleted.is_(False))
-    result = session.query(query.exists()).scalar()
+    res = session.query(Item).filter(Item.id == id, Item.deleted.is_(False)).first()
 
-    if result:
-        query.deleted = True
+    if res:
+        res.deleted = True
         session.commit()
         return True
     else:
