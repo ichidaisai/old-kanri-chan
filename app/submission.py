@@ -529,51 +529,61 @@ async def delItemInteract(client, message):
                             reference=msg,
                         )
                     else:
-                        msg_ask_item = await message.channel.send(
-                            "**"
-                            + utils.roleIdToName(target.id, message.guild)
-                            + "** に提出が指示された提出先は以下の通りです: \n"
-                            + returnItemByRoleId(target.id, "all")
-                            + "\nどの提出先を削除しますか？",
-                            reference=msg,
-                        )
-                        try:
-                            msg_item_id = await client.wait_for(
-                                "message", check=check, timeout=60
-                            )
-                        except asyncio.TimeoutError:
+                        item_list = returnItemByRoleId(target.id, "all")
+                        if item_list == "今のところ、提出を指示されている項目はありません。":
                             await message.channel.send(
-                                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
-                                reference=msg_ask_item,
+                                "今のところ、"
+                                + "**"
+                                + utils.roleIdToName(target.id, message.guild)
+                                + "**"
+                                + "に提出を指示されている項目はありません。",
+                                reference=msg,
                             )
                         else:
-                            item_id = msg_item_id.content
-                            if item_id.isdigit():
-                                item_name = database.getItemName(item_id)
-                                result = database.delItem(item_id)
-                                if result is False:
-                                    await message.channel.send(
-                                        "⚠ 提出先が見つかりません。ID をご確認ください。",
-                                        reference=msg_item_id,
-                                    )
-                                else:
-                                    # リマインダーを削除
-                                    reminders = database.getReminder(
-                                        item_id=int(item_id)
-                                    )
-
-                                    for reminder in reminders:
-                                        database.delReminder(reminder.id)
-
-                                    await message.channel.send(
-                                        "✅ 提出先 " + item_name + " を削除しました。",
-                                        reference=msg_item_id,
-                                    )
-                            else:
-                                await message.channel.send(
-                                    "⚠ 提出先の指定方法が間違っています。\n" + "もう一度、最初から操作をやり直してください。",
-                                    reference=msg_item_id,
+                            msg_ask_item = await message.channel.send(
+                                "**"
+                                + utils.roleIdToName(target.id, message.guild)
+                                + "** に提出が指示された提出先は以下の通りです: \n"
+                                + item_list
+                                + "\nどの提出先を削除しますか？",
+                                reference=msg,
+                            )
+                            try:
+                                msg_item_id = await client.wait_for(
+                                    "message", check=check, timeout=60
                                 )
+                            except asyncio.TimeoutError:
+                                await message.channel.send(
+                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                    reference=msg_ask_item,
+                                )
+                            else:
+                                item_id = msg_item_id.content
+                                if item_id.isdigit():
+                                    item_name = database.getItemName(item_id)
+                                    result = database.delItem(item_id)
+                                    if result is False:
+                                        await message.channel.send(
+                                            "⚠ 提出先が見つかりません。ID をご確認ください。",
+                                            reference=msg_item_id,
+                                        )
+                                    else:
+                                        # リマインダーを削除
+                                        reminders = database.getReminder(
+                                            item_id=int(item_id)
+                                        )
+                                        for reminder in reminders:
+                                            database.delReminder(reminder.id)
+                                        await message.channel.send(
+                                            "✅ 提出先 " + item_name + " を削除しました。",
+                                            reference=msg_item_id,
+                                        )
+                                else:
+                                    await message.channel.send(
+                                        "⚠ 提出先の指定方法が間違っています。\n"
+                                        + "もう一度、最初から操作をやり直してください。",
+                                        reference=msg_item_id,
+                                    )
     else:
         await message.channel.send(
             "**"
