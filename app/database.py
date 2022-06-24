@@ -18,7 +18,7 @@ DATABASE = "mysql://%s:%s@%s/%s?charset=utf8mb4" % (
 
 ENGINE = create_engine(
     DATABASE,
-    echo=True,  # True にすると、実行のたびに SQL がログに出力される。
+    echo=False,  # True にすると、実行のたびに SQL がログに出力される。
     pool_pre_ping=True,
     convert_unicode=False,
 )
