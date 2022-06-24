@@ -1012,7 +1012,8 @@ async def listSubmitInteract(client, message):
                                             client, message.guild, submit_list, "all"
                                         )
 
-                                        fp.write(list_fmt)
+                                        with open(fp.name, "w") as f:
+                                            f.write(list_fmt)
 
                                         await message.channel.send(
                                             ":information_source: 以下が提出先 **"
