@@ -1029,7 +1029,7 @@ async def listSubmitInteract(client, message):
                                             )
                                             + ") の提出履歴です。\n",
                                             reference=msg_item_id,
-                                            file=discord.File(fp),
+                                            file=discord.File(list_fmt),
                                         )
 
                                         fp.close()
