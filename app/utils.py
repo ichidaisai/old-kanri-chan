@@ -86,6 +86,15 @@ def isStaffRole(role_id):
     return False
 
 
+def toBinary(str_input):
+    l, m = [], []
+    for i in str_input:
+        l.append(ord(i))
+    for i in l:
+        m.append(int(bin(i)[2:]))
+    return m
+
+
 # isValidAsName: 新規作成する項目の名前として正しいかを True / False で返す
 def isValidAsName(name):
     checkNotRole = parse("<@&{}>", name)

@@ -1007,13 +1007,12 @@ async def listSubmitInteract(client, message):
                                         submit_list = database.getSubmitList(
                                             item_id, None
                                         )
-                                        fp = tempfile.NamedTemporaryFile()
+                                        fp = tempfile.NamedTemporaryFile(suffix=".txt")
                                         list_fmt = formatSubmitList(
                                             client, message.guild, submit_list, "all"
                                         )
 
-                                        with open(fp.name, "w") as f:
-                                            f.write(list_fmt)
+                                        fp.write(utils.toBinary(list_fmt))
 
                                         await message.channel.send(
                                             ":information_source: 以下が提出先 **"
