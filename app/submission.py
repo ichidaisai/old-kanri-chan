@@ -1,5 +1,6 @@
 # 外部ライブラリ
 import discord
+import tempfile
 from parse import *
 import datetime
 import asyncio
@@ -1006,9 +1007,12 @@ async def listSubmitInteract(client, message):
                                         submit_list = database.getSubmitList(
                                             item_id, None
                                         )
+                                        fp = tempfile.NamedTemporaryFile()
                                         list_fmt = formatSubmitList(
                                             client, message.guild, submit_list, "all"
                                         )
+
+                                        fp.write(list_fmt)
 
                                         await message.channel.send(
                                             ":information_source: 以下が提出先 **"
@@ -1018,10 +1022,12 @@ async def listSubmitInteract(client, message):
                                                 database.getItemTarget(item_id),
                                                 message.guild,
                                             )
-                                            + ") の提出履歴です。\n"
-                                            + list_fmt,
+                                            + ") の提出履歴です。\n",
                                             reference=msg_item_id,
+                                            file=fp.name,
                                         )
+
+                                        fp.close()
                                 else:
                                     await message.channel.send(
                                         "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。",
@@ -1571,12 +1577,12 @@ def formatSubmitList(client, guild, submit_list, format):
     else:
         for submit in submit_list:
             if format == "all":
-                list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
-                list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+                list_fmt += "提出 ID: " + str(submit.id) + "\n"
+                list_fmt += "提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
                 if submit.format == "file":
-                    list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
+                    list_fmt += "ファイル名: `" + submit.filename + "`\n"
                 elif submit.format == "plain":
-                    list_fmt += "📝 内容: " + submit.plain + "\n"
+                    list_fmt += "内容: " + submit.plain + "\n"
                 list_fmt += (
                     ":man_construction_worker: 提出者: "
                     + utils.userIdToName(guild, submit.author)
@@ -1586,15 +1592,15 @@ def formatSubmitList(client, guild, submit_list, format):
                     + "\n"
                 )
                 if submit.verified:
-                    list_fmt += "✅ 委員会からの承認: **済**\n"
+                    list_fmt += "委員会からの承認: 済\n"
                 else:
-                    list_fmt += "✅ 委員会からの承認: **未**\n"
+                    list_fmt += "委員会からの承認: 未\n"
                 list_fmt += "\n"
             elif format == "file":
                 if submit.format == "file":
-                    list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
-                    list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
-                    list_fmt += "📛 ファイル名: `" + submit.filename + "`\n"
+                    list_fmt += "提出 ID: " + str(submit.id) + "\n"
+                    list_fmt += "提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+                    list_fmt += "ファイル名: `" + submit.filename + "`\n"
                     list_fmt += (
                         ":man_construction_worker: 提出者: "
                         + utils.userIdToName(guild, submit.author)
@@ -1604,9 +1610,9 @@ def formatSubmitList(client, guild, submit_list, format):
                         + "\n"
                     )
                     if submit.verified:
-                        list_fmt += "✅ 委員会からの承認: **済**\n"
+                        list_fmt += "委員会からの承認: 済\n"
                     else:
-                        list_fmt += "✅ 委員会からの承認: **未**\n"
+                        list_fmt += "委員会からの承認: 未\n"
                     list_fmt += "\n"
             elif format == "plain":
                 list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
@@ -1621,9 +1627,9 @@ def formatSubmitList(client, guild, submit_list, format):
                     + "\n"
                 )
                 if submit.verified:
-                    list_fmt += "✅ 委員会からの承認: **済**\n"
+                    list_fmt += "委員会からの承認: 済\n"
                 else:
-                    list_fmt += "✅ 委員会からの承認: **未**\n"
+                    list_fmt += "委員会からの承認: 未\n"
                 list_fmt += "\n"
             else:
                 list_fmt += ""
