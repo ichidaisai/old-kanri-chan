@@ -1007,17 +1007,15 @@ async def listSubmitInteract(client, message):
                                         submit_list = database.getSubmitList(
                                             item_id, None
                                         )
-                                        fp = tempfile.NamedTemporaryFile(
-                                            mode="w+t",
-                                            suffix=".txt",
-                                            delete=False,
-                                            encoding="utf-8",
-                                        )
+
                                         list_fmt = formatSubmitList(
                                             client, message.guild, submit_list, "all"
                                         )
-                                        fp.seek(0)
-                                        fp.write(list_fmt)
+
+                                        path = "./data/res.txt"
+
+                                        with open(path, mode="w") as f:
+                                            f.write(list_fmt)
 
                                         await message.channel.send(
                                             ":information_source: 以下が提出先 **"
@@ -1029,7 +1027,7 @@ async def listSubmitInteract(client, message):
                                             )
                                             + ") の提出履歴です。\n",
                                             reference=msg_item_id,
-                                            file=discord.File(list_fmt),
+                                            file=discord.File(path),
                                         )
 
                                         fp.close()
