@@ -1581,13 +1581,13 @@ def formatSubmitList(client, guild, submit_list, format):
         for submit in submit_list:
             if format == "all":
                 list_fmt += "提出 ID: " + str(submit.id) + "\n"
-                list_fmt += "提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+                list_fmt += "提出日時: " + utils.dtToStr(submit.datetime) + "\n"
                 if submit.format == "file":
-                    list_fmt += "ファイル名: `" + submit.filename + "`\n"
+                    list_fmt += "ファイル名: " + submit.filename + "\n"
                 elif submit.format == "plain":
                     list_fmt += "内容: " + submit.plain + "\n"
                 list_fmt += (
-                    ":man_construction_worker: 提出者: "
+                    "提出者: "
                     + utils.userIdToName(guild, submit.author)
                     + " ("
                     + utils.getUserRolesNameFmt(guild, submit.author)
@@ -1602,10 +1602,10 @@ def formatSubmitList(client, guild, submit_list, format):
             elif format == "file":
                 if submit.format == "file":
                     list_fmt += "提出 ID: " + str(submit.id) + "\n"
-                    list_fmt += "提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
-                    list_fmt += "ファイル名: `" + submit.filename + "`\n"
+                    list_fmt += "提出日時: " + utils.dtToStr(submit.datetime) + "\n"
+                    list_fmt += "ファイル名: " + submit.filename + "\n"
                     list_fmt += (
-                        ":man_construction_worker: 提出者: "
+                        "提出者: "
                         + utils.userIdToName(guild, submit.author)
                         + " ("
                         + utils.getUserRolesNameFmt(guild, submit.author)
@@ -1619,10 +1619,10 @@ def formatSubmitList(client, guild, submit_list, format):
                     list_fmt += "\n"
             elif format == "plain":
                 list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
-                list_fmt += "⏰ 提出日時: `" + utils.dtToStr(submit.datetime) + "`\n"
+                list_fmt += "⏰ 提出日時: " + utils.dtToStr(submit.datetime) + "\n"
                 list_fmt += "📝 内容: " + submit.plain + "\n"
                 list_fmt += (
-                    ":man_construction_worker: 提出者: "
+                    "提出者: "
                     + utils.userIdToName(guild, submit.author)
                     + " ("
                     + utils.getUserRolesNameFmt(guild, submit.author)
