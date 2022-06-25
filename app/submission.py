@@ -179,6 +179,25 @@ async def addItemInteract(client, message):
                                                     ## 1日前
                                                     if (
                                                         database.getItemLimit(result)
+                                                        - datetime.timedelta(days=3)
+                                                        > datetime.datetime.now()
+                                                    ):
+                                                        reminder_datetime = (
+                                                            database.getItemLimit(
+                                                                result
+                                                            )
+                                                            - datetime.timedelta(days=3)
+                                                        )
+                                                        database.addReminder(
+                                                            result,
+                                                            database.getItemTarget(
+                                                                result
+                                                            ),
+                                                            reminder_datetime,
+                                                        )
+                                                    ## 1日前
+                                                    if (
+                                                        database.getItemLimit(result)
                                                         - datetime.timedelta(days=1)
                                                         > datetime.datetime.now()
                                                     ):
