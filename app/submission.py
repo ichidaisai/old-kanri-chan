@@ -1659,6 +1659,62 @@ def formatSubmitList(client, guild, submit_list, format):
     return list_fmt
 
 
+def formatSubmitListForVerify(client, guild, submit_list, format):
+    list_fmt = ""
+
+    if len(submit_list) == 0:
+        list_fmt += "まだ、この項目に対して何も提出されていません。"
+    else:
+        for submit in submit_list:
+            if not submit.verified:
+                if format == "all":
+                    list_fmt += "提出 ID: " + str(submit.id) + "\n"
+                    list_fmt += "提出日時: " + utils.dtToStr(submit.datetime) + "\n"
+                    if submit.format == "file":
+                        list_fmt += "ファイル名: " + submit.filename + "\n"
+                    elif submit.format == "plain":
+                        list_fmt += "内容: " + submit.plain + "\n"
+                    list_fmt += (
+                        "提出者: "
+                        + utils.userIdToName(guild, submit.author)
+                        + " ("
+                        + utils.getUserRolesNameFmt(guild, submit.author)
+                        + ")"
+                        + "\n"
+                    )
+                    list_fmt += "\n"
+                elif format == "file":
+                    if submit.format == "file":
+                        list_fmt += "提出 ID: " + str(submit.id) + "\n"
+                        list_fmt += "提出日時: " + utils.dtToStr(submit.datetime) + "\n"
+                        list_fmt += "ファイル名: " + submit.filename + "\n"
+                        list_fmt += (
+                            "提出者: "
+                            + utils.userIdToName(guild, submit.author)
+                            + " ("
+                            + utils.getUserRolesNameFmt(guild, submit.author)
+                            + ")"
+                            + "\n"
+                        )
+                        list_fmt += "\n"
+                elif format == "plain":
+                    list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
+                    list_fmt += "⏰ 提出日時: " + utils.dtToStr(submit.datetime) + "\n"
+                    list_fmt += "📝 内容: " + submit.plain + "\n"
+                    list_fmt += (
+                        "提出者: "
+                        + utils.userIdToName(guild, submit.author)
+                        + " ("
+                        + utils.getUserRolesNameFmt(guild, submit.author)
+                        + ")"
+                        + "\n"
+                    )
+                else:
+                    list_fmt += ""
+
+    return list_fmt
+
+
 async def verifySubmitInteract(client, message):
     msg_ask_role = await message.channel.send(
         "📛 どのロールに指示された提出物を承認しますか？\n" + "Discord のメンション機能を使用して、ロールを指定してください。",
@@ -1747,7 +1803,7 @@ async def verifySubmitInteract(client, message):
                             else:
 
                                 submit_list = database.getSubmitList(item_id, None)
-                                list_fmt = formatSubmitList(
+                                list_fmt = formatSubmitListForVerify(
                                     client, message.guild, submit_list, "all"
                                 )
 
