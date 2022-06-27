@@ -2068,30 +2068,13 @@ async def checkSubmitInteract(client, message):
 # sendNotify: 提出通知を送信する
 async def sendNotify(submit_id, client, guild):
     submit = database.getSubmit(submit_id)
+
     if submit is None:
         print("[WARN] 提出通知の送信に失敗しました。")
     else:
         if submit.target == int(database.getMemberRole()):
             notify_tc_id = database.getNotifyTc(submit.author_role)
             notify_tc = guild.get_channel(int(notify_tc_id))
-            await notify_tc.send(
-                "🔔 新しい提出があります。\n\n"
-                + "🆔 提出 ID: "
-                + str(submit.id)
-                + "\n"
-                + ":mailbox_closed: 提出先: "
-                + database.getItemName(submit.item_id)
-                + "\n"
-                + ":alarm_clock: 提出日時: `"
-                + utils.dtToStr(submit.datetime)
-                + "`\n"
-                + ":pencil2: 提出元ロール: "
-                + utils.roleIdToName(submit.author_role, guild)
-                + "\n"
-                + ":person_juggling: 提出者: "
-                + utils.userIdToName(guild, submit.author)
-                + "\n"
-            )
         else:
             parent_role_id = database.getParentRole(submit.target)
             if parent_role_id is None:
@@ -2105,9 +2088,11 @@ async def sendNotify(submit_id, client, guild):
                     + str(submit.target)
                 )
                 return
+
             notify_tc_id = database.getNotifyTc(parent_role_id)
             notify_tc = guild.get_channel(int(notify_tc_id))
 
+        if submit.format == "plain":
             await notify_tc.send(
                 "🔔 新しい提出があります。\n\n"
                 + "🆔 提出 ID: "
@@ -2125,4 +2110,29 @@ async def sendNotify(submit_id, client, guild):
                 + ":person_juggling: 提出者: "
                 + utils.userIdToName(guild, submit.author)
                 + "\n"
+                + ":notepad_spiral: 内容:\n```\n"
+                + submit.plain
+                + "\n```"
+            )
+        else:
+            await notify_tc.send(
+                "🔔 新しい提出があります。\n\n"
+                + "🆔 提出 ID: "
+                + str(submit.id)
+                + "\n"
+                + ":mailbox_closed: 提出先: "
+                + database.getItemName(submit.item_id)
+                + "\n"
+                + ":alarm_clock: 提出日時: `"
+                + utils.dtToStr(submit.datetime)
+                + "`\n"
+                + ":pencil2: 提出元ロール: "
+                + utils.roleIdToName(submit.author_role, guild)
+                + "\n"
+                + ":person_juggling: 提出者: "
+                + utils.userIdToName(guild, submit.author),
+                file=discord.File(
+                    submit.path,
+                    filename=utils.convFileName(submit.path),
+                ),
             )
