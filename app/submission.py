@@ -1072,7 +1072,7 @@ async def listSubmitInteract(client, message):
                     int(database.getRole(message.channel.id)), message.guild
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
-                + "履歴を閲覧したい項目を選んでください: \n"
+                + "履歴を閲覧したい項目の ID を、このテキストチャンネルに送信してください: \n"
                 + returnItem(message, "all"),
                 reference=message,
             )
@@ -1407,7 +1407,7 @@ async def getSubmitInteract(client, message):
                     int(database.getRole(message.channel.id)), message.guild
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
-                + "ダウンロードしたい項目を選んでください: \n"
+                + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
                 + returnItem(message, "all"),
                 reference=message,
             )
