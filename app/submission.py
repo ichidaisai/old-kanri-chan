@@ -1681,10 +1681,8 @@ async def getAllFilesInteract(client, message):
                                                     arcname=submit.path.replace(
                                                         "./data/posts/",
                                                         "./"
-                                                        + item_name
-                                                        + "_"
-                                                        + utils.dtToStrFileName(
-                                                            datetime.datetime.now()
+                                                        + utils.roleIdToName(
+                                                            submit.author_role
                                                         )
                                                         + "/",
                                                     ),
