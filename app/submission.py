@@ -1657,89 +1657,93 @@ async def getAllFilesInteract(client, message):
                                     else:
                                         # ファイルの場合
                                         if database.getItemFormat(item_id) == "file":
-                                            item_name = database.getItemName(item_id)
-                                            submit_list = database.getSubmitList(
-                                                item_id, None
-                                            )
-                                            submits = database.getSubmitList(
-                                                item_id, None
-                                            )
-                                            filename = (
-                                                utils.convFileName(item_name)
-                                                + "_"
-                                                + utils.dtToStrFileName(
-                                                    datetime.datetime.now()
+                                            async with message.channel.typing():
+                                                item_name = database.getItemName(
+                                                    item_id
                                                 )
-                                            )
-                                            zip_path = "./data/zip/" + filename + ".zip"
-                                            zip_f = zipfile.ZipFile(zip_path, "w")
+                                                submit_list = database.getSubmitList(
+                                                    item_id, None
+                                                )
+                                                submits = database.getSubmitList(
+                                                    item_id, None
+                                                )
+                                                filename = (
+                                                    utils.convFileName(item_name)
+                                                    + "_"
+                                                    + utils.dtToStrFileName(
+                                                        datetime.datetime.now()
+                                                    )
+                                                )
+                                                zip_path = (
+                                                    "./data/zip/" + filename + ".zip"
+                                                )
+                                                zip_f = zipfile.ZipFile(zip_path, "w")
 
-                                            for submit in submits:
-                                                zip_f.write(
-                                                    submit.path,
-                                                    compress_type=zipfile.ZIP_LZMA,
-                                                    arcname=submit.path.replace(
-                                                        "./data/posts/",
-                                                        "./"
-                                                        + utils.roleIdToName(
-                                                            submit.author_role
-                                                        )
-                                                        + "/",
-                                                    ),
-                                                )
+                                                for submit in submits:
+                                                    zip_f.write(
+                                                        submit.path,
+                                                        compress_type=zipfile.ZIP_LZMA,
+                                                        arcname=submit.path.replace(
+                                                            "./data/posts/",
+                                                            "./"
+                                                            + utils.roleIdToName(
+                                                                submit.author_role,
+                                                                message.guild,
+                                                            )
+                                                            + "/",
+                                                        ),
+                                                    )
 
-                                            zip_f.close()
+                                                zip_f.close()
 
-                                            try:
-                                                await message.channel.send(
-                                                    "✅ **"
-                                                    + item_name
-                                                    + "** の全ファイルを送信します: \n",
-                                                    file=discord.File(
-                                                        zip_path,
-                                                        filename=filename + ".zip",
-                                                    ),
-                                                    reference=msg_item_id,
-                                                )
-                                            except Exception as e:
-                                                await message.channel.send(
-                                                    "❌ **"
-                                                    + item_name
-                                                    + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
-                                                    + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
-                                                    + "以下にエラーログを示します:\n"
-                                                    + "```\n"
-                                                    + str(e)
-                                                    + "```\n",
-                                                    reference=msg_item_id,
-                                                )
-                                                await message.channel.send(
-                                                    ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
-                                                    reference=msg_item_id,
-                                                )
+                                                try:
+                                                    await message.channel.send(
+                                                        "✅ **"
+                                                        + item_name
+                                                        + "** の全ファイルを送信します: \n",
+                                                        file=discord.File(
+                                                            zip_path,
+                                                            filename=filename + ".zip",
+                                                        ),
+                                                        reference=msg_item_id,
+                                                    )
+                                                except Exception as e:
+                                                    await message.channel.send(
+                                                        "❌ **"
+                                                        + item_name
+                                                        + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
+                                                        + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
+                                                        + "以下にエラーログを示します:\n"
+                                                        + "```\n"
+                                                        + str(e)
+                                                        + "```\n",
+                                                        reference=msg_item_id,
+                                                    )
+                                                    await message.channel.send(
+                                                        ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
+                                                        reference=msg_item_id,
+                                                    )
 
-                                                anon_files = {
-                                                    "file": (
-                                                        filename + ".zip",
-                                                        open(zip_path, "rb"),
-                                                    ),
-                                                }
-                                                anon_api = (
-                                                    "https://api.anonfiles.com/upload"
-                                                )
-                                                response = requests.post(
-                                                    anon_api, files=anon_files
-                                                ).json()
+                                                    anon_files = {
+                                                        "file": (
+                                                            filename + ".zip",
+                                                            open(zip_path, "rb"),
+                                                        ),
+                                                    }
+                                                    anon_api = "https://api.anonfiles.com/upload"
+                                                    response = requests.post(
+                                                        anon_api, files=anon_files
+                                                    ).json()
 
-                                                await message.channel.send(
-                                                    "✅ **"
-                                                    + item_name
-                                                    + "** の全ファイルを送信します: \n"
-                                                    + response["data"]["file"]["url"][
-                                                        "short"
-                                                    ],
-                                                    reference=msg_item_id,
-                                                )
+                                                    await message.channel.send(
+                                                        "✅ **"
+                                                        + item_name
+                                                        + "** の全ファイルを送信します: \n"
+                                                        + response["data"]["file"][
+                                                            "url"
+                                                        ]["short"],
+                                                        reference=msg_item_id,
+                                                    )
 
                                         elif database.getItemFormat(item_id) == "plain":
                                             tmp_dir = "./data/tmp"
@@ -1889,69 +1893,79 @@ async def getAllFilesInteract(client, message):
                         )
                         # ファイルの場合
                         if database.getItemFormat(item_id) == "file":
-                            item_name = database.getItemName(item_id)
-                            submit_list = database.getSubmitList(item_id, None)
-                            submits = database.getSubmitList(item_id, None)
-                            filename = (
-                                utils.convFileName(item_name)
-                                + "_"
-                                + utils.dtToStrFileName(datetime.datetime.now())
-                            )
-                            zip_path = "./data/zip/" + filename + ".zip"
-                            zip_f = zipfile.ZipFile(zip_path, "w")
-
-                            for submit in submits:
-                                zip_f.write(
-                                    submit.path,
-                                    compress_type=zipfile.ZIP_LZMA,
+                            async with message.channel.typing():
+                                item_name = database.getItemName(item_id)
+                                submit_list = database.getSubmitList(item_id, None)
+                                submits = database.getSubmitList(item_id, None)
+                                filename = (
+                                    utils.convFileName(item_name)
+                                    + "_"
+                                    + utils.dtToStrFileName(datetime.datetime.now())
                                 )
+                                zip_path = "./data/zip/" + filename + ".zip"
+                                zip_f = zipfile.ZipFile(zip_path, "w")
 
-                            zip_f.close()
+                                for submit in submits:
+                                    zip_f.write(
+                                        submit.path,
+                                        compress_type=zipfile.ZIP_LZMA,
+                                        arcname=submit.path.replace(
+                                            "./data/posts/",
+                                            "./"
+                                            + utils.roleIdToName(
+                                                submit.author_role,
+                                                message.guild,
+                                            )
+                                            + "/",
+                                        ),
+                                    )
 
-                            try:
-                                await message.channel.send(
-                                    "✅ **" + item_name + "** の全ファイルを送信します: \n",
-                                    file=discord.File(
-                                        zip_path,
-                                        filename=filename + ".zip",
-                                    ),
-                                    reference=msg_item_id,
-                                )
-                            except Exception as e:
-                                await message.channel.send(
-                                    "❌ **"
-                                    + item_name
-                                    + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
-                                    + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
-                                    + "以下にエラーログを示します:\n"
-                                    + "```\n"
-                                    + str(e)
-                                    + "```\n",
-                                    reference=msg_item_id,
-                                )
-                                await message.channel.send(
-                                    ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
-                                    reference=msg_item_id,
-                                )
+                                zip_f.close()
 
-                                anon_files = {
-                                    "file": (
-                                        filename + ".zip",
-                                        open(zip_path, "rb"),
-                                    ),
-                                }
-                                anon_api = "https://api.anonfiles.com/upload"
-                                response = requests.post(
-                                    anon_api, files=anon_files
-                                ).json()
+                                try:
+                                    await message.channel.send(
+                                        "✅ **" + item_name + "** の全ファイルを送信します: \n",
+                                        file=discord.File(
+                                            zip_path,
+                                            filename=filename + ".zip",
+                                        ),
+                                        reference=msg_item_id,
+                                    )
+                                except Exception as e:
+                                    await message.channel.send(
+                                        "❌ **"
+                                        + item_name
+                                        + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
+                                        + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
+                                        + "以下にエラーログを示します:\n"
+                                        + "```\n"
+                                        + str(e)
+                                        + "```\n",
+                                        reference=msg_item_id,
+                                    )
+                                    await message.channel.send(
+                                        ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
+                                        reference=msg_item_id,
+                                    )
 
-                                await message.channel.send(
-                                    "✅ **"
-                                    + item_name
-                                    + "** の全ファイルを送信します: \n"
-                                    + response["data"]["file"]["url"]["short"],
-                                    reference=msg_item_id,
-                                )
+                                    anon_files = {
+                                        "file": (
+                                            filename + ".zip",
+                                            open(zip_path, "rb"),
+                                        ),
+                                    }
+                                    anon_api = "https://api.anonfiles.com/upload"
+                                    response = requests.post(
+                                        anon_api, files=anon_files
+                                    ).json()
+
+                                    await message.channel.send(
+                                        "✅ **"
+                                        + item_name
+                                        + "** の全ファイルを送信します: \n"
+                                        + response["data"]["file"]["url"]["short"],
+                                        reference=msg_item_id,
+                                    )
                         elif database.getItemFormat(item_id) == "plain":
                             tmp_dir = "./data/tmp"
                             if not os.path.exists(tmp_dir):
