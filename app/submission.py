@@ -1,6 +1,7 @@
 # 外部ライブラリ
 import discord
 import tempfile
+import zipfile
 from parse import *
 import datetime
 import asyncio
@@ -1486,6 +1487,391 @@ async def getSubmitInteract(client, message):
                                         ),
                                         reference=msg_submit_id,
                                     )
+                        elif database.getItemFormat(item_id) == "plain":
+                            tmp_dir = "./data/tmp"
+                            if not os.path.exists(tmp_dir):
+                                os.makedirs(tmp_dir)
+                            JST = dateutil.tz.gettz("Asia/Tokyo")
+                            dt_now = datetime.datetime.now(JST)
+                            fmt_dt = utils.dtToStrFileName(dt_now)
+                            # ファイル名の例: 2022-05-02_16-15_提出先A.csv
+                            filename = (
+                                fmt_dt + "_" + database.getItemName(item_id) + ".xlsx"
+                            )
+                            save_path = tmp_dir + "/" + filename
+
+                            # 各列のために用意する配列
+                            export_list = []
+                            submit_id_list = []
+                            submit_datetime_list = []
+                            submit_author_list = []
+                            submit_author_role_list = []
+                            submit_plain_list = []
+                            submit_verified_list = []
+
+                            for submit in submit_list:
+                                submit_id_list.append(submit.id)
+                                submit_datetime_list.append(
+                                    utils.dtToStr(submit.datetime)
+                                )
+                                submit_author_list.append(
+                                    utils.userIdToName(message.guild, submit.author)
+                                )
+                                submit_author_role_list.append(
+                                    utils.roleIdToName(
+                                        submit.author_role, message.guild
+                                    )
+                                )
+                                if submit.plain is None:
+                                    submit_plain_list.append("未記入")
+                                else:
+                                    submit_plain_list.append(submit.plain)
+                                if submit.verified:
+                                    submit_verified_list.append("済")
+                                else:
+                                    submit_verified_list.append("未")
+
+                            export_list.append(submit_id_list)
+                            export_list.append(submit_datetime_list)
+                            export_list.append(submit_author_list)
+                            export_list.append(submit_author_role_list)
+                            export_list.append(submit_plain_list)
+                            export_list.append(submit_verified_list)
+
+                            df = pd.DataFrame(export_list)
+                            df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
+
+                            df.T.to_excel(
+                                save_path, sheet_name=database.getItemName(item_id)
+                            )
+
+                            await message.channel.send(
+                                ":mage: 提出先 **"
+                                + database.getItemName(item_id)
+                                + "** (対象: "
+                                + utils.roleIdToName(
+                                    database.getItemTarget(item_id), message.guild
+                                )
+                                + ") に提出された内容を Excel (`.xlsx`) ファイルとして送信します。",
+                                file=discord.File(
+                                    save_path,
+                                    filename=utils.convFileName(filename),
+                                ),
+                                reference=msg_item_id,
+                            )
+                        else:
+                            await message.channel.send(
+                                "⚠ 処理中に問題が発生しました。もう一度、最初から操作をやり直してください。"
+                            )
+                else:
+                    await message.channel.send(
+                        "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。",
+                        reference=msg_item_id,
+                    )
+
+
+async def getAllFilesInteract(client, message):
+    result = database.getRole(message.channel.id)
+
+    def check(m):
+        return m.channel == message.channel and m.author == message.author
+
+    if result is None:
+        msg_ask_item = await message.channel.send(
+            ":man_mage: どのロールが提出した提出物をダウンロードしますか？\n"
+            + "Discord のメンション機能を用いて、ロールを指定してください。"
+        )
+
+        try:
+            msg_role = await client.wait_for("message", check=check, timeout=60)
+        except asyncio.TimeoutError:
+            await message.channel.send(
+                "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_item
+            )
+        else:
+            target_id = utils.mentionToRoleId(msg_role.content)
+
+            if target_id is None:
+                await message.channel.send(
+                    "⚠ ロールの指定方法が間違っています。Discord のメンション機能を用いて、ロールを指定してください。",
+                    reference=msg_role,
+                )
+            else:
+                target = message.guild.get_role(int(target_id))
+
+                if target is None:
+                    await message.channel.send(
+                        "⚠ 対象のロールが見つかりませんでした。指定しているロールが本当に正しいか、再確認してください。",
+                        reference=msg_role,
+                    )
+                else:
+                    if utils.isStaffRole(target.id):
+                        await message.channel.send(
+                            "⚠ ロール **"
+                            + target.name
+                            + "** は、提出を指示する先のロールとしては登録されていません。",
+                            reference=msg_role,
+                        )
+                    else:
+                        if (
+                            returnItemByRoleId(target.id, "all")
+                            == "今のところ、提出を指示されている項目はありません。"
+                        ):
+                            await message.channel.send(
+                                ":person_bowing: ロール **"
+                                + target.name
+                                + "** に指示されている提出物は、今のところありません。",
+                                reference=msg_role,
+                            )
+                        else:
+                            msg_ask_item = await message.channel.send(
+                                "**"
+                                + utils.roleIdToName(target.id, message.guild)
+                                + "** に提出が指示された提出物は以下の通りです。\n"
+                                + "ダウンロードしたい項目の提出先 ID をこのチャンネルで発言してください。"
+                                + returnItemByRoleId(target.id, "all"),
+                                reference=msg_role,
+                            )
+                            try:
+                                msg_item_id = await client.wait_for(
+                                    "message", check=check, timeout=60
+                                )
+                            except asyncio.TimeoutError:
+                                await message.channel.send(
+                                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。",
+                                    reference=msg_ask_item,
+                                )
+                            else:
+                                item_id = message.content = unicodedata.normalize(
+                                    "NFKC", msg_item_id.content
+                                )
+                                if item_id.isdigit():
+                                    if database.getItemLimit(item_id) is None:
+                                        await message.channel.send(
+                                            "⚠ 指定された ID **"
+                                            + msg_item_id.content
+                                            + "** を持つ提出先が見つかりませんでした。",
+                                            reference=msg_item_id,
+                                        )
+                                    else:
+                                        # ファイルの場合
+                                        if database.getItemFormat(item_id) == "file":
+                                            item_name = database.getItemName(item_id)
+                                            submit_list = database.getSubmitList(
+                                                item_id, None
+                                            )
+                                            submits = database.getSubmitList(
+                                                item_id, None
+                                            )
+                                            filename = (
+                                                utils.convFileName(item_name)
+                                                + "_"
+                                                + utils.dtToStrFileName(
+                                                    datetime.datetime.now()
+                                                )
+                                            )
+                                            zip_path = "./data/zip/" + filename + ".zip"
+                                            zip_f = zipfile.ZipFile(zip_path, "w")
+
+                                            for submit in submits:
+                                                zip_f.write(
+                                                    submit.path,
+                                                    compress_type=zipfile.ZIP_DEFLATED,
+                                                    arcname=submit.path.replace(
+                                                        "./data/posts/",
+                                                        "./"
+                                                        + item_name
+                                                        + "_"
+                                                        + utils.dtToStrFileName(
+                                                            datetime.datetime.now()
+                                                        )
+                                                        + "/",
+                                                    ),
+                                                )
+
+                                            zip_f.close()
+
+                                            await message.channel.send(
+                                                "✅ **"
+                                                + item_name
+                                                + "** の全ファイルを送信します: \n",
+                                                file=discord.File(
+                                                    zip_path, filename=filename + ".zip"
+                                                ),
+                                                reference=msg_item_id,
+                                            )
+                                        elif database.getItemFormat(item_id) == "plain":
+                                            tmp_dir = "./data/tmp"
+                                            if not os.path.exists(tmp_dir):
+                                                os.makedirs(tmp_dir)
+                                            submit_list = database.getSubmitList(
+                                                item_id, None
+                                            )
+                                            JST = dateutil.tz.gettz("Asia/Tokyo")
+                                            dt_now = datetime.datetime.now(JST)
+                                            fmt_dt = utils.dtToStrFileName(dt_now)
+                                            # ファイル名の例: 2022-05-02_16-15_提出先A.csv
+                                            filename = (
+                                                fmt_dt
+                                                + "_"
+                                                + database.getItemName(item_id)
+                                                + ".xlsx"
+                                            )
+                                            save_path = tmp_dir + "/" + filename
+
+                                            # 各列のために用意する配列
+                                            export_list = []
+                                            submit_id_list = []
+                                            submit_datetime_list = []
+                                            submit_author_list = []
+                                            submit_author_role_list = []
+                                            submit_plain_list = []
+                                            submit_verified_list = []
+
+                                            for submit in submit_list:
+                                                submit_id_list.append(submit.id)
+                                                submit_datetime_list.append(
+                                                    utils.dtToStr(submit.datetime)
+                                                )
+                                                submit_author_list.append(
+                                                    utils.userIdToName(
+                                                        client, submit.author
+                                                    )
+                                                )
+                                                submit_author_role_list.append(
+                                                    utils.roleIdToName(
+                                                        submit.author_role,
+                                                        message.guild,
+                                                    )
+                                                )
+                                                if submit.plain is None:
+                                                    submit_plain_list.append("未記入")
+                                                else:
+                                                    submit_plain_list.append(
+                                                        submit.plain
+                                                    )
+                                                if submit.verified:
+                                                    submit_verified_list.append("済")
+                                                else:
+                                                    submit_verified_list.append("未")
+
+                                            export_list.append(submit_id_list)
+                                            export_list.append(submit_datetime_list)
+                                            export_list.append(submit_author_list)
+                                            export_list.append(submit_author_role_list)
+                                            export_list.append(submit_plain_list)
+                                            export_list.append(submit_verified_list)
+
+                                            df = pd.DataFrame(export_list)
+                                            df.index = [
+                                                "提出 ID",
+                                                "提出日時",
+                                                "提出者",
+                                                "提出元ロール",
+                                                "提出内容",
+                                                "承認",
+                                            ]
+
+                                            df.T.to_excel(
+                                                save_path,
+                                                sheet_name=database.getItemName(
+                                                    item_id
+                                                ),
+                                            )
+
+                                            await message.channel.send(
+                                                ":mage: 提出先 **"
+                                                + database.getItemName(item_id)
+                                                + "** (対象: "
+                                                + utils.roleIdToName(
+                                                    database.getItemTarget(item_id),
+                                                    message.guild,
+                                                )
+                                                + ") に提出された内容を Excel (`.xlsx`) ファイルとして送信します。",
+                                                file=discord.File(
+                                                    save_path,
+                                                    filename=utils.convFileName(
+                                                        filename
+                                                    ),
+                                                ),
+                                                reference=msg_item_id,
+                                            )
+                                        else:
+                                            await message.channel.send(
+                                                "⚠ 処理中に問題が発生しました。もう一度、最初から操作をやり直してください。"
+                                            )
+
+                                else:
+                                    await message.channel.send(
+                                        "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。",
+                                        reference=msg_item_id,
+                                    )
+    else:
+        if returnItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
+            await message.channel.send(
+                ":person_bowing: ロール **"
+                + utils.roleIdToName(
+                    int(database.getRole(message.channel.id)), message.guild
+                )
+                + "** に指示されている提出物は、今のところありません。\n"
+                + "したがって、何もダウンロードできるものはありません。",
+                reference=message,
+            )
+        else:
+            msg_ask_item = await message.channel.send(
+                "**"
+                + utils.roleIdToName(
+                    int(database.getRole(message.channel.id)), message.guild
+                )
+                + "** に提出が指示されたものは以下の通りです。 \n"
+                + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
+                + returnItem(message, "all"),
+                reference=message,
+            )
+            try:
+                msg_item_id = await client.wait_for("message", check=check, timeout=60)
+            except asyncio.TimeoutError:
+                await message.channel.send(
+                    "⚠ タイムアウトしました。もう一度、最初から操作をやり直してください。", reference=msg_ask_item
+                )
+            else:
+                item_id = unicodedata.normalize("NFKC", msg_item_id.content)
+                if item_id.isdigit():
+                    if database.getItemLimit(item_id) is None:
+                        await message.channel.send(
+                            "⚠ 指定された ID **" + item_id + "** を持つ提出先が見つかりませんでした。",
+                            reference=msg_item_id,
+                        )
+                    else:
+                        submit_list = database.getSubmitList(
+                            item_id, database.getRole(message.channel.id)
+                        )
+                        # ファイルの場合
+                        if database.getItemFormat(item_id) == "file":
+                            item_name = database.getItemName(item_id)
+                            submit_list = database.getSubmitList(item_id, None)
+                            submits = database.getSubmitList(item_id, None)
+                            filename = (
+                                utils.convFileName(item_name)
+                                + "_"
+                                + utils.dtToStrFileName(datetime.datetime.now())
+                            )
+                            zip_path = "./data/zip/" + filename + ".zip"
+                            zip_f = zipfile.ZipFile(zip_path, "w")
+
+                            for submit in submits:
+                                zip_f.write(
+                                    submit.path,
+                                    compress_type=zipfile.ZIP_DEFLATED,
+                                )
+
+                            zip_f.close()
+
+                            await message.channel.send(
+                                "✅ **" + item_name + "** の全ファイルを送信します: \n",
+                                file=discord.File(zip_path, filename=filename),
+                                reference=msg_item_id,
+                            )
                         elif database.getItemFormat(item_id) == "plain":
                             tmp_dir = "./data/tmp"
                             if not os.path.exists(tmp_dir):

@@ -34,6 +34,9 @@ class doCommand(discord.ui.Button):
         elif label == "💾 提出したファイルをダウンロードする" or label == "💾 提出されたファイルをダウンロードする":
             await interaction.response.send_message("提出したファイルのダウンロードをご案内します...")
             await submission.getSubmitInteract(client, message)
+        elif label == "💿 提出先のファイルを一括ダウンロードする":
+            await interaction.response.send_message("提出先のファイルの一括ダウンロードをご案内します...")
+            await submission.getAllFilesInteract(client, message)
         elif label == "📜 プレーンテキストを提出する":
             await interaction.response.send_message("プレーンテキストの提出をご案内します...")
             await submission.submitPlainTextInteract(client, message)
@@ -91,6 +94,7 @@ async def showMenu(client, message):
                 "✅ 提出物の承認",
                 "🏷️ 提出履歴を見る",
                 "💾 提出されたファイルをダウンロードする",
+                "💿 提出先のファイルを一括ダウンロードする",
             ]
             await message.channel.send(
                 ":open_file_folder: 提出先 / 提出物の管理について", view=initButton(args)
