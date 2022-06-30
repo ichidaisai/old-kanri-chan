@@ -1691,15 +1691,29 @@ async def getAllFilesInteract(client, message):
 
                                             zip_f.close()
 
-                                            await message.channel.send(
-                                                "✅ **"
-                                                + item_name
-                                                + "** の全ファイルを送信します: \n",
-                                                file=discord.File(
-                                                    zip_path, filename=filename + ".zip"
-                                                ),
-                                                reference=msg_item_id,
-                                            )
+                                            try:
+                                                await message.channel.send(
+                                                    "✅ **"
+                                                    + item_name
+                                                    + "** の全ファイルを送信します: \n",
+                                                    file=discord.File(
+                                                        zip_path,
+                                                        filename=filename + ".zip",
+                                                    ),
+                                                    reference=msg_item_id,
+                                                )
+                                            except HTTPException as e:
+                                                await message.channel.send(
+                                                    "❌ **"
+                                                    + item_name
+                                                    + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
+                                                    + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
+                                                    + "以下にエラーログを示します:\n"
+                                                    + "```\n"
+                                                    + str(e)
+                                                    + "```\n",
+                                                    reference=msg_item_id,
+                                                )
                                         elif database.getItemFormat(item_id) == "plain":
                                             tmp_dir = "./data/tmp"
                                             if not os.path.exists(tmp_dir):
