@@ -1,6 +1,7 @@
 # 外部ライブラリ
 import discord
 import tempfile
+import request
 import zipfile
 from parse import *
 import datetime
@@ -1714,6 +1715,34 @@ async def getAllFilesInteract(client, message):
                                                     + "```\n",
                                                     reference=msg_item_id,
                                                 )
+                                                await message.channel.send(
+                                                    ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
+                                                    reference=msg_item_id,
+                                                )
+
+                                                anon_files = {
+                                                    "file": (
+                                                        filename + ".zip",
+                                                        open(zip_path, "rb"),
+                                                    ),
+                                                }
+                                                anon_api = (
+                                                    "https://api.anonfiles.com/upload"
+                                                )
+                                                response = requests.post(
+                                                    anon_api, files=anon_files
+                                                ).json()
+
+                                                await message.channel.send(
+                                                    "✅ **"
+                                                    + item_name
+                                                    + "** の全ファイルを送信します: \n"
+                                                    + response["data"]["file"]["url"][
+                                                        "short"
+                                                    ],
+                                                    reference=msg_item_id,
+                                                )
+
                                         elif database.getItemFormat(item_id) == "plain":
                                             tmp_dir = "./data/tmp"
                                             if not os.path.exists(tmp_dir):
