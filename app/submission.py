@@ -1,7 +1,7 @@
 # 外部ライブラリ
 import discord
 import tempfile
-import request
+import requests
 import zipfile
 from parse import *
 import datetime
