@@ -1676,7 +1676,7 @@ async def getAllFilesInteract(client, message):
                                             for submit in submits:
                                                 zip_f.write(
                                                     submit.path,
-                                                    compress_type=zipfile.zipfile.ZIP_LZMA,
+                                                    compress_type=zipfile.ZIP_LZMA,
                                                     arcname=submit.path.replace(
                                                         "./data/posts/",
                                                         "./"
@@ -1883,9 +1883,7 @@ async def getAllFilesInteract(client, message):
 
                             try:
                                 await message.channel.send(
-                                    "✅ **"
-                                    + item_name
-                                    + "** の全ファイルを送信します: \n",
+                                    "✅ **" + item_name + "** の全ファイルを送信します: \n",
                                     file=discord.File(
                                         zip_path,
                                         filename=filename + ".zip",
