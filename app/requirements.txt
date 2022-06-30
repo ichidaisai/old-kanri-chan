@@ -8,3 +8,4 @@ pykakasi
 unicodedata2
 pandas
 openpyxl
+requests
