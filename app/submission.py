@@ -2301,7 +2301,7 @@ async def verifySubmitInteract(client, message):
                                         message.guild,
                                     )
                                     + ") の提出履歴です。\n",
-                                    reference=msg_item_id,
+                                    reference=m_item_id,
                                     file=discord.File(path),
                                 )
                                 if list_fmt == "まだ、この項目に対して何も提出されていません。":
