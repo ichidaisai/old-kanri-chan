@@ -2287,6 +2287,11 @@ async def verifySubmitInteract(client, message):
                                     client, message.guild, submit_list, "all"
                                 )
 
+                                path = "./data/res.txt"
+
+                                with open(path, mode="w") as f:
+                                    f.write(list_fmt)
+
                                 await message.channel.send(
                                     ":information_source: 以下が提出先 **"
                                     + database.getItemName(item_id)
@@ -2295,9 +2300,9 @@ async def verifySubmitInteract(client, message):
                                         database.getItemTarget(item_id),
                                         message.guild,
                                     )
-                                    + ") の提出履歴です。\n"
-                                    + list_fmt,
-                                    reference=m_item_id,
+                                    + ") の提出履歴です。\n",
+                                    reference=msg_item_id,
+                                    file=discord.File(path),
                                 )
                                 if list_fmt == "まだ、この項目に対して何も提出されていません。":
                                     pass
