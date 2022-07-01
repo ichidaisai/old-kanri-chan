@@ -50,7 +50,6 @@ def userIdToName(guild, user_id):
     if user is None:
         return None
     else:
-        print("bbb")
         if user.nick is None:
             return user.name
         else:
