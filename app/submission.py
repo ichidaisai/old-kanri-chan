@@ -1244,8 +1244,7 @@ async def getSubmitInteract(client, message):
                                                     message.guild,
                                                 )
                                                 + ") の提出履歴です。\n"
-                                                + "ダウンロードしたいファイルを選んでください。\n"
-                                                + list_fmt,
+                                                + "ダウンロードしたいファイルを選んでください。\n",
                                                 reference=msg_item_id,
                                                 file=discord.File(path),
                                             )
@@ -1464,8 +1463,7 @@ async def getSubmitInteract(client, message):
                                     database.getRole(message.channel.id), message.guild
                                 )
                                 + ") の提出履歴です。\n"
-                                + "ダウンロードしたいファイルを選んでください。\n\n"
-                                + list_fmt,
+                                + "ダウンロードしたいファイルを選んでください。\n\n",
                                 reference=msg_item_id,
                                 file=discord.File(path),
                             )
@@ -1736,7 +1734,7 @@ async def getAllFilesInteract(client, message):
                                                         reference=msg_item_id,
                                                     )
                                                     await message.channel.send(
-                                                        ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
+                                                        ":arrow_right: 代わりに、他の場所からファイルを提供します...",
                                                         reference=msg_item_id,
                                                     )
 
@@ -1746,7 +1744,7 @@ async def getAllFilesInteract(client, message):
                                                             open(zip_path, "rb"),
                                                         ),
                                                     }
-                                                    anon_api = "https://api.anonfiles.com/upload"
+                                                    base_url = 
                                                     response = requests.post(
                                                         anon_api, files=anon_files
                                                     ).json()
