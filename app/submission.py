@@ -551,7 +551,7 @@ async def delItemInteract(client, message):
                             reference=msg,
                         )
                     else:
-                        item_list = returnItemByRoleId(target.id, "all")
+                        item_list = returnAllItemByRoleId(target.id, "all")
                         if item_list == "今のところ、提出を指示されている項目はありません。":
                             await message.channel.send(
                                 "今のところ、"
@@ -686,7 +686,7 @@ async def listItem(client, message):
                             "**"
                             + utils.roleIdToName(target.id, message.guild)
                             + "** に提出が指示された提出先は以下の通りです: \n"
-                            + returnItemByRoleId(target.id, "all"),
+                            + returnAllItemByRoleId(target.id, "all"),
                             reference=msg,
                         )
     else:
@@ -893,7 +893,7 @@ def returnItem(message, format):
 def returnItemByRoleId(role_id, format):
     items = ""
     for item in database.showItem(role_id, format):
-        if item.limit > datetime.datetime.now():
+        if item.limit > datetime.datetime.now() and item.deleted is False:
             items += "\n"
             items += "🆔 提出先 ID: " + str(item.id) + "\n"
             items += "📛 項目名: " + item.name + "\n"
@@ -905,7 +905,7 @@ def returnItemByRoleId(role_id, format):
             else:
                 items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     for item in database.showItem(int(database.getMemberRole()), format):
-        if item.limit > datetime.datetime.now():
+        if item.limit > datetime.datetime.now() and item.deleted is False:
             items += "\n"
             items += "🆔 提出先 ID: " + str(item.id) + "\n"
             items += "📛 項目名: " + item.name + "\n"
@@ -918,7 +918,56 @@ def returnItemByRoleId(role_id, format):
                 items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if not database.isParentRole(role_id):
         for item in database.showItem(database.getParentRole(role_id), format):
-            if item.limit > datetime.datetime.now():
+            if item.limit > datetime.datetime.now() and item.deleted is False:
+                items += "\n"
+                items += "🆔 提出先 ID: " + str(item.id) + "\n"
+                items += "📛 項目名: " + item.name + "\n"
+                items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+                if item.format == "file":
+                    items += "💾 提出形式: 📄 ファイル\n"
+                elif item.format == "plain":
+                    items += "💾 提出形式: 📜 プレーンテキスト\n"
+                else:
+                    items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    if items == "":
+        items += "今のところ、提出を指示されている項目はありません。"
+    return items
+
+
+# 提出先の一覧を整形して str として返す (全期間, Discord 上のロール ID で絞り込む)
+## format:
+## all: すべての提出形式の提出先を返す
+## file: ファイル形式の提出先を返す
+## plain: プレーンテキスト形式の提出先を返す
+def returnAllItemByRoleId(role_id, format):
+    items = ""
+    for item in database.showItem(role_id, format):
+        if item.deleted is False:
+            items += "\n"
+            items += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items += "📛 項目名: " + item.name + "\n"
+            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    for item in database.showItem(int(database.getMemberRole()), format):
+        if item.deleted is False:
+            items += "\n"
+            items += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items += "📛 項目名: " + item.name + "\n"
+            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    if not database.isParentRole(role_id):
+        for item in database.showItem(database.getParentRole(role_id), format):
+            if item.deleted is False:
                 items += "\n"
                 items += "🆔 提出先 ID: " + str(item.id) + "\n"
                 items += "📛 項目名: " + item.name + "\n"
@@ -970,10 +1019,6 @@ async def listSubmitInteract(client, message):
                         reference=msg_role,
                     )
                 else:
-                    # if (
-                    #     database.getTc(target.id, "post") is None
-                    #     and database.isParentRole(target.id) is False
-                    # ):
                     if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
@@ -983,7 +1028,7 @@ async def listSubmitInteract(client, message):
                         )
                     else:
                         if (
-                            returnItemByRoleId(target.id, "all")
+                            returnAllItemByRoleId(target.id, "all")
                             == "今のところ、提出を指示されている項目はありません。"
                         ):
                             await message.channel.send(
@@ -998,7 +1043,7 @@ async def listSubmitInteract(client, message):
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
                                 + "履歴を閲覧したい項目の提出先 ID をこのチャンネルで発言してください。"
-                                + returnItemByRoleId(target.id, "all"),
+                                + returnAllItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
                             try:
@@ -1164,10 +1209,6 @@ async def getSubmitInteract(client, message):
                         reference=msg_role,
                     )
                 else:
-                    # if (
-                    #     database.getTc(target.id, "post") is None
-                    #     and database.isParentRole(target.id) is False
-                    # ):
                     if utils.isStaffRole(target.id):
                         await message.channel.send(
                             "⚠ ロール **"
@@ -1177,7 +1218,7 @@ async def getSubmitInteract(client, message):
                         )
                     else:
                         if (
-                            returnItemByRoleId(target.id, "all")
+                            returnAllItemByRoleId(target.id, "all")
                             == "今のところ、提出を指示されている項目はありません。"
                         ):
                             await message.channel.send(
@@ -1192,7 +1233,7 @@ async def getSubmitInteract(client, message):
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
                                 + "ダウンロードしたい項目の提出先 ID をこのチャンネルで発言してください。"
-                                + returnItemByRoleId(target.id, "all"),
+                                + returnAllItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
                             try:
@@ -1628,7 +1669,7 @@ async def getAllFilesInteract(client, message):
                         )
                     else:
                         if (
-                            returnItemByRoleId(target.id, "all")
+                            returnAllItemByRoleId(target.id, "all")
                             == "今のところ、提出を指示されている項目はありません。"
                         ):
                             await message.channel.send(
@@ -1643,7 +1684,7 @@ async def getAllFilesInteract(client, message):
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
                                 + "ダウンロードしたい項目の提出先 ID をこのチャンネルで発言してください。"
-                                + returnItemByRoleId(target.id, "all"),
+                                + returnAllItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
                             try:
@@ -2241,17 +2282,13 @@ async def verifySubmitInteract(client, message):
                     reference=m_role_name,
                 )
             else:
-                # if (
-                #     database.getTc(target.id, "post") is None
-                #     and database.isParentRole(target.id) is False
-                # ):
                 if utils.isStaffRole(target.id):
                     await message.channel.send(
                         "⚠ ロール **" + target.name + "** は、提出を指示する先のロールとしては登録されていません。",
                         reference=m_role_name,
                     )
                 else:
-                    item_list = returnItemByRoleId(target.id, "all")
+                    item_list = returnAllItemByRoleId(target.id, "all")
                     if item_list == "今のところ、提出を指示されている項目はありません。":
                         await message.channel.send(
                             "**"
@@ -2264,7 +2301,7 @@ async def verifySubmitInteract(client, message):
                             "**"
                             + utils.roleIdToName(target.id, message.guild)
                             + "** に提出が指示された提出物は以下の通りです: \n"
-                            + returnItemByRoleId(target.id, "all")
+                            + returnAllItemByRoleId(target.id, "all")
                             + "\n目的の提出先 ID をの提出先 ID をこのチャンネルで発言してください。",
                             reference=m_role_name,
                         )
@@ -2532,10 +2569,6 @@ async def checkSubmitInteract(client, message):
                     reference=m_target,
                 )
             else:
-                # if (
-                #     database.getTc(target.id, "post") is None
-                #     and database.isParentRole(target.id) is False
-                # ):
                 if utils.isStaffRole(target.id):
                     await message.channel.send(
                         "⚠ ロール **"
@@ -2545,7 +2578,7 @@ async def checkSubmitInteract(client, message):
                         reference=m_target,
                     )
                 else:
-                    item_list = returnItemByRoleId(target.id, "all")
+                    item_list = returnAllItemByRoleId(target.id, "all")
                     if item_list == "今のところ、提出を指示されている項目はありません。":
                         await message.channel.send(
                             "**"
