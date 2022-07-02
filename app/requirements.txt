@@ -9,3 +9,4 @@ unicodedata2
 pandas
 openpyxl
 requests
+pyngrok
