@@ -1778,24 +1778,17 @@ async def getAllFilesInteract(client, message):
                                                         reference=msg_item_id,
                                                     )
 
-                                                    anon_files = {
-                                                        "file": (
-                                                            filename + ".zip",
-                                                            open(zip_path, "rb"),
-                                                        ),
-                                                    }
-                                                    anon_api = "https://api.anonfiles.com/upload"
-                                                    response = requests.post(
-                                                        anon_api, files=anon_files
-                                                    ).json()
+                                                    dest_url = (
+                                                        "https://cdn.ichidaisai.com/files/"
+                                                        + filename
+                                                        + ".zip"
+                                                    )
 
                                                     await message.channel.send(
                                                         "✅ **"
                                                         + item_name
                                                         + "** の全ファイルを送信します: \n"
-                                                        + response["data"]["file"][
-                                                            "url"
-                                                        ]["short"],
+                                                        + dest_url,
                                                         reference=msg_item_id,
                                                     )
 
