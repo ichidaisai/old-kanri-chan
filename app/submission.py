@@ -1119,8 +1119,7 @@ async def listSubmitInteract(client, message):
                             + utils.roleIdToName(
                                 database.getRole(message.channel.id), message.guild
                             )
-                            + ") の提出履歴です。\n"
-                            + list_fmt,
+                            + ") の提出履歴です。\n",
                             reference=msg_item_id,
                             file=discord.File(path),
                         )
@@ -1229,7 +1228,7 @@ async def getSubmitInteract(client, message):
                                                 submit_list,
                                                 "file",
                                             )
-                                            
+
                                             path = "./data/res.txt"
 
                                             with open(path, mode="w") as f:
@@ -1445,7 +1444,7 @@ async def getSubmitInteract(client, message):
                             list_fmt = formatSubmitList(
                                 client, message.guild, submit_list, "file"
                             )
-                            
+
                             path = "./data/res.txt"
 
                             with open(path, mode="w") as f:
@@ -1744,7 +1743,7 @@ async def getAllFilesInteract(client, message):
                                                             open(zip_path, "rb"),
                                                         ),
                                                     }
-                                                    base_url = 
+                                                    anon_api = "https://api.anonfiles.com/upload"
                                                     response = requests.post(
                                                         anon_api, files=anon_files
                                                     ).json()
