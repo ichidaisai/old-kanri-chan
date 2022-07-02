@@ -1050,8 +1050,6 @@ async def listSubmitInteract(client, message):
                                             reference=msg_item_id,
                                             file=discord.File(path),
                                         )
-
-                                        fp.close()
                                 else:
                                     await message.channel.send(
                                         "⚠ 番号で提出先 ID を指定してください。もう一度、最初から操作をやり直してください。",
@@ -1105,6 +1103,11 @@ async def listSubmitInteract(client, message):
                             client, message.guild, submit_list, "all"
                         )
 
+                        path = "./data/res.txt"
+
+                        with open(path, mode="w") as f:
+                            f.write(list_fmt)
+
                         await message.channel.send(
                             ":information_source: 以下が提出先 **"
                             + database.getItemName(item_id)
@@ -1119,6 +1122,7 @@ async def listSubmitInteract(client, message):
                             + ") の提出履歴です。\n"
                             + list_fmt,
                             reference=msg_item_id,
+                            file=discord.File(path),
                         )
                 else:
                     await message.channel.send(
@@ -1225,6 +1229,11 @@ async def getSubmitInteract(client, message):
                                                 submit_list,
                                                 "file",
                                             )
+                                            
+                                            path = "./data/res.txt"
+
+                                            with open(path, mode="w") as f:
+                                                f.write(list_fmt)
 
                                             msg_ask_file = await message.channel.send(
                                                 ":information_source: 以下が提出先 **"
@@ -1238,6 +1247,7 @@ async def getSubmitInteract(client, message):
                                                 + "ダウンロードしたいファイルを選んでください。\n"
                                                 + list_fmt,
                                                 reference=msg_item_id,
+                                                file=discord.File(path),
                                             )
 
                                             try:
@@ -1436,6 +1446,11 @@ async def getSubmitInteract(client, message):
                             list_fmt = formatSubmitList(
                                 client, message.guild, submit_list, "file"
                             )
+                            
+                            path = "./data/res.txt"
+
+                            with open(path, mode="w") as f:
+                                f.write(list_fmt)
 
                             msg_ask_file = await message.channel.send(
                                 ":information_source: 以下が提出先 **"
@@ -1452,6 +1467,7 @@ async def getSubmitInteract(client, message):
                                 + "ダウンロードしたいファイルを選んでください。\n\n"
                                 + list_fmt,
                                 reference=msg_item_id,
+                                file=discord.File(path),
                             )
                             try:
                                 msg_submit_id = await client.wait_for(
