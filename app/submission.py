@@ -1728,6 +1728,11 @@ async def getAllFilesInteract(client, message):
                                                         datetime.datetime.now()
                                                     )
                                                 )
+                                                # Replace not-suitable characters
+                                                filename = filename.replace(" <#", "")
+                                                filename = filename.replace("> ", "")
+                                                filename = filename.replace(",", "")
+
                                                 zip_path = (
                                                     "./data/zip/" + filename + ".zip"
                                                 )
