@@ -52,7 +52,7 @@ services:
         target: "/var/www/html/files"
   
   cloudflared:
-    image: ghcr.io/milgradesec/cloudflared:latest
+    image: cloudflare/cloudflared:2022.6.3-amd64
     user: root
     command: tunnel --hostname cdn.ichidaisai.com --url http://h2o:80
     volumes:
