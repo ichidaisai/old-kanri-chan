@@ -1369,7 +1369,7 @@ async def getSubmitInteract(client, message):
                                                 )
                                                 submit_author_list.append(
                                                     utils.userIdToName(
-                                                        client, submit.author
+                                                        guild, submit.author
                                                     )
                                                 )
                                                 submit_author_role_list.append(
@@ -1832,7 +1832,7 @@ async def getAllFilesInteract(client, message):
                                                 )
                                                 submit_author_list.append(
                                                     utils.userIdToName(
-                                                        client, submit.author
+                                                        guild, submit.author
                                                     )
                                                 )
                                                 submit_author_role_list.append(
