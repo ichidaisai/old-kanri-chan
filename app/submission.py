@@ -1364,7 +1364,7 @@ async def getSubmitInteract(client, message):
                                             submit_author_list = []
                                             submit_author_role_list = []
                                             submit_plain_list = []
-                                            submit_verified_list = []
+                                            # submit_verified_list = []
 
                                             for submit in submit_list:
                                                 submit_id_list.append(submit.id)
@@ -1388,17 +1388,17 @@ async def getSubmitInteract(client, message):
                                                     submit_plain_list.append(
                                                         submit.plain
                                                     )
-                                                if submit.verified:
-                                                    submit_verified_list.append("済")
-                                                else:
-                                                    submit_verified_list.append("未")
+                                                # if submit.verified:
+                                                #     submit_verified_list.append("済")
+                                                # else:
+                                                #     submit_verified_list.append("未")
 
                                             export_list.append(submit_id_list)
                                             export_list.append(submit_datetime_list)
                                             export_list.append(submit_author_list)
                                             export_list.append(submit_author_role_list)
                                             export_list.append(submit_plain_list)
-                                            export_list.append(submit_verified_list)
+                                            # export_list.append(submit_verified_list)
 
                                             df = pd.DataFrame(export_list)
                                             df.index = [
@@ -1407,7 +1407,7 @@ async def getSubmitInteract(client, message):
                                                 "提出者",
                                                 "提出元ロール",
                                                 "提出内容",
-                                                "承認",
+                                                # "承認",
                                             ]
 
                                             df.T.to_excel(
@@ -1566,7 +1566,7 @@ async def getSubmitInteract(client, message):
                             submit_author_list = []
                             submit_author_role_list = []
                             submit_plain_list = []
-                            submit_verified_list = []
+                            # submit_verified_list = []
 
                             for submit in submit_list:
                                 submit_id_list.append(submit.id)
@@ -1585,20 +1585,20 @@ async def getSubmitInteract(client, message):
                                     submit_plain_list.append("未記入")
                                 else:
                                     submit_plain_list.append(submit.plain)
-                                if submit.verified:
-                                    submit_verified_list.append("済")
-                                else:
-                                    submit_verified_list.append("未")
+                                # if submit.verified:
+                                #     submit_verified_list.append("済")
+                                # else:
+                                #     submit_verified_list.append("未")
 
                             export_list.append(submit_id_list)
                             export_list.append(submit_datetime_list)
                             export_list.append(submit_author_list)
                             export_list.append(submit_author_role_list)
                             export_list.append(submit_plain_list)
-                            export_list.append(submit_verified_list)
+                            # export_list.append(submit_verified_list)
 
                             df = pd.DataFrame(export_list)
-                            df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
+                            df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容"]
 
                             df.T.to_excel(
                                 save_path, sheet_name=database.getItemName(item_id)
@@ -1827,7 +1827,7 @@ async def getAllFilesInteract(client, message):
                                             submit_author_list = []
                                             submit_author_role_list = []
                                             submit_plain_list = []
-                                            submit_verified_list = []
+                                            # submit_verified_list = []
 
                                             for submit in submit_list:
                                                 submit_id_list.append(submit.id)
@@ -1851,17 +1851,17 @@ async def getAllFilesInteract(client, message):
                                                     submit_plain_list.append(
                                                         submit.plain
                                                     )
-                                                if submit.verified:
-                                                    submit_verified_list.append("済")
-                                                else:
-                                                    submit_verified_list.append("未")
+                                                # if submit.verified:
+                                                #     submit_verified_list.append("済")
+                                                # else:
+                                                #     submit_verified_list.append("未")
 
                                             export_list.append(submit_id_list)
                                             export_list.append(submit_datetime_list)
                                             export_list.append(submit_author_list)
                                             export_list.append(submit_author_role_list)
                                             export_list.append(submit_plain_list)
-                                            export_list.append(submit_verified_list)
+                                            # export_list.append(submit_verified_list)
 
                                             df = pd.DataFrame(export_list)
                                             df.index = [
@@ -1870,7 +1870,7 @@ async def getAllFilesInteract(client, message):
                                                 "提出者",
                                                 "提出元ロール",
                                                 "提出内容",
-                                                "承認",
+                                                # "承認",
                                             ]
 
                                             df.T.to_excel(
@@ -2042,7 +2042,7 @@ async def getAllFilesInteract(client, message):
                             submit_author_list = []
                             submit_author_role_list = []
                             submit_plain_list = []
-                            submit_verified_list = []
+                            # submit_verified_list = []
 
                             for submit in submit_list:
                                 submit_id_list.append(submit.id)
@@ -2061,20 +2061,20 @@ async def getAllFilesInteract(client, message):
                                     submit_plain_list.append("未記入")
                                 else:
                                     submit_plain_list.append(submit.plain)
-                                if submit.verified:
-                                    submit_verified_list.append("済")
-                                else:
-                                    submit_verified_list.append("未")
+                                # if submit.verified:
+                                #     submit_verified_list.append("済")
+                                # else:
+                                #     submit_verified_list.append("未")
 
                             export_list.append(submit_id_list)
                             export_list.append(submit_datetime_list)
                             export_list.append(submit_author_list)
                             export_list.append(submit_author_role_list)
                             export_list.append(submit_plain_list)
-                            export_list.append(submit_verified_list)
+                            # export_list.append(submit_verified_list)
 
                             df = pd.DataFrame(export_list)
-                            df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容", "承認"]
+                            df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容"]
 
                             df.T.to_excel(
                                 save_path, sheet_name=database.getItemName(item_id)
@@ -2118,10 +2118,10 @@ def formatSubmit(client, guild, submit):
         + utils.userIdToName(guild, submit.author)
         + "\n"
     )
-    if submit.verified:
-        fmt += "✅ 委員会からの承認: **済**\n"
-    else:
-        fmt += "✅ 委員会からの承認: **未**\n"
+    # if submit.verified:
+    #     fmt += "✅ 委員会からの承認: **済**\n"
+    # else:
+    #     fmt += "✅ 委員会からの承認: **未**\n"
     fmt += "\n"
 
     return fmt
@@ -2149,10 +2149,10 @@ def formatSubmitList(client, guild, submit_list, format):
                     + ")"
                     + "\n"
                 )
-                if submit.verified:
-                    list_fmt += "委員会からの承認: 済\n"
-                else:
-                    list_fmt += "委員会からの承認: 未\n"
+                # if submit.verified:
+                #     list_fmt += "委員会からの承認: 済\n"
+                # else:
+                #     list_fmt += "委員会からの承認: 未\n"
                 list_fmt += "\n"
             elif format == "file":
                 if submit.format == "file":
@@ -2167,10 +2167,10 @@ def formatSubmitList(client, guild, submit_list, format):
                         + ")"
                         + "\n"
                     )
-                    if submit.verified:
-                        list_fmt += "委員会からの承認: 済\n"
-                    else:
-                        list_fmt += "委員会からの承認: 未\n"
+                    # if submit.verified:
+                    #     list_fmt += "委員会からの承認: 済\n"
+                    # else:
+                    #     list_fmt += "委員会からの承認: 未\n"
                     list_fmt += "\n"
             elif format == "plain":
                 list_fmt += "🆔 提出 ID: " + str(submit.id) + "\n"
@@ -2184,10 +2184,10 @@ def formatSubmitList(client, guild, submit_list, format):
                     + ")"
                     + "\n"
                 )
-                if submit.verified:
-                    list_fmt += "委員会からの承認: 済\n"
-                else:
-                    list_fmt += "委員会からの承認: 未\n"
+                # if submit.verified:
+                #     list_fmt += "委員会からの承認: 済\n"
+                # else:
+                #     list_fmt += "委員会からの承認: 未\n"
                 list_fmt += "\n"
             else:
                 list_fmt += ""

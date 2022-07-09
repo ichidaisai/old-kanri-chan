@@ -55,9 +55,9 @@ class doCommand(discord.ui.Button):
         elif label == "📥 提出状況の確認":
             await interaction.response.send_message("提出状況の確認をご案内します...")
             await submission.checkSubmitInteract(client, message)
-        elif label == "✅ 提出物の承認":
-            await interaction.response.send_message("提出物の承認をご案内します...")
-            await submission.verifySubmitInteract(client, message)
+        # elif label == "✅ 提出物の承認":
+        #     await interaction.response.send_message("提出物の承認をご案内します...")
+        #     await submission.verifySubmitInteract(client, message)
         ## リマインダーの管理
         elif label == "➕ リマインダーの追加":
             await interaction.response.send_message("リマインダーの追加をご案内します...")
@@ -91,7 +91,7 @@ async def showMenu(client, message):
                 "➕ 提出先の作成",
                 "➖ 提出先の削除",
                 "📥 提出状況の確認",
-                "✅ 提出物の承認",
+                # "✅ 提出物の承認",
                 "🏷️ 提出履歴を見る",
                 "💾 提出されたファイルをダウンロードする",
                 "💿 提出先のファイルを一括ダウンロードする",
