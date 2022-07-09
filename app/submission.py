@@ -940,47 +940,51 @@ def returnItemByRoleId(role_id, format):
 ## file: ファイル形式の提出先を返す
 ## plain: プレーンテキスト形式の提出先を返す
 def returnAllItemByRoleId(role_id, format):
-    items = ""
+    items_fmt = ""
+    items = []
     for item in database.showItem(role_id, format):
-        if item.deleted is False:
-            items += "\n"
-            items += "🆔 提出先 ID: " + str(item.id) + "\n"
-            items += "📛 項目名: " + item.name + "\n"
-            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+        if item.deleted is False and item.id not in items:
+            items.append(item.id)
+            items_fmt += "\n"
+            items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items_fmt += "📛 項目名: " + item.name + "\n"
+            items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
             if item.format == "file":
-                items += "💾 提出形式: 📄 ファイル\n"
+                items_fmt += "💾 提出形式: 📄 ファイル\n"
             elif item.format == "plain":
-                items += "💾 提出形式: 📜 プレーンテキスト\n"
+                items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
             else:
-                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+                items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     for item in database.showItem(int(database.getMemberRole()), format):
-        if item.deleted is False:
-            items += "\n"
-            items += "🆔 提出先 ID: " + str(item.id) + "\n"
-            items += "📛 項目名: " + item.name + "\n"
-            items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+        if item.deleted is False and item.id not in items:
+            items.append(item.id)
+            items_fmt += "\n"
+            items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items_fmt += "📛 項目名: " + item.name + "\n"
+            items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
             if item.format == "file":
-                items += "💾 提出形式: 📄 ファイル\n"
+                items_fmt += "💾 提出形式: 📄 ファイル\n"
             elif item.format == "plain":
-                items += "💾 提出形式: 📜 プレーンテキスト\n"
+                items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
             else:
-                items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+                items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if not database.isParentRole(role_id):
         for item in database.showItem(database.getParentRole(role_id), format):
-            if item.deleted is False:
-                items += "\n"
-                items += "🆔 提出先 ID: " + str(item.id) + "\n"
-                items += "📛 項目名: " + item.name + "\n"
-                items += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.deleted is False and item.id not in items:
+                items.append(item.id)
+                items_fmt += "\n"
+                items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+                items_fmt += "📛 項目名: " + item.name + "\n"
+                items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
                 if item.format == "file":
-                    items += "💾 提出形式: 📄 ファイル\n"
+                    items_fmt += "💾 提出形式: 📄 ファイル\n"
                 elif item.format == "plain":
-                    items += "💾 提出形式: 📜 プレーンテキスト\n"
+                    items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
                 else:
-                    items += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+                    items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
     if items == "":
-        items += "今のところ、提出を指示されている項目はありません。"
-    return items
+        items_fmt += "今のところ、提出を指示されている項目はありません。"
+    return items_fmt
 
 
 async def listSubmitInteract(client, message):
