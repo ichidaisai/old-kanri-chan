@@ -1836,7 +1836,7 @@ async def getAllFilesInteract(client, message):
                                                 )
                                                 submit_author_list.append(
                                                     utils.userIdToName(
-                                                        guild, submit.author
+                                                        message.guild, submit.author
                                                     )
                                                 )
                                                 submit_author_role_list.append(
