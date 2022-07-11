@@ -68,8 +68,8 @@ async def doResp(client, message):
         await submission.getSubmitInteract(client, message)
     elif message.content.startswith("!submit check"):
         await submission.checkSubmitInteract(client, message)
-    elif message.content.startswith("!submit verify"):
-        await submission.verifySubmitInteract(client, message)
+    # elif message.content.startswith("!submit verify"):
+    #     await submission.verifySubmitInteract(client, message)
     elif message.content == "提出":
         if database.isPostTc(message.channel.id):
             await submission.submitPlainTextInteract(client, message)
