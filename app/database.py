@@ -322,7 +322,7 @@ def setMemberRole(id):
         return True
 
 
-# getGuild: メンバー用ロールを返す
+# getMemberRole: メンバー用ロールを返す
 def getMemberRole():
     exists = session.query(Config).filter(Config.key == "member_role").first()
     if exists:
