@@ -9,10 +9,13 @@ from discord.ext import commands, tasks
 @tasks.loop(seconds=5)
 async def run(client):
     reminders = database.getReminder()
+    guild_id = ""
 
     for reminder in reminders:
         tc_id = database.getTc(reminder.target, "chat")
-        guild_id = database.getGuild()
+        if guild_id == "":
+            guild_id = database.getGuild()
+            
         tc = client.get_guild(int(guild_id)).get_channel(int(tc_id))
         item_name = database.getItemName(reminder.item_id)
         item_limit = utils.dtToStr(database.getItemLimit(reminder.item_id))
