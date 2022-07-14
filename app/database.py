@@ -786,35 +786,32 @@ def isParentRole(id):
 # getRecentSubmit: 指定した提出先 ID と提出元ロールに合致する提出物のうち、もっとも最新の提出を返す
 def getRecentSubmit(item_id, author_role):
     if author_role is None:
-        recent_sub_author_none = (
-            session.query(Submission.id, func.max(Submission.datetime))
-            .filter(
-                Submission.item_id == int(item_id),
-            )
-            .group_by(Submission.author_role)
-            .subquery("recent_sub_author_none")
-        )
         entries = (
             session.query(Submission)
-            .join(recent_sub_author_none, Submission.id == recent_sub_author_none.id)
+            .filter(
+                Submission.datetime.in_(
+                    session.query(func.max(Submission.datetime))
+                    .filter(
+                        Submission.item_id == int(item_id),
+                    )
+                    .group_by(Submission.author_role)
+                )
+            )
             .all()
         )
         return entries
     else:
-        recent_sub_author = (
-            session.query(Submission.id, func.max(Submission.datetime))
-            .filter(
-                Submission.item_id == int(item_id),
-                Submission.author_role == int(author_role),
-            )
-            .group_by(Submission.author_role)
-            .subquery("recent_sub_author")
-        )
         entries = (
             session.query(Submission)
-            .join(
-                recent_sub_author_none,
-                Submission.id == recent_sub_author.id,
+            .filter(
+                Submission.datetime.in_(
+                    session.query(func.max(Submission.datetime))
+                    .filter(
+                        Submission.item_id == int(item_id),
+                        Submission.author_role == int(author_role),
+                    )
+                    .group_by(Submission.author_role)
+                )
             )
             .all()
         )
