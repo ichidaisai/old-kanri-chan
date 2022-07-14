@@ -1473,6 +1473,7 @@ async def getSubmitInteract(client, message):
                                                 sheet_name=database.getItemName(
                                                     item_id
                                                 ),
+                                                index=False,
                                             )
 
                                             await message.channel.send(
@@ -1659,7 +1660,9 @@ async def getSubmitInteract(client, message):
                             df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容"]
 
                             df.T.to_excel(
-                                save_path, sheet_name=database.getItemName(item_id)
+                                save_path,
+                                sheet_name=database.getItemName(item_id),
+                                index=False,
                             )
 
                             await message.channel.send(
