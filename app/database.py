@@ -783,6 +783,32 @@ def isParentRole(id):
         return False
 
 
+# getRecentSubmit: 指定した提出先 ID と提出元ロールに合致する提出物のうち、もっとも最新の提出を返す
+def getRecentSubmit(item_id, author_role):
+    if author_role is None:
+        entries = (
+            session.query(Submission)
+            .filter(
+                Submission.item_id == int(item_id),
+            )
+            .group_by(Submission.author_role)
+            .order_by(desc(Submission.datetime))
+            .all()
+        )
+        return entries
+    else:
+        entries = (
+            session.query(Submission)
+            .filter(
+                Submission.item_id == int(item_id),
+                Submission.author_role == int(author_role),
+            )
+            .order_by(desc(Submission.datetime))
+            .all()
+        )
+        return entries
+
+
 # getParentRole(role_id): 指定したロールの親ロールを取得する
 def getParentRole(role_id):
     if isParentRole(role_id):

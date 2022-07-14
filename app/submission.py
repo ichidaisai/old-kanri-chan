@@ -1719,10 +1719,7 @@ async def getAllFilesInteract(client, message):
                                                 item_name = database.getItemName(
                                                     item_id
                                                 )
-                                                submit_list = database.getSubmitList(
-                                                    item_id, None
-                                                )
-                                                submits = database.getSubmitList(
+                                                submits = database.getRecentSubmit(
                                                     item_id, None
                                                 )
                                                 filename = (
@@ -1951,8 +1948,7 @@ async def getAllFilesInteract(client, message):
                         if database.getItemFormat(item_id) == "file":
                             async with message.channel.typing():
                                 item_name = database.getItemName(item_id)
-                                submit_list = database.getSubmitList(item_id, None)
-                                submits = database.getSubmitList(item_id, None)
+                                submits = database.getRecentSubmit(item_id, None)
                                 filename = (
                                     utils.convFileName(item_name)
                                     + "_"
