@@ -1783,13 +1783,7 @@ async def getAllFilesInteract(client, message):
                                                 submits = database.getRecentSubmit(
                                                     item_id, None
                                                 )
-                                                filename = (
-                                                    utils.convFileName(item_name)
-                                                    + "_"
-                                                    + utils.dtToStrFileName(
-                                                        datetime.datetime.now()
-                                                    )
-                                                )
+                                                filename = utils.convFileName(item_name)
                                                 # Replace not-suitable characters
                                                 filename = filename.replace(" <#", "")
                                                 filename = filename.replace("> ", "")
@@ -1804,10 +1798,7 @@ async def getAllFilesInteract(client, message):
                                                     zip_f.write(
                                                         submit.path,
                                                         compress_type=zipfile.ZIP_LZMA,
-                                                        arcname=submit.path.replace(
-                                                            "./data/posts/",
-                                                            "./",
-                                                        ),
+                                                        arcname=utils.roleIdToName(submit.author_role) + "." + submit.path.split(".")[-1],
                                                     )
 
                                                 zip_f.close()
@@ -1864,12 +1855,9 @@ async def getAllFilesInteract(client, message):
                                             JST = dateutil.tz.gettz("Asia/Tokyo")
                                             dt_now = datetime.datetime.now(JST)
                                             fmt_dt = utils.dtToStrFileName(dt_now)
-                                            # ファイル名の例: 2022-05-02_16-15_提出先A.csv
+                                            # ファイル名の例: 提出先A.csv
                                             filename = (
-                                                fmt_dt
-                                                + "_"
-                                                + database.getItemName(item_id)
-                                                + ".xlsx"
+                                                database.getItemName(item_id) + ".xlsx"
                                             )
                                             save_path = tmp_dir + "/" + filename
 
@@ -2006,11 +1994,7 @@ async def getAllFilesInteract(client, message):
                             async with message.channel.typing():
                                 item_name = database.getItemName(item_id)
                                 submits = database.getRecentSubmit(item_id, None)
-                                filename = (
-                                    utils.convFileName(item_name)
-                                    + "_"
-                                    + utils.dtToStrFileName(datetime.datetime.now())
-                                )
+                                filename = utils.convFileName(item_name)
                                 zip_path = "./data/zip/" + filename + ".zip"
                                 zip_f = zipfile.ZipFile(zip_path, "w")
 
@@ -2018,10 +2002,9 @@ async def getAllFilesInteract(client, message):
                                     zip_f.write(
                                         submit.path,
                                         compress_type=zipfile.ZIP_LZMA,
-                                        arcname=submit.path.replace(
-                                            "./data/posts/",
-                                            "./",
-                                        ),
+                                        arcname=utils.roleIdToName(submit.author_role)
+                                        + "."
+                                        + submit.path.split(".")[-1],
                                     )
 
                                 zip_f.close()
@@ -2037,37 +2020,21 @@ async def getAllFilesInteract(client, message):
                                     )
                                 except Exception as e:
                                     await message.channel.send(
-                                        "❌ **"
-                                        + item_name
-                                        + "** の全ファイルを送信しようとしたときに、エラーが発生しました。\n"
-                                        + "これは多くの場合、ボットが送信しようとしたファイルが大きすぎたときに発生します。\n"
-                                        + "以下にエラーログを示します:\n"
-                                        + "```\n"
-                                        + str(e)
-                                        + "```\n",
-                                        reference=msg_item_id,
-                                    )
-                                    await message.channel.send(
-                                        ":arrow_right: 代わりに、AnonFiles へのアップロードを試行します...",
+                                        ":arrow_right: 代わりに、他の場所からファイルを提供します...",
                                         reference=msg_item_id,
                                     )
 
-                                    anon_files = {
-                                        "file": (
-                                            filename + ".zip",
-                                            open(zip_path, "rb"),
-                                        ),
-                                    }
-                                    anon_api = "https://api.anonfiles.com/upload"
-                                    response = requests.post(
-                                        anon_api, files=anon_files
-                                    ).json()
+                                    dest_url = (
+                                        "https://cdn.ichidaisai.com/files/"
+                                        + filename
+                                        + ".zip"
+                                    )
 
                                     await message.channel.send(
                                         "✅ **"
                                         + item_name
                                         + "** の全ファイルを送信します: \n"
-                                        + response["data"]["file"]["url"]["short"],
+                                        + dest_url,
                                         reference=msg_item_id,
                                     )
                         elif database.getItemFormat(item_id) == "plain":
@@ -2078,9 +2045,7 @@ async def getAllFilesInteract(client, message):
                             dt_now = datetime.datetime.now(JST)
                             fmt_dt = utils.dtToStrFileName(dt_now)
                             # ファイル名の例: 2022-05-02_16-15_提出先A.csv
-                            filename = (
-                                fmt_dt + "_" + database.getItemName(item_id) + ".xlsx"
-                            )
+                            filename = database.getItemName(item_id) + ".xlsx"
                             save_path = tmp_dir + "/" + filename
 
                             # 各列のために用意する配列
