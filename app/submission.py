@@ -884,6 +884,7 @@ def returnItem(message, format):
         items += "今のところ、提出を指示されている項目はありません。"
     return items
 
+
 # 提出先のすべての一覧を整形して str として返す (テキストチャンネルの ID で絞り込む)
 ## format:
 ## all: すべての提出形式の提出先を返す
@@ -892,7 +893,7 @@ def returnItem(message, format):
 def returnAllItem(message, format):
     items_fmt = ""
     items = []
-    
+
     # 特定ロールのみに指示された提出先
     for item in database.showItem(database.getRole(message.channel.id), format):
         if item.id not in items:
@@ -1802,12 +1803,7 @@ async def getAllFilesInteract(client, message):
                                                         compress_type=zipfile.ZIP_LZMA,
                                                         arcname=submit.path.replace(
                                                             "./data/posts/",
-                                                            "./"
-                                                            + utils.roleIdToName(
-                                                                submit.author_role,
-                                                                message.guild,
-                                                            )
-                                                            + "/",
+                                                            "./",
                                                         ),
                                                     )
 
@@ -2020,12 +2016,7 @@ async def getAllFilesInteract(client, message):
                                         compress_type=zipfile.ZIP_LZMA,
                                         arcname=submit.path.replace(
                                             "./data/posts/",
-                                            "./"
-                                            + utils.roleIdToName(
-                                                submit.author_role,
-                                                message.guild,
-                                            )
-                                            + "/",
+                                            "./",
                                         ),
                                     )
 
