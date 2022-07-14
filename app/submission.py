@@ -1798,7 +1798,12 @@ async def getAllFilesInteract(client, message):
                                                     zip_f.write(
                                                         submit.path,
                                                         compress_type=zipfile.ZIP_LZMA,
-                                                        arcname=utils.roleIdToName(submit.author_role) + "." + submit.path.split(".")[-1],
+                                                        arcname=utils.roleIdToName(
+                                                            submit.author_role,
+                                                            message.guild,
+                                                        )
+                                                        + "."
+                                                        + submit.path.split(".")[-1],
                                                     )
 
                                                 zip_f.close()
@@ -2002,7 +2007,9 @@ async def getAllFilesInteract(client, message):
                                     zip_f.write(
                                         submit.path,
                                         compress_type=zipfile.ZIP_LZMA,
-                                        arcname=utils.roleIdToName(submit.author_role)
+                                        arcname=utils.roleIdToName(
+                                            submit.author_role, message.guild
+                                        )
                                         + "."
                                         + submit.path.split(".")[-1],
                                     )
