@@ -613,7 +613,7 @@ async def delItemInteract(client, message):
                 int(database.getRole(message.channel.id)), message.guild
             )
             + "** に提出が指示された提出先は以下の通りです: \n"
-            + returnItem(message, "all")
+            + returnAllItem(message, "all")
             + "\nどの提出先を削除しますか？"
         )
         try:
@@ -696,7 +696,7 @@ async def listItem(client, message):
                 int(database.getRole(message.channel.id)), message.guild
             )
             + "** に提出が指示された提出先は以下の通りです: \n"
-            + returnItem(message, "all"),
+            + returnAllItem(message, "all"),
             reference=message,
         )
 
@@ -883,6 +883,63 @@ def returnItem(message, format):
     if items == "":
         items += "今のところ、提出を指示されている項目はありません。"
     return items
+
+# 提出先のすべての一覧を整形して str として返す (テキストチャンネルの ID で絞り込む)
+## format:
+## all: すべての提出形式の提出先を返す
+## file: ファイル形式の提出先を返す
+## plain: プレーンテキスト形式の提出先を返す
+def returnAllItem(message, format):
+    items_fmt = ""
+    items = []
+    
+    # 特定ロールのみに指示された提出先
+    for item in database.showItem(database.getRole(message.channel.id), format):
+        if item.id not in items:
+            items.append(item.id)
+            items_fmt += "\n"
+            items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items_fmt += "📛 項目名: " + item.name + "\n"
+            items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items_fmt += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    # 親ロールに指示された提出先
+    for item in database.showItem(
+        database.getParentRole(database.getRole(message.channel.id)), format
+    ):
+        if item.id not in items:
+            items.append(item.id)
+            items_fmt += "\n"
+            items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items_fmt += "📛 項目名: " + item.name + "\n"
+            items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items_fmt += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    # すべての一般参加者に指示された提出先
+    for item in database.showItem(int(database.getMemberRole()), format):
+        if item.id not in items:
+            items.append(item.id)
+            items_fmt += "\n"
+            items_fmt += "🆔 提出先 ID: " + str(item.id) + "\n"
+            items_fmt += "📛 項目名: " + item.name + "\n"
+            items_fmt += "⏰ 提出期限: `" + utils.dtToStr(item.limit) + "`\n"
+            if item.format == "file":
+                items_fmt += "💾 提出形式: 📄 ファイル\n"
+            elif item.format == "plain":
+                items_fmt += "💾 提出形式: 📜 プレーンテキスト\n"
+            else:
+                items_fmt += "💾 提出形式: 不明。委員会までお問い合わせください。\n"
+    if items_fmt == "":
+        items_fmt += "今のところ、提出を指示されている項目はありません。"
+    return items_fmt
 
 
 # 提出先の一覧を整形して str として返す (Discord 上のロール ID で絞り込む)
@@ -1105,7 +1162,7 @@ async def listSubmitInteract(client, message):
                                         reference=msg_item_id,
                                     )
     else:
-        if returnItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
+        if returnAllItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
             await message.channel.send(
                 ":person_bowing: ロール **"
                 + utils.roleIdToName(
@@ -1122,7 +1179,7 @@ async def listSubmitInteract(client, message):
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
                 + "履歴を閲覧したい項目の ID を、このテキストチャンネルに送信してください: \n"
-                + returnItem(message, "all"),
+                + returnAllItem(message, "all"),
                 reference=message,
             )
             try:
@@ -1445,7 +1502,7 @@ async def getSubmitInteract(client, message):
                                         reference=msg_item_id,
                                     )
     else:
-        if returnItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
+        if returnAllItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
             await message.channel.send(
                 ":person_bowing: ロール **"
                 + utils.roleIdToName(
@@ -1463,7 +1520,7 @@ async def getSubmitInteract(client, message):
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
                 + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
-                + returnItem(message, "all"),
+                + returnAllItem(message, "all"),
                 reference=message,
             )
             try:
@@ -1905,7 +1962,7 @@ async def getAllFilesInteract(client, message):
                                         reference=msg_item_id,
                                     )
     else:
-        if returnItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
+        if returnAllItem(message, "all") == "今のところ、提出を指示されている項目はありません。":
             await message.channel.send(
                 ":person_bowing: ロール **"
                 + utils.roleIdToName(
@@ -1923,7 +1980,7 @@ async def getAllFilesInteract(client, message):
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
                 + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
-                + returnItem(message, "all"),
+                + returnAllItem(message, "all"),
                 reference=message,
             )
             try:
