@@ -1931,6 +1931,7 @@ async def getAllFilesInteract(client, message):
                                                 sheet_name=database.getItemName(
                                                     item_id
                                                 ),
+                                                index=False,
                                             )
 
                                             await message.channel.send(
@@ -2124,7 +2125,9 @@ async def getAllFilesInteract(client, message):
                             df.index = ["提出 ID", "提出日時", "提出者", "提出元ロール", "提出内容"]
 
                             df.T.to_excel(
-                                save_path, sheet_name=database.getItemName(item_id)
+                                save_path,
+                                sheet_name=database.getItemName(item_id),
+                                index=False,
                             )
 
                             await message.channel.send(
