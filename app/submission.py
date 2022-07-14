@@ -1795,13 +1795,17 @@ async def getAllFilesInteract(client, message):
                                                 zip_f = zipfile.ZipFile(zip_path, "w")
 
                                                 for submit in submits:
+                                                    role_name = utils.roleIdToName(
+                                                        submit.author_role,
+                                                        message.guild,
+                                                    )
                                                     zip_f.write(
                                                         submit.path,
                                                         compress_type=zipfile.ZIP_LZMA,
-                                                        arcname=utils.roleIdToName(
-                                                            submit.author_role,
-                                                            message.guild,
-                                                        )
+                                                        arcname="./"
+                                                        + item_name
+                                                        + +"/"
+                                                        + role_name
                                                         + "."
                                                         + submit.path.split(".")[-1],
                                                     )
@@ -2004,12 +2008,16 @@ async def getAllFilesInteract(client, message):
                                 zip_f = zipfile.ZipFile(zip_path, "w")
 
                                 for submit in submits:
+                                    role_name = utils.roleIdToName(
+                                        submit.author_role, message.guild
+                                    )
                                     zip_f.write(
                                         submit.path,
                                         compress_type=zipfile.ZIP_LZMA,
-                                        arcname=utils.roleIdToName(
-                                            submit.author_role, message.guild
-                                        )
+                                        arcname="./"
+                                        + item_name
+                                        + +"/"
+                                        + role_name
                                         + "."
                                         + submit.path.split(".")[-1],
                                     )
