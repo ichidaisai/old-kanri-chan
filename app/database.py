@@ -322,7 +322,7 @@ def setMemberRole(id):
         return True
 
 
-# getMemberRole: メンバー用ロールを返す
+# getGuild: メンバー用ロールを返す
 def getMemberRole():
     exists = session.query(Config).filter(Config.key == "member_role").first()
     if exists:
@@ -786,24 +786,36 @@ def isParentRole(id):
 # getRecentSubmit: 指定した提出先 ID と提出元ロールに合致する提出物のうち、もっとも最新の提出を返す
 def getRecentSubmit(item_id, author_role):
     if author_role is None:
-        entries = (
-            session.query(Submission)
+        recent_sub_author_none = (
+            session.query(Submission.id, func.max(Submission.datetime))
             .filter(
                 Submission.item_id == int(item_id),
             )
             .group_by(Submission.author_role)
-            .order_by(desc(Submission.datetime))
+            .subquery("recent_sub_author_none")
+        )
+        entries = (
+            session.query(Submission)
+            .join(recent_sub_author_none, Submission.id == recent_sub_author_none.id)
             .all()
         )
         return entries
     else:
-        entries = (
-            session.query(Submission)
+        recent_sub_author = (
+            session.query(Submission.id, func.max(Submission.datetime))
             .filter(
                 Submission.item_id == int(item_id),
                 Submission.author_role == int(author_role),
             )
-            .order_by(desc(Submission.datetime))
+            .group_by(Submission.author_role)
+            .subquery("recent_sub_author")
+        )
+        entries = (
+            session.query(Submission)
+            .join(
+                recent_sub_author_none,
+                Submission.id == recent_sub_author.id,
+            )
             .all()
         )
         return entries
