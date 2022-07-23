@@ -29,6 +29,7 @@ async def run(client):
                 + " "
                 + "に対する通知は、既に提出済みのため行われませんでした。"
             )
+            database.delReminder(reminder.id)
         else:
             tc_id = database.getTc(reminder.target, "chat")
             if guild_id == "":
@@ -36,6 +37,7 @@ async def run(client):
 
             if tc_id is None:
                 print("[WARN] 次のロール ID のテキストチャンネルが設定されていません!: " + str(reminder.target))
+                database.delReminder(reminder.id)
             else:
                 tc = client.get_guild(int(guild_id)).get_channel(int(tc_id))
                 if tc is None:
@@ -45,6 +47,7 @@ async def run(client):
                         + "` に対するスケジュール処理は行われませんでした。ロールまたはテキストチャンネルが存在しません。\n"
                         + "(上記に表示される tc_id は、空欄である可能性があります。)\n"
                     )
+                    database.delReminder(reminder.id)
                 else:
                     item_name = database.getItemName(reminder.item_id)
                     item_limit = utils.dtToStr(database.getItemLimit(reminder.item_id))
