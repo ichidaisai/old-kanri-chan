@@ -35,7 +35,7 @@ async def run(client):
                 guild_id = database.getGuild()
 
             if tc_id is None:
-                print("[WARN] 次のロール ID のテキストチャンネルが設定されていません!: " + reminder.target)
+                print("[WARN] 次のロール ID のテキストチャンネルが設定されていません!: " + str(reminder.target))
             else:
                 tc = client.get_guild(int(guild_id)).get_channel(int(tc_id))
             if tc is None:
