@@ -14,9 +14,9 @@ async def run(client):
     for reminder in reminders:
         submit_by_item_id = database.getSubmitList(reminder.item_id, None)
         already_submitted = []
-        for author_role in submit_by_item_id:
-            if submit_by_item_id.author_role is not None:
-                already_submitted.append(submit_by_item_id.author_role)
+        for submit in submit_by_item_id:
+            if submit.author_role is not None:
+                already_submitted.append(submit.author_role)
         already_submitted = set(list(already_submitted))
 
         if reminder.target in already_submitted:
