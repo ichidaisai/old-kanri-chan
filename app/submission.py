@@ -1861,9 +1861,6 @@ async def getAllFilesInteract(client, message):
                                             submit_list = database.getSubmitList(
                                                 item_id, None
                                             )
-                                            JST = dateutil.tz.gettz("Asia/Tokyo")
-                                            dt_now = datetime.datetime.now(JST)
-                                            fmt_dt = utils.dtToStrFileName(dt_now)
                                             # ファイル名の例: 提出先A.csv
                                             filename = (
                                                 database.getItemName(item_id) + ".xlsx"
@@ -2033,12 +2030,7 @@ async def getAllFilesInteract(client, message):
                                         ),
                                         reference=msg_item_id,
                                     )
-                                except Exception as e:
-                                    await message.channel.send(
-                                        ":arrow_right: 代わりに、他の場所からファイルを提供します...",
-                                        reference=msg_item_id,
-                                    )
-
+                                except Exception:
                                     dest_url = (
                                         "https://cdn.ichidaisai.com/files/"
                                         + filename
@@ -2056,9 +2048,6 @@ async def getAllFilesInteract(client, message):
                             tmp_dir = "./data/tmp"
                             if not os.path.exists(tmp_dir):
                                 os.makedirs(tmp_dir)
-                            JST = dateutil.tz.gettz("Asia/Tokyo")
-                            dt_now = datetime.datetime.now(JST)
-                            fmt_dt = utils.dtToStrFileName(dt_now)
                             # ファイル名の例: 2022-05-02_16-15_提出先A.csv
                             filename = database.getItemName(item_id) + ".xlsx"
                             save_path = tmp_dir + "/" + filename
