@@ -1470,9 +1470,7 @@ async def getSubmitInteract(client, message):
 
                                             df.T.to_excel(
                                                 save_path,
-                                                sheet_name=database.getItemName(
-                                                    item_id
-                                                ),
+                                                sheet_name="結果",
                                                 index=False,
                                             )
 
@@ -1661,7 +1659,7 @@ async def getSubmitInteract(client, message):
 
                             df.T.to_excel(
                                 save_path,
-                                sheet_name=database.getItemName(item_id),
+                                sheet_name="結果",
                                 index=False,
                             )
 
@@ -1922,9 +1920,7 @@ async def getAllFilesInteract(client, message):
 
                                             df.T.to_excel(
                                                 save_path,
-                                                sheet_name=database.getItemName(
-                                                    item_id
-                                                ),
+                                                sheet_name="結果",
                                                 index=False,
                                             )
 
@@ -2095,7 +2091,7 @@ async def getAllFilesInteract(client, message):
 
                             df.T.to_excel(
                                 save_path,
-                                sheet_name=database.getItemName(item_id),
+                                sheet_name="結果",
                                 index=False,
                             )
 
