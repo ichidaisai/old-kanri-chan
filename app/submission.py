@@ -1802,7 +1802,7 @@ async def getAllFilesInteract(client, message):
                                                         compress_type=zipfile.ZIP_LZMA,
                                                         arcname="./"
                                                         + item_name
-                                                        + +"/"
+                                                        + "/"
                                                         + role_name
                                                         + "."
                                                         + submit.path.split(".")[-1],
@@ -2009,7 +2009,7 @@ async def getAllFilesInteract(client, message):
                                         compress_type=zipfile.ZIP_LZMA,
                                         arcname="./"
                                         + item_name
-                                        + +"/"
+                                        + "/"
                                         + role_name
                                         + "."
                                         + submit.path.split(".")[-1],
