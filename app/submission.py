@@ -1856,7 +1856,7 @@ async def getAllFilesInteract(client, message):
                                             tmp_dir = "./data/tmp"
                                             if not os.path.exists(tmp_dir):
                                                 os.makedirs(tmp_dir)
-                                            submit_list = database.getSubmitList(
+                                            submit_list = database.getRecentSubmit(
                                                 item_id, None
                                             )
                                             # ファイル名の例: 提出先A.csv
@@ -2056,8 +2056,9 @@ async def getAllFilesInteract(client, message):
                             submit_author_role_list = []
                             submit_plain_list = []
                             # submit_verified_list = []
+                            submits = database.getRecentSubmit(item_id, None)
 
-                            for submit in submit_list:
+                            for submit in submits:
                                 submit_id_list.append(submit.id)
                                 submit_datetime_list.append(
                                     utils.dtToStr(submit.datetime)
