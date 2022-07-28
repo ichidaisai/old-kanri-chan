@@ -21,6 +21,7 @@ ENGINE = create_engine(
     echo=False,  # True にすると、実行のたびに SQL がログに出力される。
     pool_pre_ping=True,
     convert_unicode=False,
+    pool_recycle=3600,
 )
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=ENGINE))
 
