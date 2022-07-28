@@ -43,7 +43,7 @@ async def run(client):
                 if tc is None:
                     print(
                         "[WARN] テキストチャンネルの ID `"
-                        + tc_id
+                        + str(tc_id)
                         + "` に対するスケジュール処理は行われませんでした。ロールまたはテキストチャンネルが存在しません。\n"
                         + "(上記に表示される tc_id は、空欄である可能性があります。)\n"
                     )
