@@ -187,7 +187,7 @@ def delReminder(id):
         return False
 
 
-# getReminder(datetime): 指定した日時以前のリマインダーをすべて返す
+# getReminder(target, item_id): 指定した DiscordID,提出物ID のリマインダーをすべて返す
 def getReminder(target=None, item_id=None):
     reminder = []
     if target is None and item_id is None:
