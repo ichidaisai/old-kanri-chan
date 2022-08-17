@@ -217,6 +217,24 @@ def getReminder(target=None, item_id=None):
             )
     elif target is None and item_id is not None:
         reminder = session.query(Reminder).filter(Reminder.item_id == item_id).all()
+    elif target is not None and item_id is None:
+        if isParentRole(target):
+            for role in getChildRole(target):
+                reminder += (
+                    session.query(Reminder)
+                    .filter(
+                        Reminder.target == role,
+                    )
+                    .all()
+                )
+        else:
+            reminder = (
+                session.query(Reminder)
+                .filter(
+                    Reminder.target == target,
+                )
+                .all()
+            )
     return reminder
 
 

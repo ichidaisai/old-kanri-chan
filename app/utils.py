@@ -138,6 +138,15 @@ def getUserRolesName(guild, user_id):
     return role_name
 
 
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+
+    return decorate
+
+
 def getUserRolesNameFmt(guild, user_id):
     role_name = getUserRolesName(guild, user_id)
     role_name_fmt = ""
