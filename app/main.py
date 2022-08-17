@@ -17,6 +17,7 @@ class MyClient(discord.Client):
     async def on_ready(self):
         # 提出のリマインダーのスケジューラを起動する
         scheduler.run.start(self)
+        scheduler.call_weekly_notify.start(self)
 
         print(f"[INFO] {self.user} として Discord に接続しました。")
 
