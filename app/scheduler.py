@@ -9,7 +9,7 @@ from discord.ext import commands, tasks
 @tasks.loop(seconds=5)
 async def run(client):
     reminders = database.getReminder()
-    guild_id = ""
+    guild_id = database.getGuild()
 
     for reminder in reminders:
         submit_by_item_id = database.getSubmitList(reminder.item_id, None)
@@ -32,8 +32,6 @@ async def run(client):
             database.delReminder(reminder.id)
         else:
             tc_id = database.getTc(reminder.target, "chat")
-            if guild_id == "":
-                guild_id = database.getGuild()
 
             if tc_id is None:
                 print("[WARN] 次のロール ID のテキストチャンネルが設定されていません!: " + str(reminder.target))
