@@ -87,7 +87,7 @@ async def call_weekly_notify(client):
 
 
 async def weekly_notify(client, limit_date):
-    guild_id = ""
+    guild_id = database.getGuild()
     author_role_list = database.getMemberRoles()  # 出店者ロール一覧
 
     for author_role in author_role_list:
@@ -125,8 +125,6 @@ async def weekly_notify(client, limit_date):
 
         # 配列を基に、通知する。
         tc_id = database.getTc(reminder.target, "chat")
-        if guild_id == "":
-            guild_id = database.getGuild()
         tc = client.get_guild(int(guild_id)).get_channel(int(tc_id))
 
         # 提出物IDの重複を削除する
