@@ -68,7 +68,7 @@ async def run(client):
 mon_noti = 0
 
 
-@tasks.loop(minutes=1)
+@tasks.loop(seconds=20)
 async def call_weekly_notify(client):
     dt_now = datetime.datetime.now()
     # 曜日を取得(Mon:0)
