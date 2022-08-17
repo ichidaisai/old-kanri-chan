@@ -78,7 +78,7 @@ async def call_weekly_notify(client):
     # 月曜10時台に実行する。
     if date == 0 and dt_now.hour == 10:
         if dt_now.minute == 0 and mon_noti == 0:
-            weekly_notify(limit_date)
+            weekly_notify(client, limit_date)
             print("通知の送信が完了しました")
             # 複数回実行されないようにする
             dt_now.minute = 1
