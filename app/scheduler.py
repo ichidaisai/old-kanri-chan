@@ -69,7 +69,7 @@ mon_noti = 0
 
 
 @tasks.loop(minutes=1)
-async def mon_notification(client):
+async def call_weekly_notify(client):
     dt_now = datetime.datetime.now()
     # 曜日を取得(Mon:0)
     date = datetime.date(dt_now.year, dt_now.month, dt_now.day)
@@ -78,7 +78,7 @@ async def mon_notification(client):
     # 月曜10時台に実行する。
     if date == 0 and dt_now.hour == 10:
         if dt_now.minute == 0 and mon_noti == 0:
-            Mon_notification(limit_date)
+            weekly_notify(limit_date)
             print("通知の送信が完了しました")
             # 複数回実行されないようにする
             dt_now.minute = 1
@@ -86,7 +86,7 @@ async def mon_notification(client):
             dt_now.minute = 0
 
 
-async def Mon_notification(client, limit_date):
+async def weekly_notify(client, limit_date):
     guild_id = ""
     author_role_list = database.getMemberRoles()  # 出店者ロール一覧
 
