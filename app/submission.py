@@ -1245,7 +1245,7 @@ async def getSubmitInteract(client, message):
     if result is None:
         msg_ask_item = await message.channel.send(
             ":man_mage: どのロールが提出した提出物をダウンロードしますか？\n"
-            + "Discord のメンション機能を用いて、ロールを指定してください。"
+            + "**Discord のメンション機能を用いて、**ロールを指定してください。"
         )
 
         try:
@@ -1294,7 +1294,7 @@ async def getSubmitInteract(client, message):
                                 "**"
                                 + utils.roleIdToName(target.id, message.guild)
                                 + "** に提出が指示された提出物は以下の通りです。\n"
-                                + "ダウンロードしたい項目の提出先 ID をこのチャンネルで発言してください。"
+                                + "ダウンロードしたい項目の**提出先 ID を**このチャンネルで発言してください。"
                                 + returnAllItemByRoleId(target.id, "all"),
                                 reference=msg_role,
                             )
@@ -1346,7 +1346,7 @@ async def getSubmitInteract(client, message):
                                                     message.guild,
                                                 )
                                                 + ") の提出履歴です。\n"
-                                                + "ダウンロードしたいファイルを選んでください。\n",
+                                                + "ダウンロードしたいファイルの**提出 ID** を送信してください。\n",
                                                 reference=msg_item_id,
                                                 file=discord.File(path),
                                             )
@@ -1519,7 +1519,7 @@ async def getSubmitInteract(client, message):
                     int(database.getRole(message.channel.id)), message.guild
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
-                + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
+                + "ダウンロードしたい項目の **提出先 ID** を、このテキストチャンネルに送信してください: \n"
                 + returnAllItem(message, "all"),
                 reference=message,
             )
@@ -1564,7 +1564,7 @@ async def getSubmitInteract(client, message):
                                     database.getRole(message.channel.id), message.guild
                                 )
                                 + ") の提出履歴です。\n"
-                                + "ダウンロードしたいファイルを選んでください。\n\n",
+                                + "ダウンロードしたいファイルの**提出 ID** を送信してください。\n\n",
                                 reference=msg_item_id,
                                 file=discord.File(path),
                             )
@@ -1697,7 +1697,7 @@ async def getAllFilesInteract(client, message):
     if result is None:
         msg_ask_item = await message.channel.send(
             ":man_mage: どのロールが提出した提出物をダウンロードしますか？\n"
-            + "Discord のメンション機能を用いて、ロールを指定してください。"
+            + "**Discord のメンション機能を用いて、**ロールを指定してください。"
         )
 
         try:
@@ -1969,7 +1969,7 @@ async def getAllFilesInteract(client, message):
                     int(database.getRole(message.channel.id)), message.guild
                 )
                 + "** に提出が指示されたものは以下の通りです。 \n"
-                + "ダウンロードしたい項目の ID を、このテキストチャンネルに送信してください: \n"
+                + "ダウンロードしたい**項目の ID** を、このテキストチャンネルに送信してください: \n"
                 + returnAllItem(message, "all"),
                 reference=message,
             )
